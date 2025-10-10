@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dividend Growth Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-stock.html">← Back to STOCK</a>
+      <span>Dividend Growth</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Dividend Growth Calculator</h2>
+        <p>Project future dividend income based on dividend growth rate.</p>
+        
+        <form id="divGrowthForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Current Annual Dividend ($)</label>
+            <input type="number" id="currentDiv" step="0.01" min="0" placeholder="2.00" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Growth Rate (%)</label>
+            <input type="number" id="growthRate" step="0.1" min="0" placeholder="5" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Historical dividend growth rate</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Number of Years</label>
+            <input type="number" id="years" min="1" max="50" placeholder="10" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Number of Shares (optional)</label>
+            <input type="number" id="shares" step="0.01" min="0" placeholder="100" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate Growth</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Current Dividend:</span>
+              <span id="currentDisplay"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Future Dividend:</span>
+              <span id="futureDiv" style="font-size: 1.3rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Growth:</span>
+              <span id="totalGrowth" style="color: #10b981; font-weight: bold;"></span>
+            </div>
+            <div id="portfolioSection" style="display: none;">
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Current Annual Income:</span>
+                <span id="currentIncome"></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Future Annual Income:</span>
+                <span id="futureIncome" style="font-size: 1.2rem; font-weight: bold; color: #10b981;"></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Income Growth:</span>
+                <span id="incomeGrowth" style="color: #10b981; font-weight: bold;"></span>
+              </div>
+            </div>
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; margin-top: 8px;">
+              <h4 style="margin-top: 0; margin-bottom: 12px;">Year-by-Year Projection</h4>
+              <div id="yearlyProjection" style="max-height: 200px; overflow-y: auto; font-size: 0.9rem;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('divGrowthForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const currentDiv = parseFloat(document.getElementById('currentDiv').value);
+      const growthRate = parseFloat(document.getElementById('growthRate').value) / 100;
+      const years = parseInt(document.getElementById('years').value);
+      const shares = parseFloat(document.getElementById('shares').value);
+      if (isNaN(currentDiv) || isNaN(growthRate) || isNaN(years)) {
+        alert('Please fill in current dividend, growth rate, and years');
+        return;
+      }
+      const futureDiv = currentDiv * Math.pow(1 + growthRate, years);
+      const totalGrowthPct = ((futureDiv - currentDiv) / currentDiv) * 100;
+      document.getElementById('currentDisplay').textContent = '$' + currentDiv.toFixed(2) + ' per share';
+      document.getElementById('futureDiv').textContent = '$' + futureDiv.toFixed(2) + ' per share';
+      document.getElementById('totalGrowth').textContent = '+' + totalGrowthPct.toFixed(1) + '%';
+      if (!isNaN(shares) && shares > 0) {
+        const currentIncome = currentDiv * shares;
+        const futureIncome = futureDiv * shares;
+        const incomeGrowth = futureIncome - currentIncome;
+        document.getElementById('currentIncome').textContent = '$' + currentIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '/year';
+        document.getElementById('futureIncome').textContent = '$' + futureIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '/year';
+        document.getElementById('incomeGrowth').textContent = '+$' + incomeGrowth.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        document.getElementById('portfolioSection').style.display = 'block';
+      } else {
+        document.getElementById('portfolioSection').style.display = 'none';
+      }
+      let projectionHTML = '<div style="display: grid; gap: 8px;">';
+      for (let year = 0; year <= Math.min(years, 15); year++) {
+        const divThisYear = currentDiv * Math.pow(1 + growthRate, year);
+        const yearLabel = year === 0 ? 'Now' : 'Year ' + year;
+        projectionHTML += `<div style="display: flex; justify-content: space-between; padding: 6px 8px; background: var(--bg-muted); border-radius: 4px;">
+          <span style="font-weight: 600;">${yearLabel}:</span>
+          <span>$${divThisYear.toFixed(2)}</span>
+        </div>`;
+      }
+      if (years > 15) {
+        projectionHTML += `<div style="text-align: center; padding: 6px; color: var(--text-muted); font-style: italic;">... (showing first 15 years)</div>`;
+      }
+      projectionHTML += '</div>';
+      document.getElementById('yearlyProjection').innerHTML = projectionHTML;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dividend Yield Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-stock.html">← Back to STOCK</a>
+      <span>Dividend Yield</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Dividend Yield Calculator</h2>
+        <p>Calculate the annual dividend return as a percentage of stock price.</p>
+        
+        <form id="divYieldForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Dividend ($)</label>
+            <input type="number" id="dividend" step="0.01" min="0" placeholder="2.50" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Total dividends paid per share over 12 months</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Stock Price ($)</label>
+            <input type="number" id="stockPrice" step="0.01" min="0" placeholder="100.00" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Number of Shares (optional)</label>
+            <input type="number" id="shares" step="0.01" min="0" placeholder="100" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Dividend Yield:</span>
+              <span id="divYield" style="font-size: 1.3rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Annual Dividend:</span>
+              <span id="annualDiv"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Quarterly Dividend:</span>
+              <span id="quarterlyDiv"></span>
+            </div>
+            <div id="portfolioSection" style="display: none;">
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Total Investment:</span>
+                <span id="totalInvestment"></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Annual Income:</span>
+                <span id="annualIncome" style="font-size: 1.2rem; font-weight: bold; color: #10b981;"></span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Monthly Income:</span>
+                <span id="monthlyIncome" style="color: #10b981; font-weight: bold;"></span>
+              </div>
+            </div>
+            <div style="padding: 12px; background: var(--bg-card); border-radius: 8px; margin-top: 8px;">
+              <p id="assessment" style="text-align: center; font-weight: 600; margin: 0;"></p>
+            </div>
+            <div style="padding: 12px; background: rgba(0, 212, 255, 0.1); border: 1px solid var(--accent); border-radius: 8px;">
+              <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                <strong>Yield Ranges:</strong><br>
+                &lt; 2%: Low yield (growth stock)<br>
+                2-4%: Average yield<br>
+                4-6%: High yield<br>
+                &gt; 6%: Very high (check sustainability!)
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('divYieldForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const dividend = parseFloat(document.getElementById('dividend').value);
+      const stockPrice = parseFloat(document.getElementById('stockPrice').value);
+      const shares = parseFloat(document.getElementById('shares').value);
+      if (isNaN(dividend) || isNaN(stockPrice)) {
+        alert('Please fill in annual dividend and stock price');
+        return;
+      }
+      if (stockPrice === 0) {
+        alert('Stock price cannot be zero');
+        return;
+      }
+      const divYield = (dividend / stockPrice) * 100;
+      const quarterlyDiv = dividend / 4;
+      document.getElementById('divYield').textContent = divYield.toFixed(2) + '%';
+      document.getElementById('annualDiv').textContent = '$' + dividend.toFixed(2) + ' per share';
+      document.getElementById('quarterlyDiv').textContent = '$' + quarterlyDiv.toFixed(2) + ' per share';
+      if (!isNaN(shares) && shares > 0) {
+        const totalInvestment = stockPrice * shares;
+        const annualIncome = dividend * shares;
+        const monthlyIncome = annualIncome / 12;
+        document.getElementById('totalInvestment').textContent = '$' + totalInvestment.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        document.getElementById('annualIncome').textContent = '$' + annualIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        document.getElementById('monthlyIncome').textContent = '$' + monthlyIncome.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        document.getElementById('portfolioSection').style.display = 'block';
+      } else {
+        document.getElementById('portfolioSection').style.display = 'none';
+      }
+      let assessment = '';
+      let color = '';
+      if (divYield < 2) {
+        assessment = '📊 Low yield - Typical for growth stocks';
+        color = '#3b82f6';
+      } else if (divYield < 4) {
+        assessment = '✅ Average yield - Balanced income/growth';
+        color = '#10b981';
+      } else if (divYield < 6) {
+        assessment = '💰 High yield - Strong income generator';
+        color = '#10b981';
+      } else if (divYield < 10) {
+        assessment = '⚠️ Very high yield - Verify dividend sustainability';
+        color = '#f59e0b';
+      } else {
+        assessment = '🚨 Extremely high yield - Potential red flag!';
+        color = '#ef4444';
+      }
+      document.getElementById('assessment').textContent = assessment;
+      document.getElementById('assessment').style.color = color;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STOCK Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calculators.html"> Back to Calculators</a>
+      <span></span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <div style="padding: 12px 0; border-bottom: 2px solid var(--border); margin-bottom: 16px;">
+        <h2 style="margin-bottom: 4px;">STOCK Calculators</h2>
+        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Stock valuation and dividend analysis tools</p>
+      </div>
+
+      <section class="feature-links feature-links--rows">
+        <a href="calc-stock-pe.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">📊</span>
+          P/E Ratio
+        </a>
+        <a href="calc-stock-intrinsic.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">💎</span>
+          Intrinsic Value (DCF)
+        </a>
+        <a href="calc-stock-divyield.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">💰</span>
+          Dividend Yield
+        </a>
+        <a href="calc-stock-divgrowth.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">📈</span>
+          Dividend Growth
+        </a>
+      </section>
+    </main>
+  </div>
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+
+
+
+

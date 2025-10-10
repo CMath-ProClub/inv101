@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Position Size Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-risk.html">← Back to RISK</a>
+      <span>Position Size</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Position Size Calculator</h2>
+        <p>Determine how many shares to buy based on your risk tolerance.</p>
+        
+        <form id="positionForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Account Size ($)</label>
+            <input type="number" id="accountSize" step="0.01" min="0" placeholder="50000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Risk Per Trade (%)</label>
+            <input type="number" id="riskPercent" step="0.1" min="0" max="100" placeholder="2" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Typically 1-2% per trade (conservative), up to 5% (aggressive)</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Entry Price ($)</label>
+            <input type="number" id="entryPrice" step="0.01" min="0" placeholder="100" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Stop Loss Price ($)</label>
+            <input type="number" id="stopPrice" step="0.01" min="0" placeholder="95" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Number of Shares:</span>
+              <span id="shares" style="font-size: 1.3rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Position Value:</span>
+              <span id="positionValue" style="font-weight: bold;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Risk Per Share:</span>
+              <span id="riskPerShare" style="color: #ef4444; font-weight: bold;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Risk Amount:</span>
+              <span id="totalRisk" style="color: #ef4444; font-weight: bold;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">% of Account:</span>
+              <span id="accountPercent"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('positionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const accountSize = parseFloat(document.getElementById('accountSize').value);
+      const riskPercent = parseFloat(document.getElementById('riskPercent').value);
+      const entryPrice = parseFloat(document.getElementById('entryPrice').value);
+      const stopPrice = parseFloat(document.getElementById('stopPrice').value);
+      if (isNaN(accountSize) || isNaN(riskPercent) || isNaN(entryPrice) || isNaN(stopPrice)) {
+        alert('Please fill in all fields');
+        return;
+      }
+      if (stopPrice >= entryPrice) {
+        alert('Stop loss must be below entry price');
+        return;
+      }
+      const riskAmount = accountSize * (riskPercent / 100);
+      const riskPerShare = entryPrice - stopPrice;
+      const shares = Math.floor(riskAmount / riskPerShare);
+      const positionValue = shares * entryPrice;
+      const totalRisk = shares * riskPerShare;
+      const accountPercent = (positionValue / accountSize) * 100;
+      document.getElementById('shares').textContent = shares.toLocaleString();
+      document.getElementById('positionValue').textContent = '$' + positionValue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('riskPerShare').textContent = '$' + riskPerShare.toFixed(2);
+      document.getElementById('totalRisk').textContent = '$' + totalRisk.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('accountPercent').textContent = accountPercent.toFixed(2) + '% of account';
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

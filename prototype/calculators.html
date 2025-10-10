@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interactive Calculators · Investing101</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="index.html">← Calc</a>
+      <span>Calculator Suite</span>
+      <span class="chip">CORE · RISK · STOCK · ASSET · RETIRE · TAX · CRYPTO</span>
+    </header>
+
+    <main class="app__content">
+      <section class="feature-links feature-links--rows">
+        <a href="calc-core.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">💰</span>
+          CORE
+        </a>
+        <a href="calc-risk.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">⚠️</span>
+          RISK
+        </a>
+        <a href="calc-stock.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">📈</span>
+          STOCK
+        </a>
+        <a href="calc-asset.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">🏦</span>
+          ASSET
+        </a>
+        <a href="calc-retire.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">🏖️</span>
+          RETIRE
+        </a>
+        <a href="calc-tax.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">📋</span>
+          TAX
+        </a>
+        <a href="calc-crypto.html" class="feature-link--row">
+          <span style="font-size: 1.5rem;">₿</span>
+          CRYPTO
+        </a>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const CALCULATORS = {
+      'compound-interest': {
+        name: 'Compound Interest (CORE)',
+        fields: [
+          { id: 'principal', label: 'Principal ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'rate', label: 'Annual Rate (%)', type: 'number', min: 0, step: '0.01' },
+          { id: 'times', label: 'Compounds per year', type: 'number', min: 1, step: '1' },
+          { id: 'years', label: 'Years', type: 'number', min: 0, step: '0.1' }
+        ],
+        compute: (values) => {
+          const P = values.principal;
+          const r = values.rate / 100;
+          const n = values.times;
+          const t = values.years;
+          const A = P * Math.pow(1 + r / n, n * t);
+          return `Future value: $${A.toFixed(2)} (Growth: $${(A - P).toFixed(2)})`;
+        }
+      },
+      'kelly-criterion': {
+        name: 'Kelly Criterion (RISK)',
+        fields: [
+          { id: 'winProb', label: 'Win Probability (%)', type: 'number', min: 0, max: 100, step: '0.1' },
+          { id: 'winLossRatio', label: 'Win/Loss Ratio', type: 'number', min: 0, step: '0.01' }
+        ],
+        compute: (values) => {
+          const p = values.winProb / 100;
+          const b = values.winLossRatio;
+          if (b === 0) return 'Win/Loss ratio must be greater than 0.';
+          const fraction = Math.max(0, Math.min(1, (p * (b + 1) - 1) / b));
+          return `Optimal capital fraction: ${(fraction * 100).toFixed(1)}%`;
+        }
+      },
+      'pe-ratio': {
+        name: 'P/E Ratio (STOCK)',
+        fields: [
+          { id: 'price', label: 'Share Price ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'eps', label: 'Earnings per Share ($)', type: 'number', min: 0, step: '0.01' }
+        ],
+        compute: (values) => {
+          if (!values.eps) return 'EPS must be greater than 0.';
+          const ratio = values.price / values.eps;
+          return `P/E ratio: ${ratio.toFixed(2)}`;
+        }
+      },
+      'asset-rebalance': {
+        name: 'Asset Allocation Rebalancer (ASSET)',
+        fields: [
+          { id: 'currentEquity', label: 'Current Equity %', type: 'number', min: 0, max: 100, step: '0.1' },
+          { id: 'targetEquity', label: 'Target Equity %', type: 'number', min: 0, max: 100, step: '0.1' },
+          { id: 'portfolioValue', label: 'Portfolio Value ($)', type: 'number', min: 0, step: '0.01' }
+        ],
+        compute: (values) => {
+          const diff = (values.targetEquity - values.currentEquity) / 100;
+          const amount = values.portfolioValue * diff;
+          if (Math.abs(amount) < 1) return 'You are on target — no rebalance required.';
+          return amount > 0
+            ? `Buy $${Math.abs(amount).toFixed(2)} of equity.`
+            : `Sell $${Math.abs(amount).toFixed(2)} of equity.`;
+        }
+      },
+      'retirement-savings': {
+        name: 'Retirement Savings (RETIRE)',
+        fields: [
+          { id: 'currentSavings', label: 'Current Savings ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'annualContribution', label: 'Annual Contribution ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'yearsToRetire', label: 'Years to Retirement', type: 'number', min: 0, step: '1' },
+          { id: 'expectedReturn', label: 'Expected Annual Return (%)', type: 'number', min: 0, step: '0.1' }
+        ],
+        compute: (values) => {
+          const P = values.currentSavings;
+          const c = values.annualContribution;
+          const r = values.expectedReturn / 100;
+          const n = values.yearsToRetire;
+          if (r === 0) return `Estimated retirement value: $${(P + c * n).toFixed(2)}`;
+          const futurePrincipal = P * Math.pow(1 + r, n);
+          const futureContrib = c * ((Math.pow(1 + r, n) - 1) / r);
+          const total = futurePrincipal + futureContrib;
+          return `Estimated retirement value: $${total.toFixed(2)}`;
+        }
+      },
+      'capital-gains': {
+        name: 'Capital Gains (TAX)',
+        fields: [
+          { id: 'costBasis', label: 'Cost Basis ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'salePrice', label: 'Sale Price ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'taxRate', label: 'Capital Gains Tax Rate (%)', type: 'number', min: 0, step: '0.1' }
+        ],
+        compute: (values) => {
+          const gain = values.salePrice - values.costBasis;
+          const tax = gain > 0 ? gain * (values.taxRate / 100) : 0;
+          return `Gain: $${gain.toFixed(2)} · Estimated tax: $${tax.toFixed(2)}`;
+        }
+      },
+      'crypto-staking': {
+        name: 'Crypto Staking Yield (CRYPTO)',
+        fields: [
+          { id: 'stakeAmount', label: 'Stake Amount (tokens)', type: 'number', min: 0, step: '0.0001' },
+          { id: 'tokenPrice', label: 'Token Price ($)', type: 'number', min: 0, step: '0.01' },
+          { id: 'apy', label: 'APY (%)', type: 'number', min: 0, step: '0.1' }
+        ],
+        compute: (values) => {
+          const value = values.stakeAmount * values.tokenPrice;
+          const reward = value * (values.apy / 100);
+          return `Estimated annual reward: $${reward.toFixed(2)}`;
+        }
+      }
+    };
+
+    const calculatorSelect = document.getElementById('calculatorSelect');
+    const calculatorForm = document.getElementById('calculatorForm');
+    const calculatorResult = document.getElementById('calculatorResult');
+
+    function initCalculatorOptions() {
+      Object.entries(CALCULATORS).forEach(([id, config]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = config.name;
+        calculatorSelect.appendChild(option);
+      });
+      calculatorSelect.value = 'compound-interest';
+    }
+
+    function renderCalculatorForm(calculatorId) {
+      const config = CALCULATORS[calculatorId];
+      if (!config) return;
+
+      calculatorForm.innerHTML = config.fields
+        .map((field) => {
+          const min = field.min !== undefined ? `min="${field.min}"` : '';
+          const max = field.max !== undefined ? `max="${field.max}"` : '';
+          const step = field.step ? `step="${field.step}"` : '';
+          return `
+            <label class="field">
+              <span>${field.label}</span>
+              <input type="${field.type}" id="${field.id}" name="${field.id}" ${min} ${max} ${step} required>
+            </label>
+          `;
+        })
+        .join('');
+
+      calculatorForm.insertAdjacentHTML(
+        'beforeend',
+        '<button class="btn btn--primary" type="submit">Calculate</button>'
+      );
+
+      calculatorResult.textContent = '';
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      const calculatorId = calculatorSelect.value;
+      const config = CALCULATORS[calculatorId];
+      if (!config) return;
+
+      const formData = new FormData(calculatorForm);
+      const values = {};
+      config.fields.forEach((field) => {
+        values[field.id] = Number(formData.get(field.id));
+      });
+
+      const result = config.compute(values);
+      calculatorResult.textContent = result;
+    }
+
+    calculatorSelect.addEventListener('change', (event) => {
+      renderCalculatorForm(event.target.value);
+    });
+
+    calculatorForm.addEventListener('submit', handleSubmit);
+
+    initCalculatorOptions();
+    renderCalculatorForm('compound-interest');
+  </script>
+
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn tabbar__btn--active" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+

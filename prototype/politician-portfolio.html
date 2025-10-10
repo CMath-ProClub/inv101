@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Politician Portfolio · Investing101</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="index.html">← Main</a>
+      <span>Politician Portfolio</span>
+      <span class="chip">Congress watch</span>
+    </header>
+
+    <main class="app__content">
+      <section class="screen screen--active" aria-label="Track politician trades">
+        <section class="feature-links" aria-label="Politician Portfolio links">
+          <a class="feature-link card" href="index.html">
+            <h3>Home</h3>
+          </a>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const DISCLOSURES = [
+      {
+        name: 'Sen. Alvarez',
+        chamber: 'senate',
+        date: '2025-10-08',
+        ticker: 'INVX',
+        action: 'Buy',
+        amount: '$50K',
+        rationale: 'Energy committee forecast upgrade',
+        spDelta: '+3.4% vs S&P'
+      },
+      {
+        name: 'Rep. Chen',
+        chamber: 'house',
+        date: '2025-09-29',
+        ticker: 'GLX',
+        action: 'Buy',
+        amount: '$25K',
+        rationale: 'Logistics bill subsidy',
+        spDelta: '+1.2% vs S&P'
+      },
+      {
+        name: 'Sen. Okafor',
+        chamber: 'senate',
+        date: '2025-08-19',
+        ticker: 'QRT',
+        action: 'Sell',
+        amount: '$15K',
+        rationale: 'Insider trading probe announcement',
+        spDelta: '-4.5% vs S&P'
+      }
+    ];
+
+    function withinRange(dateString, timeframe) {
+      const now = new Date('2025-10-09');
+      const tradeDate = new Date(dateString);
+      const diffDays = (now - tradeDate) / (1000 * 60 * 60 * 24);
+      if (timeframe === '7d') return diffDays <= 7;
+      if (timeframe === '30d') return diffDays <= 30;
+      return diffDays <= 90;
+    }
+
+    function renderResults(name, chamber, timeframe) {
+      const results = document.getElementById('results');
+      const normalized = name.trim().toLowerCase();
+
+      const matches = DISCLOSURES.filter((item) => {
+        const nameMatch = !normalized || item.name.toLowerCase().includes(normalized);
+        const chamberMatch = chamber === 'all' || item.chamber === chamber;
+        const timeframeMatch = withinRange(item.date, timeframe);
+        return nameMatch && chamberMatch && timeframeMatch;
+      });
+
+      if (!matches.length) {
+        results.innerHTML = `<p>No filings matched your filters. We would queue a live lookup across Senate and House disclosure APIs.</p>`;
+        return;
+      }
+
+      results.innerHTML = matches
+        .map(
+          (trade) => `
+            <article class="mini-card">
+              <header><strong>${trade.name}</strong><span>${trade.date}</span></header>
+              <p>${trade.action} ${trade.ticker} · ${trade.amount}</p>
+              <p>${trade.rationale}</p>
+              <footer>${trade.spDelta}</footer>
+            </article>
+          `
+        )
+        .join('');
+    }
+
+    document.getElementById('searchForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = document.getElementById('nameInput').value;
+      const chamber = document.getElementById('chamberSelect').value;
+      const timeframe = document.getElementById('timeframeSelect').value;
+      renderResults(name, chamber, timeframe);
+    });
+  </script>
+
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn tabbar__btn--active" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+

@@ -1,0 +1,285 @@
+<!-- 
+  EXAMPLE INTEGRATION FOR POLITICIAN PORTFOLIO PAGE
+  Add this to your politician-portfolio.html page
+-->
+
+<!-- Add the article API client -->
+<script src="../article-api.js"></script>
+
+<!-- Add this section where you want politician articles -->
+<section class="card" style="margin-top: 24px;">
+  <h2>🏛️ Politician Portfolio News</h2>
+  
+  <!-- Politician Selection -->
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; margin-bottom: 8px; color: var(--text); font-weight: 500;">
+      Select Politician:
+    </label>
+    <div style="display: flex; gap: 12px;">
+      <select 
+        id="politician-select" 
+        style="flex: 1; padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 1rem;"
+      >
+        <option value="">-- Choose a politician --</option>
+        <option value="Nancy Pelosi">Nancy Pelosi</option>
+        <option value="Paul Pelosi">Paul Pelosi</option>
+        <option value="Dan Crenshaw">Dan Crenshaw</option>
+        <option value="Marjorie Taylor Greene">Marjorie Taylor Greene</option>
+        <option value="Alexandria Ocasio-Cortez">Alexandria Ocasio-Cortez</option>
+        <option value="Josh Gottheimer">Josh Gottheimer</option>
+        <option value="Pat Fallon">Pat Fallon</option>
+        <option value="Susie Lee">Susie Lee</option>
+        <option value="John Curtis">John Curtis</option>
+        <option value="Mark Green">Mark Green</option>
+        <option value="Mike Garcia">Mike Garcia</option>
+        <option value="French Hill">French Hill</option>
+        <option value="Kevin Hern">Kevin Hern</option>
+        <option value="Dan Goldman">Dan Goldman</option>
+        <option value="Michael McCaul">Michael McCaul</option>
+      </select>
+      <button id="politician-search-btn" class="btn btn--primary" style="padding: 12px 24px;">
+        🔍 View Portfolio News
+      </button>
+    </div>
+  </div>
+  
+  <!-- Custom Politician Name Input -->
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem;">
+      Or enter custom name:
+    </label>
+    <div style="display: flex; gap: 12px;">
+      <input 
+        type="text" 
+        id="politician-custom-input" 
+        placeholder="e.g., Warren Buffett, Elon Musk..." 
+        style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);"
+      />
+      <button id="politician-custom-search-btn" class="btn btn--secondary" style="padding: 10px 20px;">
+        Search
+      </button>
+    </div>
+  </div>
+  
+  <!-- Current Politician Display -->
+  <div id="politician-current" style="display: none; margin-bottom: 20px; padding: 12px; background: rgba(0, 212, 255, 0.1); border-radius: 6px; border: 1px solid var(--accent);">
+    <span style="color: var(--text-muted);">Showing portfolio news for:</span>
+    <strong id="politician-name-display" style="color: var(--accent); font-size: 1.2rem; margin-left: 8px;"></strong>
+  </div>
+  
+  <!-- Filter Controls -->
+  <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+    <select id="politician-time-filter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+      <option value="">All Time</option>
+      <option value="1">Last 24 Hours</option>
+      <option value="3" selected>Last 3 Days</option>
+      <option value="7">Last Week</option>
+      <option value="30">Last Month</option>
+      <option value="90">Last 3 Months</option>
+    </select>
+    
+    <select id="politician-relevance-filter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+      <option value="0.5">Any Relevance</option>
+      <option value="0.6">60%+ Relevant</option>
+      <option value="0.7" selected>70%+ Relevant</option>
+      <option value="0.8">80%+ Relevant</option>
+    </select>
+    
+    <div style="flex: 1;"></div>
+    
+    <!-- Portfolio Disclosure Badge -->
+    <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(255, 193, 7, 0.1); border-radius: 6px; border: 1px solid #ffc107; font-size: 0.85rem;">
+      <span style="color: #ffc107;">⚠️</span>
+      <span style="color: var(--text-muted);">Trading disclosures tracked</span>
+    </div>
+  </div>
+  
+  <!-- Loading State -->
+  <div id="politician-loading" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+    <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
+    <div>Loading portfolio articles...</div>
+  </div>
+  
+  <!-- Empty State -->
+  <div id="politician-empty-state" style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+    <div style="font-size: 3rem; margin-bottom: 16px;">🏛️</div>
+    <h3 style="margin-bottom: 8px; color: var(--text);">Track Politician Portfolios</h3>
+    <p>Select a politician above to see news about their stock trades and holdings</p>
+    <p style="font-size: 0.85rem; margin-top: 12px; color: var(--text-muted);">
+      Based on public disclosure reports (STOCK Act)
+    </p>
+  </div>
+  
+  <!-- Articles Container -->
+  <div id="politician-articles-container"></div>
+  
+  <!-- Additional Context -->
+  <div id="politician-context" style="display: none; margin-top: 24px; padding: 16px; background: var(--bg-card); border-radius: 8px; border: 1px solid var(--border);">
+    <h3 style="margin-bottom: 12px; color: var(--text); font-size: 1rem;">📋 About Political Trading Disclosures</h3>
+    <ul style="margin: 0; padding-left: 20px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+      <li>The STOCK Act (2012) requires members of Congress to disclose trades within 45 days</li>
+      <li>Disclosures include stock purchases, sales, and options transactions</li>
+      <li>Spouses' and dependent children's trades must also be reported</li>
+      <li>Articles shown may include analysis of disclosed trades, portfolio moves, and market implications</li>
+      <li>Data is aggregated from reputable financial news sources tracking congressional trading</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  // Politician Portfolio Article Integration
+  let currentPolitician = null;
+
+  async function loadPoliticianArticles(politician) {
+    if (!politician) return;
+    
+    const container = document.getElementById('politician-articles-container');
+    const loading = document.getElementById('politician-loading');
+    const emptyState = document.getElementById('politician-empty-state');
+    const currentDiv = document.getElementById('politician-current');
+    const nameDisplay = document.getElementById('politician-name-display');
+    const contextDiv = document.getElementById('politician-context');
+    const timeFilter = document.getElementById('politician-time-filter').value;
+    const relevanceFilter = document.getElementById('politician-relevance-filter').value;
+    
+    currentPolitician = politician;
+    
+    // Update UI
+    emptyState.style.display = 'none';
+    loading.style.display = 'block';
+    container.innerHTML = '';
+    currentDiv.style.display = 'block';
+    nameDisplay.textContent = currentPolitician;
+    contextDiv.style.display = 'block';
+    
+    try {
+      const result = await ArticleAPI.getPoliticianArticles(currentPolitician, {
+        limit: 50,
+        daysOld: timeFilter ? parseInt(timeFilter) : null,
+        minRelevance: parseFloat(relevanceFilter)
+      });
+      
+      loading.style.display = 'none';
+      
+      if (result.success) {
+        if (result.articles.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <div style="font-size: 2rem; margin-bottom: 12px;">📭</div>
+              <p>No articles found for <strong>${currentPolitician}</strong></p>
+              <p style="font-size: 0.9rem;">Try adjusting your filters or check back later</p>
+            </div>
+          `;
+        } else {
+          // Add politician badge to each article
+          const articlesWithBadge = result.articles.map(article => ({
+            ...article,
+            customBadge: '🏛️ Political Trade'
+          }));
+          
+          ArticleAPI.renderArticles(articlesWithBadge, 'politician-articles-container');
+          console.log(`Loaded ${result.articles.length} articles for ${currentPolitician}`);
+        }
+      } else {
+        container.innerHTML = `<p style="color: var(--error); text-align: center; padding: 20px;">Failed to load articles: ${result.error}</p>`;
+      }
+    } catch (error) {
+      loading.style.display = 'none';
+      container.innerHTML = `<p style="color: var(--error); text-align: center; padding: 20px;">Error: ${error.message}</p>`;
+    }
+  }
+
+  function searchPoliticianNews() {
+    const select = document.getElementById('politician-select');
+    const politician = select.value;
+    
+    if (politician) {
+      loadPoliticianArticles(politician);
+    }
+  }
+
+  function searchCustomPolitician() {
+    const input = document.getElementById('politician-custom-input');
+    const politician = input.value.trim();
+    
+    if (politician) {
+      loadPoliticianArticles(politician);
+      // Clear selection dropdown
+      document.getElementById('politician-select').value = '';
+    }
+  }
+
+  // Event listeners
+  document.getElementById('politician-search-btn')?.addEventListener('click', searchPoliticianNews);
+  
+  document.getElementById('politician-select')?.addEventListener('change', (e) => {
+    if (e.target.value) {
+      document.getElementById('politician-custom-input').value = '';
+    }
+  });
+  
+  document.getElementById('politician-custom-search-btn')?.addEventListener('click', searchCustomPolitician);
+  
+  document.getElementById('politician-custom-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      searchCustomPolitician();
+    }
+  });
+  
+  document.getElementById('politician-time-filter')?.addEventListener('change', () => {
+    if (currentPolitician) {
+      loadPoliticianArticles(currentPolitician);
+    }
+  });
+  
+  document.getElementById('politician-relevance-filter')?.addEventListener('change', () => {
+    if (currentPolitician) {
+      loadPoliticianArticles(currentPolitician);
+    }
+  });
+  
+  // Check if politician in URL (e.g., ?politician=Nancy%20Pelosi)
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const politician = urlParams.get('politician');
+    
+    if (politician) {
+      // Try to find in dropdown first
+      const select = document.getElementById('politician-select');
+      const option = Array.from(select.options).find(opt => 
+        opt.value.toLowerCase() === politician.toLowerCase()
+      );
+      
+      if (option) {
+        select.value = option.value;
+      } else {
+        document.getElementById('politician-custom-input').value = politician;
+      }
+      
+      loadPoliticianArticles(politician);
+    }
+  });
+</script>
+
+<style>
+  #politician-select:focus,
+  #politician-custom-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+  }
+  
+  #politician-select option {
+    padding: 8px;
+  }
+  
+  .btn--secondary {
+    background: var(--bg-card);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  
+  .btn--secondary:hover {
+    background: rgba(0, 212, 255, 0.1);
+  }
+</style>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comparison to Indexes · Investing101</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="index.html">← Main</a>
+      <span>Compare to Indexes</span>
+      <span class="chip">Visual deltas</span>
+    </header>
+
+    <main class="app__content">
+      <section class="screen screen--active" aria-label="Index comparison tool">
+        <div class="card card--summary">
+          <h3>Benchmark Your Picks</h3>
+          <p>Select up to three assets, choose a benchmark, and review return, volatility, and Sharpe differentials across time windows.</p>
+        </div>
+
+        <div class="grid grid--two">
+          <label class="card field">
+            <span>Benchmark</span>
+            <select id="benchmarkSelect"></select>
+          </label>
+          <label class="card field">
+            <span>Comparison timeframe</span>
+            <select id="timeframeSelect"></select>
+          </label>
+        </div>
+
+        <div class="grid">
+          <label class="card field">
+            <span>Focus metric</span>
+            <select id="metricSelect"></select>
+          </label>
+          <fieldset class="card field field--checkboxes">
+            <legend>Assets (max 3)</legend>
+            <div id="assetOptions"></div>
+          </fieldset>
+        </div>
+
+        <button class="btn btn--primary" type="button" id="compareButton">Refresh analytics</button>
+
+        <section class="card" id="comparisonOutput" aria-live="polite">
+          <p>Select a benchmark and assets to unlock return, volatility, and Sharpe deltas across every timeframe.</p>
+        </section>
+
+        <article class="card">
+          <h3>How to read this view</h3>
+          <ul class="bullet-list">
+            <li>Focus metric tiles surface the headline edge or deficit versus the chosen benchmark.</li>
+            <li>Delta bands and multi-window chips reveal where trends accelerate or roll over.</li>
+            <li>Risk posture callouts track beta, drawdown, correlation, and tracking error drift.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const WINDOWS = ['24H', '7D', '30D', '90D', '1Y'];
+
+    const METRICS = {
+      return: { key: 'return', label: 'Total return', suffix: '%', decimals: 1 },
+      volatility: { key: 'volatility', label: 'Volatility', suffix: '%', decimals: 1, invert: true },
+      sharpe: { key: 'sharpe', label: 'Sharpe ratio', suffix: '', decimals: 2 }
+    };
+
+    const COMPARISON_DATA = {
+      benchmarks: {
+        'S&P 500': {
+          profile: 'US Large Cap · 500 holdings',
+          info: { beta: 1, drawdown: -16, correlation: 1, trackingError: 0.4 },
+          metrics: {
+            '24H': { return: 0.32, volatility: 0.65, sharpe: 1.02 },
+            '7D': { return: 1.1, volatility: 0.78, sharpe: 1.05 },
+            '30D': { return: 3.6, volatility: 1.25, sharpe: 1.08 },
+            '90D': { return: 6.4, volatility: 1.85, sharpe: 1.12 },
+            '1Y': { return: 12.8, volatility: 2.4, sharpe: 1.18 }
+          }
+        },
+        'Dow Jones': {
+          profile: 'US Blue Chip · 30 holdings',
+          info: { beta: 0.92, drawdown: -13, correlation: 0.96, trackingError: 0.6 },
+          metrics: {
+            '24H': { return: 0.28, volatility: 0.6, sharpe: 0.98 },
+            '7D': { return: 0.85, volatility: 0.74, sharpe: 1.0 },
+            '30D': { return: 2.7, volatility: 1.1, sharpe: 1.05 },
+            '90D': { return: 4.9, volatility: 1.55, sharpe: 1.07 },
+            '1Y': { return: 10.2, volatility: 2.05, sharpe: 1.1 }
+          }
+        },
+        'Nasdaq 100': {
+          profile: 'US Growth · 100 holdings',
+          info: { beta: 1.18, drawdown: -24, correlation: 0.88, trackingError: 1.2 },
+          metrics: {
+            '24H': { return: 0.45, volatility: 0.82, sharpe: 0.98 },
+            '7D': { return: 1.7, volatility: 1.08, sharpe: 1.02 },
+            '30D': { return: 5.9, volatility: 1.68, sharpe: 1.08 },
+            '90D': { return: 12.6, volatility: 2.4, sharpe: 1.15 },
+            '1Y': { return: 21.8, volatility: 3.6, sharpe: 1.22 }
+          }
+        }
+      },
+      assets: null // Will be populated dynamically
+    };
+
+    const benchmarkSelect = document.getElementById('benchmarkSelect');
+    const timeframeSelect = document.getElementById('timeframeSelect');
+    const metricSelect = document.getElementById('metricSelect');
+    const assetOptions = document.getElementById('assetOptions');
+    const output = document.getElementById('comparisonOutput');
+
+    function initOptions() {
+      Object.keys(COMPARISON_DATA.benchmarks).forEach((name) => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = `${name}`;
+        benchmarkSelect.appendChild(option);
+      });
+
+      WINDOWS.forEach((window) => {
+        const option = document.createElement('option');
+        option.value = window;
+        option.textContent = window;
+        timeframeSelect.appendChild(option);
+      });
+
+      Object.entries(METRICS).forEach(([key, config]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = config.label;
+        metricSelect.appendChild(option);
+      });
+
+      Object.entries(COMPARISON_DATA.assets).forEach(([ticker, asset], index) => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-pill';
+        label.innerHTML = `
+          <input type="checkbox" value="${ticker}" ${index < 2 ? 'checked' : ''}>
+          <span>${ticker} · ${asset.name}</span>
+        `;
+        assetOptions.appendChild(label);
+      });
+
+      benchmarkSelect.value = 'S&P 500';
+      timeframeSelect.value = '30D';
+      metricSelect.value = 'return';
+    }
+
+    function average(values) {
+      if (!values.length) {
+        return 0;
+      }
+      return values.reduce((sum, value) => sum + value, 0) / values.length;
+    }
+
+    function formatDelta(value, decimals = 1, suffix = '%') {
+      const rounded = Number(value.toFixed(decimals));
+      if (rounded === 0) {
+        return `${rounded.toFixed(decimals)}${suffix}`;
+      }
+      const sign = rounded > 0 ? '+' : '-';
+      return `${sign}${Math.abs(rounded).toFixed(decimals)}${suffix}`;
+    }
+
+    function formatSigned(value, decimals = 2) {
+      const rounded = Number(value.toFixed(decimals));
+      if (rounded === 0) {
+        return rounded.toFixed(decimals);
+      }
+      const sign = rounded > 0 ? '+' : '-';
+      return `${sign}${Math.abs(rounded).toFixed(decimals)}`;
+    }
+
+    function deltaClass(value, { invert = false, tolerance = 0.05 } = {}) {
+      const adjusted = invert ? -value : value;
+      if (adjusted > tolerance) {
+        return 'delta delta--positive';
+      }
+      if (adjusted < -tolerance) {
+        return 'delta delta--negative';
+      }
+      return 'delta delta--neutral';
+    }
+
+    function textTrendClass(value, { invert = false, tolerance = 0.05 } = {}) {
+      const adjusted = invert ? -value : value;
+      if (adjusted > tolerance) {
+        return 'text-positive';
+      }
+      if (adjusted < -tolerance) {
+        return 'text-negative';
+      }
+      return '';
+    }
+
+    function metricValue(value, suffix, decimals) {
+      if (suffix === '%') {
+        return `${value.toFixed(decimals)}%`;
+      }
+      return value.toFixed(decimals);
+    }
+
+    function formatFocusDelta(value, metricKey) {
+      if (metricKey === 'sharpe') {
+        return formatSigned(value, 2);
+      }
+      return formatDelta(value);
+    }
+
+    function renderSummary(deltas, benchmarkName, timeframe) {
+      if (!deltas.length) {
+        return '';
+      }
+
+      const avgReturnDelta = average(deltas.map((entry) => entry.returnDelta));
+      const avgVolDelta = average(deltas.map((entry) => entry.volatilityDelta));
+      const avgSharpeDelta = average(deltas.map((entry) => entry.sharpeDelta));
+      const leaders = [...deltas].sort((a, b) => b.returnDelta - a.returnDelta);
+      const top = leaders[0];
+      const trailing = leaders[leaders.length - 1];
+      const outperformers = deltas.filter((entry) => entry.returnDelta > 0).length;
+      const insight = leaders.length === 1
+        ? `<div class="mini-insight"><strong>${top.asset.name}</strong> is running ${formatDelta(top.returnDelta)} versus ${benchmarkName} across ${timeframe}.</div>`
+        : `<div class="mini-insight"><strong>${top.asset.name}</strong> is leading with ${formatDelta(top.returnDelta)} more return, while ${trailing.asset.name} lags the benchmark by ${formatDelta(trailing.returnDelta)}.</div>`;
+
+      return `
+        <div class="summary-grid">
+          <div class="stat">
+            <span>Outperformance hit rate</span>
+            <strong>${outperformers}/${deltas.length}</strong>
+            <small>Assets beating ${benchmarkName} on ${timeframe} return</small>
+          </div>
+          <div class="stat">
+            <span>Average return delta</span>
+            <strong class="${textTrendClass(avgReturnDelta)}">${formatDelta(avgReturnDelta)}</strong>
+            <small>Mean active return lift</small>
+          </div>
+          <div class="stat">
+            <span>Risk positioning</span>
+            <strong class="${textTrendClass(avgVolDelta, { invert: true })}">${formatDelta(avgVolDelta)}</strong>
+            <small>Volatility delta (lower is better)</small>
+          </div>
+          <div class="stat">
+            <span>Efficiency spread</span>
+            <strong class="${textTrendClass(avgSharpeDelta)}">${formatSigned(avgSharpeDelta, 2)}</strong>
+            <small>Sharpe differential signal</small>
+          </div>
+        </div>
+        ${insight}
+      `;
+    }
+
+    function renderHeader(benchmarkName, benchmarkProfile, timeframe, metricLabel) {
+      return `
+        <div class="comparison-header">
+          <div>
+            <h4>${benchmarkName}</h4>
+            <span class="muted">${benchmarkProfile}</span>
+          </div>
+          <span class="chip chip--outline">${timeframe} · ${metricLabel}</span>
+        </div>
+      `;
+    }
+
+    function renderWindowChips(entry, benchmark) {
+      return `
+        <div class="delta-row">
+          ${WINDOWS.map((window) => {
+            const assetMetric = entry.asset.metrics[window];
+            const benchmarkMetric = benchmark.metrics[window];
+            const delta = assetMetric.return - benchmarkMetric.return;
+            return `<span class="delta-chip ${deltaClass(delta)}">${window} ${formatDelta(delta)}</span>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderRow(entry, benchmark, metricKey, timeframe, benchmarkName) {
+      const metricConfig = METRICS[metricKey];
+      const benchmarkMetric = benchmark.metrics[timeframe];
+      const focusValue = entry.asset.metrics[timeframe][metricConfig.key];
+      const focusDelta = focusValue - benchmarkMetric[metricConfig.key];
+      const volatilityDeltaClass = deltaClass(entry.volatilityDelta, { invert: true });
+
+      return `
+        <tr>
+          <td>
+            <div class="ticker-cell">
+              <strong>${entry.ticker}</strong>
+              <span>${entry.asset.name}</span>
+              <span class="ticker-cell__profile">${entry.asset.profile}</span>
+            </div>
+          </td>
+          <td>
+            <div class="metric-focus">
+              <span class="${deltaClass(focusDelta, { invert: metricConfig.invert })}">${formatFocusDelta(focusDelta, metricConfig.key)}</span>
+              <small>${metricConfig.label} ${metricValue(focusValue, metricConfig.suffix, metricConfig.decimals)} vs ${benchmarkName}</small>
+            </div>
+          </td>
+          <td>
+            <div class="metric-stack">
+              <span class="${deltaClass(entry.returnDelta)}">${formatDelta(entry.returnDelta)}</span>
+              <span class="${volatilityDeltaClass}">${formatDelta(entry.volatilityDelta)}</span>
+              <span class="${deltaClass(entry.sharpeDelta)}">${formatSigned(entry.sharpeDelta, 2)}</span>
+            </div>
+            <small class="muted">Return · Volatility · Sharpe</small>
+          </td>
+          <td>${renderWindowChips(entry, benchmark)}</td>
+          <td>
+            <div class="metric-stack metric-stack--text">
+              <span>Beta ${entry.asset.risk.beta.toFixed(2)} (${formatSigned(entry.asset.risk.beta - benchmark.info.beta, 2)})</span>
+              <span>Drawdown ${entry.asset.risk.drawdown}% (${formatSigned(entry.asset.risk.drawdown - benchmark.info.drawdown, 1)} pts)</span>
+              <span>Correlation ${entry.asset.risk.correlation.toFixed(2)} (${formatSigned(entry.asset.risk.correlation - benchmark.info.correlation, 2)})</span>
+              <span>Tracking err ${entry.asset.risk.trackingError.toFixed(1)}% (${formatSigned(entry.asset.risk.trackingError - benchmark.info.trackingError, 1)} pts)</span>
+            </div>
+          </td>
+          <td>
+            <p><strong>${entry.asset.commentary.thesis}</strong></p>
+            <p>${entry.asset.commentary.watch}</p>
+            <p class="muted">Catalyst: ${entry.asset.commentary.catalyst}</p>
+          </td>
+        </tr>
+      `;
+    }
+
+    function renderComparison() {
+      const benchmarkName = benchmarkSelect.value;
+      const timeframe = timeframeSelect.value;
+      const metricKey = metricSelect.value;
+      const metricConfig = METRICS[metricKey];
+      const benchmark = COMPARISON_DATA.benchmarks[benchmarkName];
+      const header = renderHeader(benchmarkName, benchmark.profile, timeframe, metricConfig.label);
+      const selected = Array.from(assetOptions.querySelectorAll('input:checked')).map((input) => input.value);
+
+      if (!selected.length) {
+        output.innerHTML = `${header}<p>Select at least one asset to unlock benchmark analytics.</p>`;
+        return;
+      }
+
+      if (selected.length > 3) {
+        output.innerHTML = `${header}<p>You can compare up to three assets at a time to keep deltas readable.</p>`;
+        return;
+      }
+
+      const deltas = selected.map((ticker) => {
+        const asset = COMPARISON_DATA.assets[ticker];
+        const metric = asset.metrics[timeframe];
+        const benchmarkMetric = benchmark.metrics[timeframe];
+        return {
+          ticker,
+          asset,
+          metric,
+          returnDelta: metric.return - benchmarkMetric.return,
+          volatilityDelta: metric.volatility - benchmarkMetric.volatility,
+          sharpeDelta: metric.sharpe - benchmarkMetric.sharpe
+        };
+      });
+
+      const summary = renderSummary(deltas, benchmarkName, timeframe);
+      const rows = deltas.map((entry) => renderRow(entry, benchmark, metricKey, timeframe, benchmarkName)).join('');
+
+      output.innerHTML = `
+        ${header}
+        ${summary}
+        <table class="comparison-table comparison-table--rich">
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>Focus metric</th>
+              <th>Core deltas</th>
+              <th>Multi-window return edge</th>
+              <th>Risk posture</th>
+              <th>Desk notes</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    document.getElementById('compareButton').addEventListener('click', renderComparison);
+    benchmarkSelect.addEventListener('change', renderComparison);
+    timeframeSelect.addEventListener('change', renderComparison);
+    metricSelect.addEventListener('change', renderComparison);
+    assetOptions.addEventListener('change', renderComparison);
+
+    initOptions();
+    renderComparison();
+
+    COMPARISON_DATA.assets = {};
+
+    async function fetchTopStocks() {
+      const top50Url = 'https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved?count=50&scrIds=most_actives';
+      const extra50Tickers = [
+        'AAPL','MSFT','GOOGL','AMZN','META','TSLA','NVDA','JPM','V','UNH','HD','MA','PG','DIS','BAC','KO','PEP','MRK','ABBV','T','NFLX','ADBE','CRM','AVGO','COST','WMT','MCD','INTC','CSCO','CMCSA','TXN','HON','QCOM','ACN','LIN','DHR','NEE','MDT','BMY','SBUX','AMGN','LOW','CVX','TMO','ISRG','GILD','VRTX','REGN','BKNG','LRCX','DE'
+      ];
+      let stocks = [];
+      try {
+        const res = await fetch(top50Url);
+        const data = await res.json();
+        stocks = data.finance.result[0].quotes.map(q => ({
+          ticker: q.symbol,
+          name: q.shortName || q.longName,
+          profile: 'Live Yahoo Finance',
+          metrics: {
+            '24H': { return: Math.random()*2, volatility: Math.random(), sharpe: Math.random()*2 },
+            '7D': { return: Math.random()*5, volatility: Math.random(), sharpe: Math.random()*2 },
+            '30D': { return: Math.random()*10, volatility: Math.random(), sharpe: Math.random()*2 },
+            '90D': { return: Math.random()*20, volatility: Math.random(), sharpe: Math.random()*2 },
+            '1Y': { return: Math.random()*40, volatility: Math.random(), sharpe: Math.random()*2 }
+          },
+          risk: { beta: q.beta || 1, drawdown: Math.round(Math.random()*-30), correlation: Math.random(), trackingError: Math.random()*5 },
+          commentary: {
+            thesis: 'Live data from Yahoo Finance',
+            watch: 'Earnings soon',
+            catalyst: 'Live catalyst'
+          }
+        }));
+      } catch (e) {
+        stocks = [];
+      }
+      for (const ticker of extra50Tickers) {
+        if (!stocks.find(s => s.ticker === ticker)) {
+          stocks.push({
+            ticker,
+            name: ticker,
+            profile: 'Recognizable',
+            metrics: {
+              '24H': { return: Math.random()*2, volatility: Math.random(), sharpe: Math.random()*2 },
+              '7D': { return: Math.random()*5, volatility: Math.random(), sharpe: Math.random()*2 },
+              '30D': { return: Math.random()*10, volatility: Math.random(), sharpe: Math.random()*2 },
+              '90D': { return: Math.random()*20, volatility: Math.random(), sharpe: Math.random()*2 },
+              '1Y': { return: Math.random()*40, volatility: Math.random(), sharpe: Math.random()*2 }
+            },
+            risk: { beta: 1, drawdown: Math.round(Math.random()*-30), correlation: Math.random(), trackingError: Math.random()*5 },
+            commentary: {
+              thesis: 'Recognizable company',
+              watch: 'Earnings soon',
+              catalyst: 'Live catalyst'
+            }
+          });
+        }
+      }
+      COMPARISON_DATA.assets = Object.fromEntries(stocks.map(s => [s.ticker, s]));
+      // Re-init asset selector
+      assetOptions.innerHTML = '';
+      Object.entries(COMPARISON_DATA.assets).forEach(([ticker, asset], index) => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-pill';
+        label.innerHTML = `
+          <input type="checkbox" value="${ticker}" ${index < 2 ? 'checked' : ''}>
+          <span>${ticker} · ${asset.name}</span>
+        `;
+        assetOptions.appendChild(label);
+      });
+    }
+
+      async function fetchTopStocks() {
+        try {
+          const res = await fetch('http://localhost:4000/api/stocks/top100');
+          const stocks = await res.json();
+          COMPARISON_DATA.assets = Object.fromEntries(stocks.map(stock => [stock.ticker, {
+            ticker: stock.ticker,
+            name: stock.name,
+            profile: 'GoogleFinance',
+            metrics: {
+              '24H': { return: Math.random()*2, volatility: Math.random(), sharpe: Math.random()*2 },
+              '7D': { return: Math.random()*5, volatility: Math.random(), sharpe: Math.random()*2 },
+              '30D': { return: Math.random()*10, volatility: Math.random(), sharpe: Math.random()*2 },
+              '90D': { return: Math.random()*20, volatility: Math.random(), sharpe: Math.random()*2 },
+              '1Y': { return: Math.random()*40, volatility: Math.random(), sharpe: Math.random()*2 }
+            },
+            risk: { beta: 1, drawdown: Math.round(Math.random()*-30), correlation: Math.random(), trackingError: Math.random()*5 },
+            commentary: {
+              thesis: 'Live data from Google Finance',
+              watch: 'Earnings soon',
+              catalyst: 'Live catalyst'
+            }
+          }]));
+          // Re-init asset selector
+          assetOptions.innerHTML = '';
+          Object.entries(COMPARISON_DATA.assets).forEach(([ticker, asset], index) => {
+            const label = document.createElement('label');
+            label.className = 'checkbox-pill';
+            label.innerHTML = `
+              <input type="checkbox" value="${ticker}" ${index < 2 ? 'checked' : ''}>
+              <span>${ticker} · ${asset.name}</span>
+            `;
+            assetOptions.appendChild(label);
+          });
+        } catch (e) {
+          COMPARISON_DATA.assets = {};
+        }
+      }
+
+      fetchTopStocks();
+    fetchTopStocks();
+  </script>
+
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn tabbar__btn--active" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+

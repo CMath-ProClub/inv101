@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compound Interest Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }
+  </script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-core.html">← Back to CORE</a>
+      <span>Compound Interest</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Compound Interest Calculator</h2>
+        <p>Calculate how your investment grows over time with compound interest.</p>
+        
+        <form id="compoundForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Principal Amount ($)</label>
+            <input type="number" id="principal" step="0.01" min="0" placeholder="10000" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Interest Rate (%)</label>
+            <input type="number" id="rate" step="0.01" min="0" placeholder="7" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Compounding Frequency</label>
+            <select id="frequency" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="1">Annually</option>
+              <option value="2">Semi-Annually</option>
+              <option value="4">Quarterly</option>
+              <option value="12" selected>Monthly</option>
+              <option value="365">Daily</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Time Period (Years)</label>
+            <input type="number" id="years" step="0.1" min="0" placeholder="10" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Additional Monthly Contribution ($)</label>
+            <input type="number" id="contribution" step="0.01" min="0" value="0" placeholder="0" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">
+            Calculate
+          </button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Future Value:</span>
+              <span id="futureValue" style="font-size: 1.2rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Contributions:</span>
+              <span id="totalContributions"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Interest Earned:</span>
+              <span id="interestEarned" style="color: var(--accent); font-weight: 600;"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5" />
+          <path d="M5 10.5V21h14V10.5" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v3" />
+          <path d="M12 18v3" />
+          <path d="M3 12h3" />
+          <path d="M18 12h3" />
+        </svg>
+        <span>Sim/AI</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+          <path d="M4 12l8 3 8-3" />
+          <path d="M12 5v10" />
+        </svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn tabbar__btn--active" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h4" />
+        </svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    document.getElementById('compoundForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const P = parseFloat(document.getElementById('principal').value);
+      const r = parseFloat(document.getElementById('rate').value) / 100;
+      const n = parseInt(document.getElementById('frequency').value);
+      const t = parseFloat(document.getElementById('years').value);
+      const PMT = parseFloat(document.getElementById('contribution').value) || 0;
+      
+      if (isNaN(P) || isNaN(r) || isNaN(t)) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Future value of principal with compound interest
+      const FV_principal = P * Math.pow(1 + r / n, n * t);
+      
+      // Future value of monthly contributions (annuity)
+      let FV_contributions = 0;
+      if (PMT > 0) {
+        const monthlyRate = r / 12;
+        const months = t * 12;
+        FV_contributions = PMT * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+      }
+      
+      const totalFV = FV_principal + FV_contributions;
+      const totalContributions = P + (PMT * 12 * t);
+      const interestEarned = totalFV - totalContributions;
+      
+      document.getElementById('futureValue').textContent = '$' + totalFV.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('totalContributions').textContent = '$' + totalContributions.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('interestEarned').textContent = '$' + interestEarned.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

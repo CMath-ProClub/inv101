@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capital Gains Tax Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }
+  </script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-tax.html">← Back to TAX</a>
+      <span>Capital Gains Tax</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Capital Gains Tax Calculator</h2>
+        <p>Calculate short-term and long-term capital gains tax on your investments.</p>
+        
+        <form id="capitalGainsForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Purchase Price ($)</label>
+            <input type="number" id="purchasePrice" step="0.01" min="0" placeholder="10000" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Sale Price ($)</label>
+            <input type="number" id="salePrice" step="0.01" min="0" placeholder="15000" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Holding Period</label>
+            <select id="holdingPeriod" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="short">Short-term (≤ 1 year)</option>
+              <option value="long">Long-term (> 1 year)</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Filing Status</label>
+            <select id="filingStatus" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="single">Single</option>
+              <option value="married">Married Filing Jointly</option>
+              <option value="separate">Married Filing Separately</option>
+              <option value="head">Head of Household</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Income ($)</label>
+            <input type="number" id="income" step="1" min="0" placeholder="75000" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted); font-size: 0.85rem;">Used to determine tax bracket</small>
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">
+            Calculate Tax
+          </button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Tax Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Capital Gain:</span>
+              <span id="capitalGain" style="font-size: 1.1rem; font-weight: bold;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Tax Rate:</span>
+              <span id="taxRate"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Tax Owed:</span>
+              <span id="taxOwed" style="color: #ef4444; font-weight: 600;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Net Profit After Tax:</span>
+              <span id="netProfit" style="font-size: 1.2rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5" />
+          <path d="M5 10.5V21h14V10.5" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v3" />
+          <path d="M12 18v3" />
+          <path d="M3 12h3" />
+          <path d="M18 12h3" />
+        </svg>
+        <span>Sim/AI</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+          <path d="M4 12l8 3 8-3" />
+          <path d="M12 5v10" />
+        </svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn tabbar__btn--active" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h4" />
+        </svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    document.getElementById('capitalGainsForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
+      const salePrice = parseFloat(document.getElementById('salePrice').value);
+      const holdingPeriod = document.getElementById('holdingPeriod').value;
+      const filingStatus = document.getElementById('filingStatus').value;
+      const income = parseFloat(document.getElementById('income').value);
+      
+      if (isNaN(purchasePrice) || isNaN(salePrice) || isNaN(income)) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      const capitalGain = salePrice - purchasePrice;
+      let taxRate = 0;
+      
+      if (holdingPeriod === 'short') {
+        // Short-term capital gains taxed as ordinary income
+        // Simplified tax brackets for 2024
+        if (filingStatus === 'single') {
+          if (income <= 11000) taxRate = 0.10;
+          else if (income <= 44725) taxRate = 0.12;
+          else if (income <= 95375) taxRate = 0.22;
+          else if (income <= 182100) taxRate = 0.24;
+          else if (income <= 231250) taxRate = 0.32;
+          else if (income <= 578125) taxRate = 0.35;
+          else taxRate = 0.37;
+        } else if (filingStatus === 'married') {
+          if (income <= 22000) taxRate = 0.10;
+          else if (income <= 89050) taxRate = 0.12;
+          else if (income <= 190750) taxRate = 0.22;
+          else if (income <= 364200) taxRate = 0.24;
+          else if (income <= 462500) taxRate = 0.32;
+          else if (income <= 693750) taxRate = 0.35;
+          else taxRate = 0.37;
+        } else {
+          taxRate = 0.22; // Default estimate
+        }
+      } else {
+        // Long-term capital gains tax rates
+        if (filingStatus === 'single') {
+          if (income <= 44625) taxRate = 0;
+          else if (income <= 492300) taxRate = 0.15;
+          else taxRate = 0.20;
+        } else if (filingStatus === 'married') {
+          if (income <= 89250) taxRate = 0;
+          else if (income <= 553850) taxRate = 0.15;
+          else taxRate = 0.20;
+        } else {
+          taxRate = 0.15; // Default estimate
+        }
+      }
+      
+      const taxOwed = capitalGain * taxRate;
+      const netProfit = capitalGain - taxOwed;
+      
+      const gainColor = capitalGain >= 0 ? 'var(--accent)' : '#ef4444';
+      document.getElementById('capitalGain').textContent = '$' + capitalGain.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('capitalGain').style.color = gainColor;
+      
+      document.getElementById('taxRate').textContent = (taxRate * 100).toFixed(1) + '% (' + (holdingPeriod === 'short' ? 'Short-term' : 'Long-term') + ')';
+      document.getElementById('taxOwed').textContent = '$' + taxOwed.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('netProfit').textContent = '$' + netProfit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

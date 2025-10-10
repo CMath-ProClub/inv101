@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crypto Mining Profitability</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-crypto.html">← Back to CRYPTO</a>
+      <span>Mining Profitability</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Crypto Mining Profitability Calculator</h2>
+        <p>Calculate mining profits accounting for hash rate, power costs, and rewards.</p>
+        
+        <form id="miningForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Hash Rate (MH/s)</label>
+            <input type="number" id="hashRate" step="0.1" min="0" placeholder="100" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Your mining rig's hash rate in MH/s</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Power Consumption (Watts)</label>
+            <input type="number" id="power" step="1" min="0" placeholder="500" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Electricity Cost ($ per kWh)</label>
+            <input type="number" id="electricityCost" step="0.01" min="0" placeholder="0.12" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Network Difficulty (TH)</label>
+            <input type="number" id="difficulty" step="0.01" min="0" placeholder="500" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Network mining difficulty in Terahashes</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Block Reward (coins)</label>
+            <input type="number" id="blockReward" step="0.01" min="0" placeholder="6.25" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Coin Price ($)</label>
+            <input type="number" id="coinPrice" step="0.01" min="0" placeholder="30000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Pool Fee (%)</label>
+            <input type="number" id="poolFee" step="0.1" min="0" max="100" value="1" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate Profitability</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Mining Profitability</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--accent);">
+              <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Daily Profit</div>
+              <div id="dailyProfit" style="font-size: 1.8rem; font-weight: bold; color: var(--accent);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Daily Revenue:</span>
+              <span id="dailyRevenue" style="color: #10b981;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Daily Electricity Cost:</span>
+              <span id="dailyElectricity" style="color: #ef4444;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Coins Mined Per Day:</span>
+              <span id="coinsPerDay"></span>
+            </div>
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; margin-top: 12px;">
+              <h4 style="margin: 0 0 12px 0;">Projections</h4>
+              <div style="display: grid; gap: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="font-weight: 600;">Monthly Profit:</span>
+                  <span id="monthlyProfit" style="font-weight: bold;"></span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="font-weight: 600;">Yearly Profit:</span>
+                  <span id="yearlyProfit" style="font-weight: bold;"></span>
+                </div>
+              </div>
+            </div>
+            <div id="assessment" style="padding: 12px; background: var(--bg-card); border-radius: 8px; margin-top: 8px;">
+              <p id="assessmentText" style="margin: 0; font-weight: 600; text-align: center;"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('miningForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const hashRate = parseFloat(document.getElementById('hashRate').value);
+      const power = parseFloat(document.getElementById('power').value);
+      const electricityCost = parseFloat(document.getElementById('electricityCost').value);
+      const difficulty = parseFloat(document.getElementById('difficulty').value);
+      const blockReward = parseFloat(document.getElementById('blockReward').value);
+      const coinPrice = parseFloat(document.getElementById('coinPrice').value);
+      const poolFee = parseFloat(document.getElementById('poolFee').value) / 100;
+      
+      if (isNaN(hashRate) || isNaN(power) || isNaN(electricityCost) || isNaN(difficulty) || isNaN(blockReward) || isNaN(coinPrice)) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      const hashRateTH = hashRate / 1000000;
+      const blocksPerDay = 144;
+      const yourShareOfNetwork = hashRateTH / difficulty;
+      const coinsPerDay = yourShareOfNetwork * blocksPerDay * blockReward * (1 - poolFee);
+      const dailyRevenue = coinsPerDay * coinPrice;
+      const kWhPerDay = (power / 1000) * 24;
+      const dailyElectricity = kWhPerDay * electricityCost;
+      const dailyProfit = dailyRevenue - dailyElectricity;
+      const monthlyProfit = dailyProfit * 30;
+      const yearlyProfit = dailyProfit * 365;
+      
+      document.getElementById('dailyProfit').textContent = '$' + dailyProfit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('dailyRevenue').textContent = '$' + dailyRevenue.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('dailyElectricity').textContent = '-$' + dailyElectricity.toFixed(2);
+      document.getElementById('coinsPerDay').textContent = coinsPerDay.toFixed(6) + ' coins';
+      document.getElementById('monthlyProfit').textContent = '$' + monthlyProfit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('yearlyProfit').textContent = '$' + yearlyProfit.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      
+      let assessment = '';
+      let color = '';
+      if (dailyProfit > 10) {
+        assessment = '✅ Highly profitable mining operation!';
+        color = '#10b981';
+      } else if (dailyProfit > 2) {
+        assessment = '✅ Profitable - Good mining setup';
+        color = '#10b981';
+      } else if (dailyProfit > 0) {
+        assessment = '⚠️ Marginally profitable - Monitor closely';
+        color = '#f59e0b';
+      } else {
+        assessment = '❌ Not profitable - Mining at a loss';
+        color = '#ef4444';
+      }
+      
+      document.getElementById('assessmentText').textContent = assessment;
+      document.getElementById('assessmentText').style.color = color;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

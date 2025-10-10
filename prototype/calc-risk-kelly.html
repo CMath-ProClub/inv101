@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kelly Criterion Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-risk.html">← Back to RISK</a>
+      <span>Kelly Criterion</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Kelly Criterion Calculator</h2>
+        <p>Calculate the optimal position size based on win probability and payoff ratio.</p>
+        
+        <form id="kellyForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Win Probability (%)</label>
+            <input type="number" id="winProb" step="0.1" min="0" max="100" placeholder="55" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Your estimated probability of winning (0-100%)</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Win/Loss Ratio</label>
+            <input type="number" id="winLossRatio" step="0.1" min="0" placeholder="2" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Average win divided by average loss (e.g., 2 means wins are 2x losses)</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Bankroll ($) - optional</label>
+            <input type="number" id="bankroll" step="0.01" min="0" placeholder="10000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Fractional Kelly</label>
+            <select id="fraction" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="1">Full Kelly (aggressive)</option>
+              <option value="0.5" selected>Half Kelly (recommended)</option>
+              <option value="0.25">Quarter Kelly (conservative)</option>
+            </select>
+            <small style="color: var(--text-muted);">Fractional Kelly reduces risk of overbetting</small>
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Kelly Percentage:</span>
+              <span id="kellyPct" style="font-size: 1.3rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Adjusted (Fractional):</span>
+              <span id="adjustedPct" style="font-weight: bold;"></span>
+            </div>
+            <div id="dollarAmount" style="display: none; margin-top: 8px;">
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Position Size:</span>
+                <span id="positionSize" style="font-size: 1.2rem; font-weight: bold; color: var(--accent);"></span>
+              </div>
+            </div>
+            <div style="padding: 12px; background: var(--bg-card); border-radius: 8px; margin-top: 8px;">
+              <p id="recommendation" style="text-align: center; font-weight: 600; margin: 0;"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('kellyForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const winProb = parseFloat(document.getElementById('winProb').value) / 100;
+      const winLossRatio = parseFloat(document.getElementById('winLossRatio').value);
+      const bankroll = parseFloat(document.getElementById('bankroll').value) || 0;
+      const fraction = parseFloat(document.getElementById('fraction').value);
+      if (isNaN(winProb) || isNaN(winLossRatio)) {
+        alert('Please fill in win probability and win/loss ratio');
+        return;
+      }
+      if (winProb <= 0 || winProb >= 1) {
+        alert('Win probability must be between 0 and 100%');
+        return;
+      }
+      const lossProb = 1 - winProb;
+      const kelly = (winProb * winLossRatio - lossProb) / winLossRatio;
+      const kellyPct = Math.max(0, kelly * 100);
+      const adjustedPct = kellyPct * fraction;
+      document.getElementById('kellyPct').textContent = kellyPct.toFixed(2) + '%';
+      document.getElementById('adjustedPct').textContent = adjustedPct.toFixed(2) + '%';
+      if (bankroll > 0) {
+        const position = (adjustedPct / 100) * bankroll;
+        document.getElementById('positionSize').textContent = '$' + position.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        document.getElementById('dollarAmount').style.display = 'block';
+      } else {
+        document.getElementById('dollarAmount').style.display = 'none';
+      }
+      let recommendation = '';
+      let color = '';
+      if (kelly <= 0) {
+        recommendation = '🚫 Negative edge - DO NOT BET (expected loss)';
+        color = '#ef4444';
+      } else if (adjustedPct < 1) {
+        recommendation = '⚠️ Very small edge - bet conservatively';
+        color = '#f59e0b';
+      } else if (adjustedPct < 5) {
+        recommendation = '✅ Reasonable edge - recommended position size';
+        color = '#10b981';
+      } else if (adjustedPct < 10) {
+        recommendation = '⚠️ Large position - ensure accurate win probability';
+        color = '#f59e0b';
+      } else {
+        recommendation = '🔥 Very large position - double-check your inputs!';
+        color = '#ef4444';
+      }
+      document.getElementById('recommendation').textContent = recommendation;
+      document.getElementById('recommendation').style.color = color;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

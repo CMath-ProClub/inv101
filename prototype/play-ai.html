@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play the AI · Investing101</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="index.html">← Sim/AI</a>
+      <span>Play the AI</span>
+      <span class="chip">Historical data</span>
+    </header>
+
+    <main class="app__content">
+      <section class="screen screen--active" aria-label="AI opponent customizer">
+        <div class="card card--summary">
+          <h3>Configure Your Match</h3>
+          <p>Choose an opponent archetype, select a historical window, and set the duration. The engine replays real market data to keep every session fresh.</p>
+        </div>
+
+        <form class="card" id="aiForm">
+          <label class="field">
+            <span>Opponent style</span>
+            <select id="opponentSelect">
+              <option value="safe">Safe · defensive capital preservation</option>
+              <option value="intermediate">Intermediate · balanced exposures</option>
+              <option value="risky">Risky · aggressive growth seeking</option>
+              <option value="random">Random · roulette of tactics</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Historical scenario</span>
+            <select id="scenarioSelect"></select>
+          </label>
+          <label class="field">
+            <span>Match duration</span>
+            <select id="durationSelect">
+              <option value="1d">1 Day</option>
+              <option value="1w">1 Week</option>
+              <option value="1m">1 Month</option>
+              <option value="3m">3 Months</option>
+              <option value="6m">6 Months</option>
+              <option value="1y">1 Year</option>
+            </select>
+          </label>
+          <button class="btn btn--primary" type="submit">Generate Game Plan</button>
+        </form>
+
+        <article class="card" id="aiSummary" aria-live="polite">
+          <p>Pick your settings to see the AI’s loadout, recommended bankroll targets, and achievement hooks.</p>
+        </article>
+
+        <article class="card">
+          <h3>Achievements to chase</h3>
+          <ul class="bullet-list">
+            <li>Shutout: Beat the AI by 5% or more.</li>
+            <li>Clutch comeback: Finish positive after a 10% drawdown.</li>
+            <li>Risk whisperer: Match the AI’s Sharpe ratio within ±0.1.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const SCENARIOS = [
+      {
+        id: 'black-monday',
+        label: 'Black Monday 1987',
+        tier: 'Strategist',
+        description: 'Extreme volatility, rapid circuit breakers, and historic panic selling.'
+      },
+      {
+        id: 'financial-crisis',
+        label: 'Financial Crisis 2008',
+        tier: 'Scholar',
+        description: 'Banks under stress, credit spreads wide, defensive sectors shine.'
+      },
+      {
+        id: 'pandemic',
+        label: 'Pandemic Volatility 2020',
+        tier: 'All tiers',
+        description: 'Record-breaking swings, tech resilience, and stimulus-fueled rebounds.'
+      },
+      {
+        id: 'dot-com',
+        label: 'Dot-com Boom 1999',
+        tier: 'Analyst',
+        description: 'Momentum fever, speculative IPOs, and sector rotation whiplash.'
+      }
+    ];
+
+    const OPPONENTS = {
+      safe: {
+        name: 'Safe Guardian',
+        focus: 'Capital preservation',
+        tactics: ['High cash buffer', 'Bond hedges', 'Stops at 3%'],
+        weakness: 'Misses fast rallies'
+      },
+      intermediate: {
+        name: 'Balanced Navigator',
+        focus: 'Risk-adjusted growth',
+        tactics: ['Smart beta ETFs', 'Factor tilts', 'Weekly rebalancing'],
+        weakness: 'Slow to react to shocks'
+      },
+      risky: {
+        name: 'Aggro Hawk',
+        focus: 'Max upside',
+        tactics: ['High leverage', 'Sector concentration', 'Momentum chases'],
+        weakness: 'Large drawdowns'
+      },
+      random: {
+        name: 'Chaos Dealer',
+        focus: 'Unpredictable',
+        tactics: ['Randomized orders', 'Surprise hedges', 'Mixed leverage'],
+        weakness: 'Inconsistent risk profile'
+      }
+    };
+
+    function populateScenarios() {
+      const select = document.getElementById('scenarioSelect');
+      SCENARIOS.forEach((scenario) => {
+        const option = document.createElement('option');
+        option.value = scenario.id;
+        option.textContent = `${scenario.label} (${scenario.tier})`;
+        select.appendChild(option);
+      });
+    }
+
+    function renderSummary(opponentId, scenarioId, duration) {
+      const opponent = OPPONENTS[opponentId];
+      const scenario = SCENARIOS.find((item) => item.id === scenarioId);
+      const summary = document.getElementById('aiSummary');
+      if (!opponent || !scenario) {
+        summary.innerHTML = '<p>Choose valid options to preview the matchup.</p>';
+        return;
+      }
+
+      const durationText = {
+        '1d': '1 trading day',
+        '1w': '1 week',
+        '1m': '1 month',
+        '3m': '3 months',
+        '6m': '6 months',
+        '1y': '1 year'
+      }[duration];
+
+      summary.innerHTML = `
+        <header class="analysis__header">
+          <strong>${opponent.name}</strong>
+          <span class="chip">Focus: ${opponent.focus}</span>
+        </header>
+        <p>${scenario.description}</p>
+        <p>Duration: <strong>${durationText}</strong></p>
+        <ul class="bullet-list">
+          ${opponent.tactics.map((tactic) => `<li>${tactic}</li>`).join('')}
+        </ul>
+        <p><em>Exploit:</em> ${opponent.weakness}</p>
+      `;
+    }
+
+    document.getElementById('aiForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const opponent = document.getElementById('opponentSelect').value;
+      const scenario = document.getElementById('scenarioSelect').value;
+      const duration = document.getElementById('durationSelect').value;
+      renderSummary(opponent, scenario, duration);
+    });
+
+    populateScenarios();
+    renderSummary('safe', 'black-monday', '1d');
+  </script>
+
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+

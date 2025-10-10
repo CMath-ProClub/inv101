@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Analyzer · Investing101</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="index.html">← Main</a>
+      <span>Market Analyzer</span>
+      <button class="icon-button" type="button" aria-label="Refresh insights" id="refreshButton">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0114.13-3.36L23 10"></path>
+          <path d="M20.49 15a9 9 0 01-14.13 3.36L1 14"></path>
+        </svg>
+      </button>
+    </header>
+
+    <main class="app__content">
+      <section class="screen screen--active" aria-label="Market analyzer overview">
+        <div class="card card--summary">
+          <h3>Holistic Market Pulse</h3>
+          <p>Select a region and time window to surface growth, projections, sector momentum, and the macro/micro drivers professional desks care about.</p>
+        </div>
+
+        <div class="grid grid--two">
+          <label class="card field">
+            <span>Region focus</span>
+            <select id="regionSelect"></select>
+          </label>
+          <article class="card" id="riskMeter" aria-live="polite">
+            <h3>Risk Thermometer</h3>
+            <div class="meter">
+              <div class="meter__scale"><span>Bearish</span><span>Neutral</span><span>Risk-On</span></div>
+              <div class="meter__fill"><span class="meter__pointer" style="left: 50%"></span></div>
+            </div>
+            <p id="riskNarrative">Adjusting...</p>
+          </article>
+        </div>
+
+        <article class="card" id="regionNarrative"></article>
+
+        <div class="pill-group" role="list" id="rangeButtons">
+          <button class="pill pill--active feature-toggle" data-range="YTD" type="button">YTD</button>
+          <button class="pill feature-toggle" data-range="90D" type="button">90D</button>
+          <button class="pill feature-toggle" data-range="30D" type="button">30D</button>
+          <button class="pill feature-toggle" data-range="7D" type="button">7D</button>
+          <button class="pill feature-toggle" data-range="24H" type="button">24H</button>
+        </div>
+
+        <article class="card analyzer" id="analyzerOutput" aria-live="polite"></article>
+
+        <article class="card" id="macroStats" aria-label="Macro and micro statistics"></article>
+
+        <article class="card" aria-label="Sector heatmap">
+          <h3>Sector Heatmap</h3>
+          <div class="heatmap" id="sectorHeatmap"></div>
+        </article>
+
+        <article class="card" id="eventTimeline" aria-label="Upcoming catalysts"></article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const MARKET_DATA = {
+      us: {
+        label: 'United States',
+        narrative: 'Domestic growth is leaning on resilient services demand while the manufacturing contraction eases. Liquidity remains ample after the latest Fed pause.',
+        events: [
+          { label: 'CPI Release', date: 'Oct 11', impact: 'High', detail: 'Focus on shelter disinflation and services core.' },
+          { label: 'FOMC Minutes', date: 'Oct 16', impact: 'Medium', detail: 'Look for language on balance sheet runoff pace.' },
+          { label: 'Mega-cap Earnings', date: 'Oct 22-24', impact: 'High', detail: 'Cloud spend and AI capex guide risk appetite.' }
+        ],
+        ranges: {
+          YTD: {
+            growth: 12.4,
+            projection: { '24H': 0.6, '7D': 2.1, '30D': 4.7 },
+            grade: 86,
+            riskScore: 68,
+            leaders: ['INV-Value', 'TechLift', 'GreenGrid'],
+            laggards: ['RetailEdge', 'FinCore'],
+            tags: ['Resilient', 'Low volatility', 'Breadth improving'],
+            metrics: {
+              'GDP Trend': '2.2% QoQ saar',
+              'Core PCE': '3.1% YoY',
+              'ISM Services': '54.6 (expansion)',
+              'AAII Sentiment': 'Bull 42 / Bear 26'
+            },
+            sectors: [
+              { name: 'Tech', change: 3.4 },
+              { name: 'Energy', change: 4.1 },
+              { name: 'Healthcare', change: 1.6 },
+              { name: 'Financials', change: -0.8 },
+              { name: 'Consumer Disc', change: 2.9 },
+              { name: 'Utilities', change: -1.2 }
+            ],
+            signals: ['Earnings breadth at 74% beats', 'Credit spreads stable at 165 bps', 'Retail flows neutral week-over-week']
+          },
+          '90D': {
+            growth: 6.7,
+            projection: { '24H': 0.5, '7D': 1.7, '30D': 3.1 },
+            grade: 81,
+            riskScore: 62,
+            leaders: ['CloudNova', 'GreenGrid', 'HealthPlus'],
+            laggards: ['RealEstateCo', 'RetailEdge'],
+            tags: ['Momentum building', 'Soft-landing priced'],
+            metrics: {
+              'Payrolls Trend': '+215K avg',
+              'Headline CPI': '3.3% YoY',
+              'HY OAS': '4.2%',
+              'Market Breadth': '58% > 50dma'
+            },
+            sectors: [
+              { name: 'Tech', change: 5.8 },
+              { name: 'Industrials', change: 3.2 },
+              { name: 'Energy', change: 2.5 },
+              { name: 'Financials', change: 1.7 },
+              { name: 'Real Estate', change: -0.6 },
+              { name: 'Staples', change: 0.9 }
+            ],
+            signals: ['Put/call ratio back to 0.92', 'Buybacks accelerate into Q4', 'M&A announcements ticking higher']
+          },
+          '30D': {
+            growth: 4.1,
+            projection: { '24H': 0.4, '7D': 1.2, '30D': 2.6 },
+            grade: 78,
+            riskScore: 55,
+            leaders: ['CloudNova', 'HealthPlus'],
+            laggards: ['SmallCapBlend', 'BioQuest'],
+            tags: ['Rotation in play', 'Watch volatility'],
+            metrics: {
+              'NAAIM Exposure': '68 (moderate)',
+              'VIX': '15.9',
+              'Earnings Revisions': '+0.3%',
+              'Retail Sales MoM': '0.4%'
+            },
+            sectors: [
+              { name: 'Tech', change: 2.1 },
+              { name: 'Energy', change: 3.0 },
+              { name: 'Healthcare', change: 1.1 },
+              { name: 'Financials', change: -0.4 },
+              { name: 'Industrials', change: 1.7 },
+              { name: 'Materials', change: 0.6 }
+            ],
+            signals: ['Breadth thrust fired 3 days ago', 'Gamma positioning supportive above 4400', 'CTAs adding longs on breakouts']
+          },
+          '7D': {
+            growth: 1.2,
+            projection: { '24H': 0.3, '7D': 1.1, '30D': 2.4 },
+            grade: 72,
+            riskScore: 51,
+            leaders: ['HealthPlus', 'RetailEdge'],
+            laggards: ['FinCore', 'Utilities'],
+            tags: ['Momentum shift', 'Stabilizing breadth'],
+            metrics: {
+              'Advance/Decline': '1.2x',
+              'Put/Call Ratio': '0.97',
+              'ETF Inflows': '$4.8B',
+              'Sentiment Shift': '+6% bullish'
+            },
+            sectors: [
+              { name: 'Tech', change: 1.5 },
+              { name: 'Energy', change: 2.2 },
+              { name: 'Financials', change: -0.6 },
+              { name: 'Consumer Disc', change: 1.9 },
+              { name: 'Staples', change: -0.3 },
+              { name: 'Utilities', change: -0.8 }
+            ],
+            signals: ['Regional banks stabilizing credit metrics', 'CTA positioning neutral', 'Options skew normalizing']
+          },
+          '24H': {
+            growth: 0.4,
+            projection: { '24H': 0.4, '7D': 0.9, '30D': 2.1 },
+            grade: 68,
+            riskScore: 48,
+            leaders: ['EnergyFlex', 'CloudNova'],
+            laggards: ['FinCore'],
+            tags: ['News driven', 'Event risk'],
+            metrics: {
+              'Futures Curve': '+0.3%',
+              'Overnight Vol': '12.8',
+              'USD Index': '-0.2%',
+              '10Y Yield': '4.32%'
+            },
+            sectors: [
+              { name: 'Tech', change: 0.6 },
+              { name: 'Energy', change: 1.4 },
+              { name: 'Financials', change: -0.3 },
+              { name: 'Healthcare', change: 0.2 },
+              { name: 'Industrials', change: 0.1 },
+              { name: 'Utilities', change: -0.5 }
+            ],
+            signals: ['Crude spike adds inflation chatter', 'Dealer gamma flips positive above 4445', 'Watch CPI whisper numbers']
+          }
+        }
+      },
+      global: {
+        label: 'Developed World ex-US',
+        narrative: 'Europe is balancing energy relief with sluggish growth, while Japan benefits from reflation and a weaker yen. Currency swings remain a key driver.',
+        events: [
+          { label: 'ECB Speakers', date: 'Oct 10-13', impact: 'Medium', detail: 'Expect pushback on near-term cuts.' },
+          { label: 'BOJ Meeting', date: 'Oct 23', impact: 'High', detail: 'Guidance on yield curve control will steer global rates.' }
+        ],
+        ranges: {
+          YTD: {
+            growth: 7.8,
+            projection: { '24H': 0.5, '7D': 1.4, '30D': 3.1 },
+            grade: 74,
+            riskScore: 58,
+            leaders: ['EuroTech', 'Nikkei Growth'],
+            laggards: ['UK Midcap'],
+            tags: ['Currency sensitive', 'Energy relief'],
+            metrics: {
+              'Eurozone CPI': '2.9% YoY',
+              'IFO Business Climate': '89.2',
+              'Japan Tankan': '10',
+              'MSCI World Breadth': '61% advancing'
+            },
+            sectors: [
+              { name: 'Luxury', change: 2.7 },
+              { name: 'Autos', change: 1.9 },
+              { name: 'Banks', change: -0.6 },
+              { name: 'Industrials', change: 1.1 },
+              { name: 'Energy', change: 2.2 },
+              { name: 'Utilities', change: -0.9 }
+            ],
+            signals: ['Yen weakness aiding exporters', 'European gas storage at 96%', 'Fund managers still underweight UK']
+          },
+          '90D': {
+            growth: 4.9,
+            projection: { '24H': 0.4, '7D': 1.1, '30D': 2.5 },
+            grade: 70,
+            riskScore: 54,
+            leaders: ['Swiss Pharma', 'EuroTech'],
+            laggards: ['UK Midcap'],
+            tags: ['Mean reversion'],
+            metrics: {
+              'Euro PMI': '47.8',
+              'Japan CPI': '3.0% YoY',
+              'GBPUSD': '1.21',
+              'MSCI Momentum': '+1.2%'
+            },
+            sectors: [
+              { name: 'Luxury', change: 2.1 },
+              { name: 'Autos', change: 1.5 },
+              { name: 'Banks', change: -1.1 },
+              { name: 'Industrials', change: 0.9 },
+              { name: 'Healthcare', change: 1.3 },
+              { name: 'Telecom', change: 0.4 }
+            ],
+            signals: ['ECB balance sheet shrinking £25B/mo', 'Japanese equities in 12w uptrend', 'UK fiscal policy remains tight']
+          },
+          '30D': {
+            growth: 2.6,
+            projection: { '24H': 0.3, '7D': 0.9, '30D': 1.8 },
+            grade: 66,
+            riskScore: 51,
+            leaders: ['EuroTech'],
+            laggards: ['Banks'],
+            tags: ['Range-bound'],
+            metrics: {
+              'Eurozone Retail': '-0.1% MoM',
+              'Japan Wage Growth': '2.1%',
+              'EURUSD': '1.07',
+              'MSCI Volatility': '14.8'
+            },
+            sectors: [
+              { name: 'Luxury', change: 1.2 },
+              { name: 'Autos', change: 0.6 },
+              { name: 'Banks', change: -0.9 },
+              { name: 'Industrials', change: 0.8 },
+              { name: 'Healthcare', change: 0.5 },
+              { name: 'Energy', change: 1.0 }
+            ],
+            signals: ['German bund yield slips 12 bps', 'Euro corporate spreads stable', 'UK housing soft but stabilizing']
+          },
+          '7D': {
+            growth: 0.7,
+            projection: { '24H': 0.2, '7D': 0.6, '30D': 1.4 },
+            grade: 61,
+            riskScore: 49,
+            leaders: ['EuroTech'],
+            laggards: ['Banks'],
+            tags: ['Energy support'],
+            metrics: {
+              'Euro Stoxx Adv/Dec': '1.1x',
+              'Nikkei Vol': '13.2',
+              'Brent': '+1.8%',
+              'GBP Gilt Spread': '0.18%'
+            },
+            sectors: [
+              { name: 'Luxury', change: 0.9 },
+              { name: 'Autos', change: 0.7 },
+              { name: 'Banks', change: -0.4 },
+              { name: 'Industrials', change: 0.5 },
+              { name: 'Healthcare', change: 0.3 },
+              { name: 'Energy', change: 0.8 }
+            ],
+            signals: ['IFO expectations tick higher', 'Japanese exporters benefit from USDJPY 150', 'UK PMI beats estimates']
+          },
+          '24H': {
+            growth: 0.3,
+            projection: { '24H': 0.2, '7D': 0.4, '30D': 1.1 },
+            grade: 58,
+            riskScore: 46,
+            leaders: ['Luxury'],
+            laggards: ['Banks'],
+            tags: ['Currency watch'],
+            metrics: {
+              'EURUSD': '+0.2%',
+              'Stoxx Futures': '+0.1%',
+              'Nikkei Futures': '+0.4%',
+              'Brent': '+0.5%'
+            },
+            sectors: [
+              { name: 'Luxury', change: 0.4 },
+              { name: 'Autos', change: 0.3 },
+              { name: 'Banks', change: -0.2 },
+              { name: 'Industrials', change: 0.2 },
+              { name: 'Healthcare', change: 0.1 },
+              { name: 'Energy', change: 0.3 }
+            ],
+            signals: ['German CPI inline with flash', 'BOJ rumors on YCC tweak muted', 'France budget vote later today']
+          }
+        }
+      },
+      emerging: {
+        label: 'Emerging Markets',
+        narrative: 'Emerging markets have diverged: India and Brazil outperform while China continues to battle property softness. USD strength and commodities remain swing factors.',
+        events: [
+          { label: 'China Credit Data', date: 'Oct 15', impact: 'High', detail: 'Loan demand indicates stimulus traction.' },
+          { label: 'Brazil COPOM', date: 'Oct 18', impact: 'Medium', detail: 'Guidance on Selic cuts shapes LatAm flows.' },
+          { label: 'India CPI', date: 'Oct 12', impact: 'Medium', detail: 'Food inflation remains the key risk.' }
+        ],
+        ranges: {
+          YTD: {
+            growth: 5.6,
+            projection: { '24H': 0.7, '7D': 2.0, '30D': 3.8 },
+            grade: 68,
+            riskScore: 61,
+            leaders: ['Bovespa Growth', 'Nifty Next 50'],
+            laggards: ['Shanghai Core'],
+            tags: ['Commodity bid', 'China drag'],
+            metrics: {
+              'MSCI EM FX': '-3.1% YTD',
+              'China PMI': '50.1',
+              'India GDP': '7.2% YoY',
+              'Brazil Selic': '12.25%'
+            },
+            sectors: [
+              { name: 'LatAm Financials', change: 4.2 },
+              { name: 'India Tech', change: 5.1 },
+              { name: 'China Internet', change: -2.6 },
+              { name: 'EM Energy', change: 3.8 },
+              { name: 'EM Materials', change: 1.4 },
+              { name: 'EM Staples', change: 0.9 }
+            ],
+            signals: ['Southbound Stock Connect net buys', 'USD strength capping rallies', 'Commodity complex supportive']
+          },
+          '90D': {
+            growth: 3.4,
+            projection: { '24H': 0.6, '7D': 1.5, '30D': 2.6 },
+            grade: 66,
+            riskScore: 59,
+            leaders: ['India Tech'],
+            laggards: ['China Internet'],
+            tags: ['Divergence'],
+            metrics: {
+              'EM PMI': '50.8',
+              'Oil (Brent)': '+7.4%',
+              'USDX': '+2.6%',
+              'Capital Flows': '$3.1B'
+            },
+            sectors: [
+              { name: 'LatAm Financials', change: 3.2 },
+              { name: 'India Tech', change: 4.4 },
+              { name: 'China Internet', change: -3.8 },
+              { name: 'EM Energy', change: 2.9 },
+              { name: 'EM Materials', change: 1.2 },
+              { name: 'EM Staples', change: 0.4 }
+            ],
+            signals: ['China stimulus headlines fading', 'India inflows persistent', 'Brazil carry still attractive']
+          },
+          '30D': {
+            growth: 1.9,
+            projection: { '24H': 0.4, '7D': 0.9, '30D': 1.7 },
+            grade: 63,
+            riskScore: 55,
+            leaders: ['LatAm Financials'],
+            laggards: ['China Internet'],
+            tags: ['Range-bound', 'FX risk'],
+            metrics: {
+              'CNH': '-1.2%',
+              'Brazil IPCA': '4.6% YoY',
+              'India PMI': '58.3',
+              'EM ETF Flows': '$0.9B'
+            },
+            sectors: [
+              { name: 'LatAm Financials', change: 2.4 },
+              { name: 'India Tech', change: 2.8 },
+              { name: 'China Internet', change: -1.9 },
+              { name: 'EM Energy', change: 2.1 },
+              { name: 'EM Materials', change: 0.7 },
+              { name: 'EM Staples', change: 0.3 }
+            ],
+            signals: ['PBOC liquidity injections ongoing', 'Indian rupee stable near 83', 'Commodity softness weighing on Africa']
+          },
+          '7D': {
+            growth: 0.8,
+            projection: { '24H': 0.3, '7D': 0.6, '30D': 1.5 },
+            grade: 60,
+            riskScore: 52,
+            leaders: ['LatAm Financials'],
+            laggards: ['China Internet'],
+            tags: ['Commodity bid', 'FX headwind'],
+            metrics: {
+              'Oil': '+2.1%',
+              'Copper': '-0.6%',
+              'EM FX Vol': '10.2',
+              'South Africa Rand': '-1.3%'
+            },
+            sectors: [
+              { name: 'LatAm Financials', change: 1.5 },
+              { name: 'India Tech', change: 1.9 },
+              { name: 'China Internet', change: -1.1 },
+              { name: 'EM Energy', change: 1.2 },
+              { name: 'EM Materials', change: 0.5 },
+              { name: 'EM Staples', change: 0.2 }
+            ],
+            signals: ['Brazil real steady despite rate cuts', 'China property support headlines mixed', 'EM credit spreads modestly tighter']
+          },
+          '24H': {
+            growth: 0.3,
+            projection: { '24H': 0.3, '7D': 0.5, '30D': 1.2 },
+            grade: 58,
+            riskScore: 51,
+            leaders: ['LatAm Financials'],
+            laggards: ['China Internet'],
+            tags: ['Headline driven'],
+            metrics: {
+              'CNH Fix': '-0.1%',
+              'Brazil ETF': '+0.4%',
+              'India Futures': '+0.2%',
+              'Oil': '+0.6%'
+            },
+            sectors: [
+              { name: 'LatAm Financials', change: 0.6 },
+              { name: 'India Tech', change: 0.7 },
+              { name: 'China Internet', change: -0.4 },
+              { name: 'EM Energy', change: 0.5 },
+              { name: 'EM Materials', change: 0.2 },
+              { name: 'EM Staples', change: 0.1 }
+            ],
+            signals: ['China GDP whispers supportive', 'Commodity traders eye Middle East headlines', 'Carry trades remain crowded']
+          }
+        }
+      }
+    };
+
+    const regionSelect = document.getElementById('regionSelect');
+    const analyzerOutput = document.getElementById('analyzerOutput');
+    const macroStats = document.getElementById('macroStats');
+    const heatmap = document.getElementById('sectorHeatmap');
+    const riskMeter = document.querySelector('#riskMeter .meter__pointer');
+    const riskNarrative = document.getElementById('riskNarrative');
+    const regionNarrative = document.getElementById('regionNarrative');
+    const eventTimeline = document.getElementById('eventTimeline');
+
+    let currentRegion = 'us';
+    let currentRange = 'YTD';
+
+    function populateRegions() {
+      Object.entries(MARKET_DATA).forEach(([key, region]) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = region.label;
+        regionSelect.appendChild(option);
+      });
+      regionSelect.value = currentRegion;
+    }
+
+    function formatDelta(value) {
+      const prefix = value > 0 ? '+' : '';
+      return `${prefix}${value.toFixed(1)}%`;
+    }
+
+    function chunk(array, size) {
+      const chunks = [];
+      for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
+      }
+      return chunks;
+    }
+
+    function heatColor(value) {
+      const intensity = Math.min(Math.abs(value) / 5, 1);
+      if (value >= 0) {
+        const lightness = 48 - intensity * 18;
+        return `hsl(152, 65%, ${lightness}%)`;
+      }
+      const lightness = 52 - intensity * 18;
+      return `hsl(4, 75%, ${lightness}%)`;
+    }
+
+    function renderMacroStats(metrics, signals) {
+      macroStats.innerHTML = `
+        <h3>Key Drivers</h3>
+        <div class="summary-grid">
+          ${Object.entries(metrics)
+            .map((entry) => `<div class="stat"><span>${entry[0]}</span><strong>${entry[1]}</strong></div>`)
+            .join('')}
+        </div>
+        <h4 style="margin-top:16px; font-size:0.95rem;">Desk Callouts</h4>
+        <ul class="bullet-list" style="margin-top:8px;">
+          ${signals.map((signal) => `<li>${signal}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    function renderHeatmap(sectors) {
+      heatmap.innerHTML = chunk(sectors, 3)
+        .map(
+          (row) => `
+            <div class="heatmap__row">
+              ${row
+                .map(
+                  (sector) => `
+                    <div class="heatmap__cell" style="background:${heatColor(sector.change)};">
+                      <span class="heatmap__label">${sector.name}</span>
+                      <span class="heatmap__value">${formatDelta(sector.change)}</span>
+                    </div>
+                  `
+                )
+                .join('')}
+            </div>
+          `
+        )
+        .join('');
+    }
+
+    function renderEvents(events) {
+      eventTimeline.innerHTML = `
+        <h3>Upcoming Catalysts</h3>
+        <div class="result-history">
+          ${events
+            .map(
+              (event) => `
+                <article>
+                  <header class="analysis__header">
+                    <strong>${event.label}</strong>
+                    <span class="chip chip--outline">${event.date}</span>
+                  </header>
+                  <p><strong>Impact:</strong> ${event.impact}</p>
+                  <p>${event.detail}</p>
+                </article>
+              `
+            )
+            .join('')}
+        </div>
+      `;
+    }
+
+    function renderRange(range) {
+      currentRange = range;
+      const region = MARKET_DATA[currentRegion];
+      const data = region.ranges[range];
+      if (!data) return;
+
+      analyzerOutput.innerHTML = `
+        <header class="analysis__header">
+          <strong>${region.label}</strong>
+          <span class="chip chip--outline">Composite ${data.grade}/100</span>
+        </header>
+        <div class="analyzer__metric">
+          <span class="label">${range} Growth</span>
+          <strong>${data.growth.toFixed(1)}%</strong>
+        </div>
+        <div class="analyzer__projections">
+          ${Object.entries(data.projection)
+            .map(([key, value]) => `<div><span>${key}</span><strong>${value.toFixed(1)}%</strong></div>`)
+            .join('')}
+        </div>
+        <div class="chips" style="margin-top:12px;">
+          ${data.tags.map((tag) => `<span class="chip">${tag}</span>`).join('')}
+        </div>
+        <div style="margin-top:14px; display:grid; gap:8px;">
+          <div>
+            <span class="label">Leaders</span>
+            <ul class="list-inline">${data.leaders.map((item) => `<li class="chip chip--outline">${item}</li>`).join('')}</ul>
+          </div>
+          <div>
+            <span class="label">Laggards</span>
+            <ul class="list-inline">${data.laggards.map((item) => `<li class="chip chip--outline">${item}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <p style="margin-top:12px;">${region.narrative}</p>
+      `;
+
+      riskMeter.style.left = `${data.riskScore}%`;
+      riskNarrative.textContent = data.riskScore > 65
+        ? 'Risk appetite is broadly constructive; pullbacks are being bought.'
+        : data.riskScore > 50
+        ? 'Balanced stance: opportunities exist but monitor hedges.'
+        : 'Risk-off tone creeping in; tighten stops and size appropriately.';
+
+      regionNarrative.innerHTML = `
+        <h3>${region.label} Desk Briefing</h3>
+        <p>${region.narrative}</p>
+      `;
+
+      renderMacroStats(data.metrics, data.signals);
+      renderHeatmap(data.sectors);
+      renderEvents(region.events);
+
+      document.querySelectorAll('.feature-toggle').forEach((button) => {
+        button.classList.toggle('pill--active', button.dataset.range === range);
+      });
+    }
+
+    document.getElementById('rangeButtons').addEventListener('click', (event) => {
+      if (event.target.matches('.feature-toggle')) {
+        renderRange(event.target.dataset.range);
+      }
+    });
+
+    regionSelect.addEventListener('change', (event) => {
+      currentRegion = event.target.value;
+      const region = MARKET_DATA[currentRegion];
+      regionNarrative.innerHTML = `
+        <h3>${region.label} Desk Briefing</h3>
+        <p>${region.narrative}</p>
+      `;
+      renderRange(currentRange);
+    });
+
+    document.getElementById('refreshButton').addEventListener('click', () => {
+      renderRange(currentRange);
+    });
+
+    populateRegions();
+    renderRange(currentRange);
+  </script>
+
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn tabbar__btn--active" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+

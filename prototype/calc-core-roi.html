@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ROI Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }
+  </script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-core.html">← Back to CORE</a>
+      <span>ROI Calculator</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Return on Investment (ROI) Calculator</h2>
+        <p>Calculate your investment return percentage and annualized returns.</p>
+        
+        <form id="roiForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Initial Investment ($)</label>
+            <input type="number" id="initial" step="0.01" min="0" placeholder="10000" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Final Value ($)</label>
+            <input type="number" id="final" step="0.01" min="0" placeholder="15000" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Time Period (Years) - Optional</label>
+            <input type="number" id="years" step="0.1" min="0" placeholder="3" 
+                   style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted); font-size: 0.85rem;">Leave blank for simple ROI, fill for annualized ROI</small>
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">
+            Calculate ROI
+          </button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Gain/Loss:</span>
+              <span id="totalGain"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">ROI:</span>
+              <span id="roi" style="font-size: 1.3rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div id="annualizedSection" style="display: none;">
+              <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+                <span style="font-weight: 600;">Annualized ROI:</span>
+                <span id="annualizedROI" style="font-weight: 600; color: var(--accent);"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg>
+        <span>Sim/AI</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn tabbar__btn--active" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    document.getElementById('roiForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const initial = parseFloat(document.getElementById('initial').value);
+      const final = parseFloat(document.getElementById('final').value);
+      const years = parseFloat(document.getElementById('years').value);
+      
+      if (isNaN(initial) || isNaN(final)) {
+        alert('Please fill in initial and final values');
+        return;
+      }
+      
+      const totalGain = final - initial;
+      const roi = (totalGain / initial) * 100;
+      
+      const gainColor = totalGain >= 0 ? 'var(--accent)' : '#ef4444';
+      document.getElementById('totalGain').textContent = '$' + totalGain.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('totalGain').style.color = gainColor;
+      document.getElementById('totalGain').style.fontWeight = 'bold';
+      
+      document.getElementById('roi').textContent = roi.toFixed(2) + '%';
+      
+      if (!isNaN(years) && years > 0) {
+        const annualizedROI = (Math.pow(final / initial, 1 / years) - 1) * 100;
+        document.getElementById('annualizedROI').textContent = annualizedROI.toFixed(2) + '% per year';
+        document.getElementById('annualizedSection').style.display = 'block';
+      } else {
+        document.getElementById('annualizedSection').style.display = 'none';
+      }
+      
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

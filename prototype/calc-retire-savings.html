@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Retirement Savings Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-retire.html">← Back to RETIRE</a>
+      <span>Retirement Savings</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Retirement Savings Calculator</h2>
+        <p>Project your retirement savings and see if you're on track.</p>
+        
+        <form id="retireForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Current Age</label>
+            <input type="number" id="currentAge" min="18" max="100" placeholder="30" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Retirement Age</label>
+            <input type="number" id="retireAge" min="50" max="80" placeholder="65" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Current Savings ($)</label>
+            <input type="number" id="currentSavings" step="0.01" min="0" placeholder="50000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Monthly Contribution ($)</label>
+            <input type="number" id="monthlyContribution" step="0.01" min="0" placeholder="500" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Expected Annual Return (%)</label>
+            <input type="number" id="returnRate" step="0.1" placeholder="7" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Desired Annual Income in Retirement ($)</label>
+            <input type="number" id="desiredIncome" step="0.01" min="0" placeholder="50000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Retirement Projection</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--accent);">
+              <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Projected Savings at Retirement</div>
+              <div id="finalSavings" style="font-size: 1.8rem; font-weight: bold; color: var(--accent);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Years Until Retirement:</span>
+              <span id="yearsToRetire"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Contributed:</span>
+              <span id="totalContributed"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Investment Growth:</span>
+              <span id="investmentGrowth" style="color: #10b981; font-weight: bold;"></span>
+            </div>
+            <div id="incomeSection" style="padding: 16px; background: var(--bg-card); border-radius: 8px; margin-top: 8px;">
+              <h4 style="margin: 0 0 12px 0;">Retirement Income Analysis</h4>
+              <div style="display: grid; gap: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Sustainable Annual Income (4% rule):</span>
+                  <span id="sustainableIncome" style="font-weight: bold;"></span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Your Desired Income:</span>
+                  <span id="desiredIncomeDisplay"></span>
+                </div>
+                <div style="padding: 12px; background: var(--bg-muted); border-radius: 6px; margin-top: 8px;">
+                  <p id="assessment" style="margin: 0; font-weight: 600; text-align: center;"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('retireForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const currentAge = parseInt(document.getElementById('currentAge').value);
+      const retireAge = parseInt(document.getElementById('retireAge').value);
+      const currentSavings = parseFloat(document.getElementById('currentSavings').value) || 0;
+      const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value) || 0;
+      const returnRate = parseFloat(document.getElementById('returnRate').value) / 100;
+      const desiredIncome = parseFloat(document.getElementById('desiredIncome').value);
+      
+      if (isNaN(currentAge) || isNaN(retireAge) || isNaN(returnRate)) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      if (retireAge <= currentAge) {
+        alert('Retirement age must be greater than current age');
+        return;
+      }
+      
+      const yearsToRetire = retireAge - currentAge;
+      const monthlyRate = returnRate / 12;
+      const months = yearsToRetire * 12;
+      
+      const futureValueCurrent = currentSavings * Math.pow(1 + returnRate, yearsToRetire);
+      const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+      const finalSavings = futureValueCurrent + futureValueContributions;
+      const totalContributed = currentSavings + (monthlyContribution * months);
+      const investmentGrowth = finalSavings - totalContributed;
+      
+      document.getElementById('finalSavings').textContent = '$' + finalSavings.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('yearsToRetire').textContent = yearsToRetire + ' years';
+      document.getElementById('totalContributed').textContent = '$' + totalContributed.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('investmentGrowth').textContent = '+$' + investmentGrowth.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      
+      const sustainableIncome = finalSavings * 0.04;
+      document.getElementById('sustainableIncome').textContent = '$' + sustainableIncome.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('desiredIncomeDisplay').textContent = '$' + desiredIncome.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      
+      let assessment = '';
+      let color = '';
+      if (!isNaN(desiredIncome) && desiredIncome > 0) {
+        const shortfall = desiredIncome - sustainableIncome;
+        if (shortfall <= 0) {
+          assessment = '✅ ON TRACK! You\'ll meet your retirement income goal.';
+          color = '#10b981';
+        } else {
+          const percentShort = (shortfall / desiredIncome) * 100;
+          if (percentShort < 20) {
+            assessment = '⚠️ Close! You\'re $' + shortfall.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' short. Consider increasing contributions.';
+            color = '#f59e0b';
+          } else {
+            assessment = '❌ Shortfall of $' + shortfall.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '/year. Increase savings or adjust expectations.';
+            color = '#ef4444';
+          }
+        }
+        document.getElementById('assessment').textContent = assessment;
+        document.getElementById('assessment').style.color = color;
+      }
+      
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,151 @@
+<!-- 
+  EXAMPLE INTEGRATION FOR MARKET ANALYZER
+  Add this to your market-analyzer.html page
+-->
+
+<!-- Add the article API client -->
+<script src="article-api.js"></script>
+
+<!-- Add this section where you want articles to appear -->
+<section class="card" style="margin-top: 24px;">
+  <h2>📰 Latest Market News</h2>
+  
+  <!-- Cache Statistics -->
+  <div id="market-cache-stats"></div>
+  
+  <!-- Filter Controls -->
+  <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+    <select id="market-time-filter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+      <option value="">All Time</option>
+      <option value="1">Last 24 Hours</option>
+      <option value="3" selected>Last 3 Days</option>
+      <option value="7">Last Week</option>
+      <option value="30">Last Month</option>
+    </select>
+    
+    <select id="market-relevance-filter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+      <option value="0.5">Any Relevance</option>
+      <option value="0.6">60%+ Relevant</option>
+      <option value="0.7" selected>70%+ Relevant</option>
+      <option value="0.8">80%+ Relevant</option>
+    </select>
+    
+    <button id="market-refresh-btn" class="btn btn--primary" style="margin-left: auto;">
+      🔄 Refresh Articles
+    </button>
+  </div>
+  
+  <!-- Loading State -->
+  <div id="market-loading" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+    <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
+    <div>Loading articles...</div>
+  </div>
+  
+  <!-- Articles Container -->
+  <div id="market-articles-container"></div>
+</section>
+
+<script>
+  // Market Analyzer Article Integration
+  let marketArticlesLoaded = false;
+
+  async function loadMarketArticles() {
+    const container = document.getElementById('market-articles-container');
+    const loading = document.getElementById('market-loading');
+    const timeFilter = document.getElementById('market-time-filter').value;
+    const relevanceFilter = document.getElementById('market-relevance-filter').value;
+    
+    // Show loading
+    loading.style.display = 'block';
+    container.innerHTML = '';
+    
+    try {
+      const result = await ArticleAPI.getMarketArticles({
+        limit: 50,
+        daysOld: timeFilter ? parseInt(timeFilter) : null,
+        minRelevance: parseFloat(relevanceFilter)
+      });
+      
+      loading.style.display = 'none';
+      
+      if (result.success) {
+        // Render cache stats
+        ArticleAPI.renderCacheStats(result.stats, 'market-cache-stats');
+        
+        // Render articles
+        ArticleAPI.renderArticles(result.articles, 'market-articles-container');
+        
+        marketArticlesLoaded = true;
+        
+        console.log(`Loaded ${result.articles.length} market articles`);
+      } else {
+        container.innerHTML = `<p style="color: var(--error); text-align: center; padding: 20px;">Failed to load articles: ${result.error}</p>`;
+      }
+    } catch (error) {
+      loading.style.display = 'none';
+      container.innerHTML = `<p style="color: var(--error); text-align: center; padding: 20px;">Error: ${error.message}</p>`;
+    }
+  }
+
+  async function refreshMarketCache() {
+    const btn = document.getElementById('market-refresh-btn');
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Refreshing...';
+    
+    try {
+      const result = await ArticleAPI.refreshCache();
+      
+      if (result.success) {
+        // Reload articles after refresh
+        await loadMarketArticles();
+        btn.textContent = '✅ Refreshed!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 2000);
+      } else {
+        btn.textContent = '❌ Failed';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 2000);
+      }
+    } catch (error) {
+      btn.textContent = '❌ Error';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }, 2000);
+    }
+  }
+
+  // Event listeners
+  document.getElementById('market-time-filter')?.addEventListener('change', loadMarketArticles);
+  document.getElementById('market-relevance-filter')?.addEventListener('change', loadMarketArticles);
+  document.getElementById('market-refresh-btn')?.addEventListener('click', refreshMarketCache);
+
+  // Load on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!marketArticlesLoaded) {
+      loadMarketArticles();
+    }
+  });
+</script>
+
+<style>
+  /* Article card hover effects */
+  .article-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.1);
+  }
+  
+  .article-card a:hover {
+    color: var(--accent) !important;
+  }
+</style>

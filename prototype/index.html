@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investing101 Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply dark mode before page renders to prevent flash
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark-mode-loading');
+    }
+  </script>
+</head>
+<body>
+  <script>
+    // Apply dark mode to body
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+    // Apply compact mode to body
+    if (localStorage.getItem('compactMode') === 'true') {
+      document.body.classList.add('compact-mode');
+    }
+  </script>
+  <div class="app">
+    <header class="app__header">
+      <img class="app__logo" src="../Investing101.png" alt="Investing101 logo">
+      <div class="app__header-actions">
+        <button class="icon-button" type="button" aria-label="Notifications">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+        </button>
+        <button class="btn btn--ghost btn--with-icon" type="button">
+          <span>Share</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="app__content">
+      <section id="home" class="screen screen--active" aria-label="Main dashboard">
+        <!-- Welcome Message -->
+        <div style="background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%); padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);">
+          <h2 style="color: white; margin: 0 0 8px 0; font-size: 1.5rem;">Welcome to Investing101! 👋</h2>
+          <p style="color: rgba(255, 255, 255, 0.95); margin: 0; font-size: 0.95rem; line-height: 1.5;">
+            Your journey to financial literacy starts here. Explore market analysis, learn investing fundamentals, use powerful calculators, and test your skills.
+          </p>
+        </div>
+
+        <section class="feature-links" aria-label="Main feature links">
+          <a class="feature-link card" href="market-analyzer.html">
+            <h3>Market Analyzer</h3>
+          </a>
+          <a class="feature-link card" href="stock-analysis.html">
+            <h3>Specific Stock Analysis</h3>
+          </a>
+          <a class="feature-link card" href="stock-recommendations.html">
+            <h3>Stock Recommendations</h3>
+          </a>
+          <a class="feature-link card" href="comparison.html">
+            <h3>Comparison to Indexes</h3>
+          </a>
+          <a class="feature-link card" href="politician-portfolio.html">
+            <h3>Politician Portfolio</h3>
+          </a>
+        </section>
+      </section>
+
+      <section id="simulator" class="screen" aria-label="Simulation and AI challenges">
+        <section class="feature-links feature-links--split" aria-label="Simulator links">
+          <a class="feature-link--split" href="simulator.html">
+            <span style="font-size: 2.5rem;">🎯</span>
+            <span>Market Simulation</span>
+          </a>
+          <a class="feature-link--split" href="play-ai.html">
+            <span style="font-size: 2.5rem;">🤖</span>
+            <span>Play the AI</span>
+          </a>
+        </section>
+      </section>
+
+      <section id="lessons" class="screen" aria-label="Lessons and curriculum">
+        <section class="feature-links feature-links--vertical" aria-label="Lesson links">
+          <a class="feature-link--vertical" href="lessons-foundations.html">
+            <span style="font-size: 2rem;">📚</span>
+            <span>Foundations</span>
+          </a>
+          <a class="feature-link--vertical" href="lessons-instruments.html">
+            <span style="font-size: 2rem;">🔧</span>
+            <span>Instruments & Accounts</span>
+          </a>
+          <a class="feature-link--vertical" href="lessons-practical.html">
+            <span style="font-size: 2rem;">💼</span>
+            <span>Practical Investing</span>
+          </a>
+          <a class="feature-link--vertical" href="lessons-market.html">
+            <span style="font-size: 2rem;">📊</span>
+            <span>Market Understanding</span>
+          </a>
+        </section>
+      </section>
+
+      <section id="calculators" class="screen" aria-label="Calculator suite">
+        <section class="feature-links feature-links--rows" aria-label="Calculator links">
+          <a class="feature-link--row" href="calculator-core.html">
+            <span style="font-size: 1.5rem;">💰</span>
+            <span>CORE</span>
+          </a>
+          <a class="feature-link--row" href="calculator-risk.html">
+            <span style="font-size: 1.5rem;">⚠️</span>
+            <span>RISK</span>
+          </a>
+          <a class="feature-link--row" href="calculator-stock.html">
+            <span style="font-size: 1.5rem;">📈</span>
+            <span>STOCK</span>
+          </a>
+          <a class="feature-link--row" href="calculator-asset.html">
+            <span style="font-size: 1.5rem;">🏦</span>
+            <span>ASSET</span>
+          </a>
+          <a class="feature-link--row" href="calculator-retire.html">
+            <span style="font-size: 1.5rem;">🏖️</span>
+            <span>RETIRE</span>
+          </a>
+          <a class="feature-link--row" href="calculator-tax.html">
+            <span style="font-size: 1.5rem;">📋</span>
+            <span>TAX</span>
+          </a>
+          <a class="feature-link--row" href="calculator-crypto.html">
+            <span style="font-size: 1.5rem;">₿</span>
+            <span>CRYPTO</span>
+          </a>
+        </section>
+      </section>
+
+      <section id="profile" class="screen" aria-label="Profile and progression">
+        <section class="feature-links feature-links--profile" aria-label="Profile links">
+          <a class="feature-link--profile" href="profile.html">
+            <span style="font-size: 3rem;">👤</span>
+            <span>Profile</span>
+          </a>
+          <a class="feature-link--profile" href="friends.html">
+            <span style="font-size: 3rem;">👥</span>
+            <span>Friends</span>
+          </a>
+          <a class="feature-link--profile" href="settings.html">
+            <span style="font-size: 3rem;">⚙️</span>
+            <span>Settings</span>
+          </a>
+          <a class="feature-link--profile" href="subscription.html">
+            <span style="font-size: 3rem;">💳</span>
+            <span>Subscription</span>
+          </a>
+          <a class="feature-link--profile" href="newsletter.html">
+            <span style="font-size: 3rem;">📧</span>
+            <span>Newsletter</span>
+          </a>
+        </section>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn tabbar__btn--active" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10.5L12 3l9 7.5" />
+          <path d="M5 10.5V21h14V10.5" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v3" />
+          <path d="M12 18v3" />
+          <path d="M3 12h3" />
+          <path d="M18 12h3" />
+        </svg>
+        <span>Sim/AI</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+          <path d="M4 12l8 3 8-3" />
+          <path d="M12 5v10" />
+        </svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h3" />
+          <path d="M14 16h3" />
+        </svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    // Removed old tab switching script since we're now using proper navigation
+  </script>
+</body>
+</html>
+

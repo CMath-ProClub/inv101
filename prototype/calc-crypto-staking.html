@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Staking Yield Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-crypto.html">← Back to CRYPTO</a>
+      <span>Staking Yield</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Crypto Staking Yield Calculator</h2>
+        <p>Calculate your staking rewards and future value of staked crypto.</p>
+        
+        <form id="stakingForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Staked Amount (coins)</label>
+            <input type="number" id="stakedAmount" step="0.01" min="0" placeholder="1000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Current Price per Coin ($)</label>
+            <input type="number" id="coinPrice" step="0.01" min="0" placeholder="50" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Percentage Yield (APY %)</label>
+            <input type="number" id="apy" step="0.1" min="0" placeholder="5" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Staking APY offered by the network/platform</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Staking Period</label>
+            <select id="period" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="30">1 Month</option>
+              <option value="90">3 Months</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="730">2 Years</option>
+              <option value="1825">5 Years</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Compounding Frequency</label>
+            <select id="compounding" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="365">Daily</option>
+              <option value="52">Weekly</option>
+              <option value="12">Monthly</option>
+              <option value="4">Quarterly</option>
+              <option value="1">Annually</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate Rewards</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Staking Rewards</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Initial Investment:</span>
+              <span id="initialInvestment"></span>
+            </div>
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid #10b981;">
+              <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Total Rewards Earned</div>
+              <div id="totalRewards" style="font-size: 1.5rem; font-weight: bold; color: #10b981;"></div>
+              <div id="rewardsUSD" style="font-size: 1.1rem; color: var(--text-muted); margin-top: 4px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Final Balance:</span>
+              <span id="finalBalance" style="font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Value (USD):</span>
+              <span id="totalValueUSD" style="font-size: 1.2rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Effective APY:</span>
+              <span id="effectiveAPY" style="font-weight: bold;"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('stakingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const stakedAmount = parseFloat(document.getElementById('stakedAmount').value);
+      const coinPrice = parseFloat(document.getElementById('coinPrice').value);
+      const apy = parseFloat(document.getElementById('apy').value) / 100;
+      const days = parseFloat(document.getElementById('period').value);
+      const compoundingFreq = parseFloat(document.getElementById('compounding').value);
+      
+      if (isNaN(stakedAmount) || isNaN(coinPrice) || isNaN(apy)) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      const years = days / 365;
+      const n = compoundingFreq;
+      const finalBalance = stakedAmount * Math.pow(1 + apy / n, n * years);
+      const totalRewards = finalBalance - stakedAmount;
+      const initialInvestmentUSD = stakedAmount * coinPrice;
+      const totalValueUSD = finalBalance * coinPrice;
+      const rewardsUSD = totalRewards * coinPrice;
+      const effectiveAPY = (Math.pow(1 + apy / n, n) - 1) * 100;
+      
+      document.getElementById('initialInvestment').textContent = stakedAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' coins ($' + initialInvestmentUSD.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ')';
+      document.getElementById('totalRewards').textContent = '+' + totalRewards.toFixed(4).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' coins';
+      document.getElementById('rewardsUSD').textContent = '$' + rewardsUSD.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' in rewards';
+      document.getElementById('finalBalance').textContent = finalBalance.toFixed(4).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' coins';
+      document.getElementById('totalValueUSD').textContent = '$' + totalValueUSD.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('effectiveAPY').textContent = effectiveAPY.toFixed(2) + '%';
+      
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Volatility Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-core.html">← Back to CORE</a>
+      <span>Volatility Calculator</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Volatility Calculator</h2>
+        <p>Calculate the standard deviation and annualized volatility of price returns.</p>
+        
+        <form id="volatilityForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Price Data (comma-separated)</label>
+            <textarea id="prices" rows="4" placeholder="100, 102, 98, 103, 101, 105, 99, 107..." style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text); font-family: inherit; resize: vertical;"></textarea>
+            <small style="color: var(--text-muted);">Enter at least 5 price points</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Time Period</label>
+            <select id="period" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="252">Daily (252 trading days/year)</option>
+              <option value="52">Weekly (52 weeks/year)</option>
+              <option value="12">Monthly (12 months/year)</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Data Points:</span>
+              <span id="dataPoints"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Average Return:</span>
+              <span id="avgReturn"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Standard Deviation:</span>
+              <span id="stdDev" style="font-weight: bold;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Annualized Volatility:</span>
+              <span id="annualizedVol" style="font-size: 1.3rem; font-weight: bold; color: var(--accent);"></span>
+            </div>
+            <div style="padding: 12px; background: var(--bg-card); border-radius: 8px; margin-top: 8px;">
+              <p id="interpretation" style="text-align: center; font-weight: 600; margin: 0;"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('volatilityForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pricesInput = document.getElementById('prices').value;
+      const period = parseFloat(document.getElementById('period').value);
+      const pricesArray = pricesInput.split(',').map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
+      if (pricesArray.length < 5) {
+        alert('Please enter at least 5 price points');
+        return;
+      }
+      const returns = [];
+      for (let i = 1; i < pricesArray.length; i++) {
+        returns.push((pricesArray[i] - pricesArray[i-1]) / pricesArray[i-1]);
+      }
+      const avgReturn = returns.reduce((sum, r) => sum + r, 0) / returns.length;
+      const squaredDiffs = returns.map(r => Math.pow(r - avgReturn, 2));
+      const variance = squaredDiffs.reduce((sum, sd) => sum + sd, 0) / returns.length;
+      const stdDev = Math.sqrt(variance);
+      const annualizedVol = stdDev * Math.sqrt(period);
+      document.getElementById('dataPoints').textContent = pricesArray.length + ' prices, ' + returns.length + ' returns';
+      document.getElementById('avgReturn').textContent = (avgReturn * 100).toFixed(3) + '%';
+      document.getElementById('stdDev').textContent = (stdDev * 100).toFixed(3) + '%';
+      document.getElementById('annualizedVol').textContent = (annualizedVol * 100).toFixed(2) + '%';
+      let interpretation = '';
+      let color = '';
+      const volPercent = annualizedVol * 100;
+      if (volPercent < 15) {
+        interpretation = '📊 Low Volatility - Relatively stable asset';
+        color = '#10b981';
+      } else if (volPercent < 30) {
+        interpretation = '⚠️ Moderate Volatility - Average market risk';
+        color = '#f59e0b';
+      } else if (volPercent < 50) {
+        interpretation = '⚠️ High Volatility - Significant price swings';
+        color = '#f59e0b';
+      } else {
+        interpretation = '🔥 Very High Volatility - Extremely risky asset';
+        color = '#ef4444';
+      }
+      document.getElementById('interpretation').textContent = interpretation;
+      document.getElementById('interpretation').style.color = color;
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

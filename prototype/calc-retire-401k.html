@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>401(k) Growth Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-retire.html">← Back to RETIRE</a>
+      <span>401(k) Growth</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>401(k) Growth Calculator</h2>
+        <p>Project your 401(k) balance including employer matching contributions.</p>
+        
+        <form id="k401Form" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Current 401(k) Balance ($)</label>
+            <input type="number" id="currentBalance" step="0.01" min="0" placeholder="25000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Salary ($)</label>
+            <input type="number" id="salary" step="0.01" min="0" placeholder="75000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Your Contribution (%)</label>
+            <input type="number" id="contribution" step="0.1" min="0" max="100" placeholder="6" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Percentage of salary you contribute</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Employer Match (%)</label>
+            <input type="number" id="employerMatch" step="0.1" min="0" max="100" placeholder="50" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">e.g., "50" for 50% match on contributions</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Match Limit (% of salary)</label>
+            <input type="number" id="matchLimit" step="0.1" min="0" max="100" value="6" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Maximum contribution eligible for matching</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Expected Annual Return (%)</label>
+            <input type="number" id="returnRate" step="0.1" placeholder="7" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Years Until Retirement</label>
+            <input type="number" id="years" min="1" max="50" placeholder="30" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">401(k) Projection</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid var(--accent);">
+              <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Total at Retirement</div>
+              <div id="finalBalance" style="font-size: 1.8rem; font-weight: bold; color: var(--accent);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Your Annual Contribution:</span>
+              <span id="annualContribution"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Employer Annual Match:</span>
+              <span id="employerAnnual" style="color: #10b981; font-weight: bold;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Total Employer Match:</span>
+              <span id="totalEmployer" style="color: #10b981; font-weight: bold;"></span>
+            </div>
+            <div style="padding: 12px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: 8px; margin-top: 8px;">
+              <p id="freeMoneyMsg" style="margin: 0; font-weight: 600; text-align: center; color: #10b981;"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('k401Form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const currentBalance = parseFloat(document.getElementById('currentBalance').value) || 0;
+      const salary = parseFloat(document.getElementById('salary').value);
+      const contributionPct = parseFloat(document.getElementById('contribution').value) / 100;
+      const employerMatchPct = parseFloat(document.getElementById('employerMatch').value) / 100;
+      const matchLimit = parseFloat(document.getElementById('matchLimit').value) / 100;
+      const returnRate = parseFloat(document.getElementById('returnRate').value) / 100;
+      const years = parseInt(document.getElementById('years').value);
+      
+      if (isNaN(salary) || isNaN(contributionPct) || isNaN(returnRate) || isNaN(years)) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      const annualContribution = salary * contributionPct;
+      const matchableContribution = Math.min(salary * contributionPct, salary * matchLimit);
+      const employerAnnual = matchableContribution * employerMatchPct;
+      const totalAnnual = annualContribution + employerAnnual;
+      
+      const monthlyContribution = totalAnnual / 12;
+      const monthlyRate = returnRate / 12;
+      const months = years * 12;
+      
+      const futureValueCurrent = currentBalance * Math.pow(1 + returnRate, years);
+      const futureValueContributions = monthlyContribution * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+      const finalBalance = futureValueCurrent + futureValueContributions;
+      const totalEmployer = employerAnnual * years;
+      
+      document.getElementById('finalBalance').textContent = '$' + finalBalance.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('annualContribution').textContent = '$' + annualContribution.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('employerAnnual').textContent = '$' + employerAnnual.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('totalEmployer').textContent = '$' + totalEmployer.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('freeMoneyMsg').textContent = '💰 That\'s $' + totalEmployer.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' in FREE employer contributions!';
+      
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Portfolio VaR Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }</script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="calc-risk.html">← Back to RISK</a>
+      <span>Portfolio VaR</span>
+      <span></span>
+    </header>
+    <main class="app__content">
+      <section class="card">
+        <h2>Portfolio Value at Risk (VaR)</h2>
+        <p>Estimate the maximum potential loss over a time period at a given confidence level.</p>
+        
+        <form id="varForm" style="margin-top: 20px;">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Portfolio Value ($)</label>
+            <input type="number" id="portfolioValue" step="0.01" min="0" placeholder="100000" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Expected Annual Return (%)</label>
+            <input type="number" id="expectedReturn" step="0.1" placeholder="10" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Annual Volatility (Standard Deviation %)</label>
+            <input type="number" id="volatility" step="0.1" min="0" placeholder="15" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+            <small style="color: var(--text-muted);">Typical stock portfolio: 15-20%, bonds: 5-10%</small>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Confidence Level</label>
+            <select id="confidence" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="90">90% (1.28 std dev)</option>
+              <option value="95" selected>95% (1.65 std dev)</option>
+              <option value="99">99% (2.33 std dev)</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Time Horizon</label>
+            <select id="timeHorizon" style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-card); color: var(--text);">
+              <option value="1">1 Day</option>
+              <option value="5">1 Week (5 days)</option>
+              <option value="21">1 Month (21 days)</option>
+              <option value="252">1 Year (252 days)</option>
+            </select>
+          </div>
+          
+          <button type="submit" class="btn btn--primary" style="width: 100%; padding: 14px; font-size: 1.1rem;">Calculate VaR</button>
+        </form>
+        
+        <div id="result" style="display: none; margin-top: 24px; padding: 20px; background: var(--bg-muted); border-radius: 12px; border: 2px solid var(--accent);">
+          <h3 style="margin-bottom: 16px; color: var(--accent);">Results</h3>
+          <div style="display: grid; gap: 12px;">
+            <div style="padding: 16px; background: var(--bg-card); border-radius: 8px; border-left: 4px solid #ef4444;">
+              <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">Value at Risk (VaR)</div>
+              <div id="varAmount" style="font-size: 1.8rem; font-weight: bold; color: #ef4444;"></div>
+              <div id="varPercent" style="font-size: 1.1rem; color: var(--text-muted); margin-top: 4px;"></div>
+            </div>
+            <div style="padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <p id="interpretation" style="margin: 0; line-height: 1.6;"></p>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-card); border-radius: 8px;">
+              <span style="font-weight: 600;">Portfolio Floor:</span>
+              <span id="portfolioFloor" style="font-weight: bold;"></span>
+            </div>
+            <div style="padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; margin-top: 8px;">
+              <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">
+                ⚠️ VaR is a statistical estimate. Actual losses can exceed VaR, especially during market crises.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar"><a class="tabbar__btn" href="index.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5" /><path d="M5 10.5V21h14V10.5" /><path d="M9 21v-6h6v6" /></svg><span>Main</span></a><a class="tabbar__btn" href="simulator.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" /></svg><span>Sim/AI</span></a><a class="tabbar__btn" href="lessons.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" /><path d="M4 12l8 3 8-3" /><path d="M12 5v10" /></svg><span>Lessons</span></a><a class="tabbar__btn tabbar__btn--active" href="calculators.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 8h10" /><path d="M7 12h10" /><path d="M7 16h4" /></svg><span>Calc</span></a><a class="tabbar__btn" href="profile.html"><svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg><span>Profile</span></a></nav>
+  </div>
+  <script>
+    document.getElementById('varForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const portfolioValue = parseFloat(document.getElementById('portfolioValue').value);
+      const expectedReturn = parseFloat(document.getElementById('expectedReturn').value) / 100;
+      const volatility = parseFloat(document.getElementById('volatility').value) / 100;
+      const confidence = parseFloat(document.getElementById('confidence').value);
+      const timeHorizon = parseFloat(document.getElementById('timeHorizon').value);
+      if (isNaN(portfolioValue) || isNaN(expectedReturn) || isNaN(volatility)) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      const zScores = { 90: 1.28, 95: 1.65, 99: 2.33 };
+      const zScore = zScores[confidence];
+      const dailyReturn = expectedReturn / 252;
+      const dailyVolatility = volatility / Math.sqrt(252);
+      const periodReturn = dailyReturn * timeHorizon;
+      const periodVolatility = dailyVolatility * Math.sqrt(timeHorizon);
+      const varPercent = (periodReturn - zScore * periodVolatility);
+      const varAmount = portfolioValue * Math.abs(varPercent);
+      const portfolioFloor = portfolioValue + (portfolioValue * varPercent);
+      document.getElementById('varAmount').textContent = '$' + varAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('varPercent').textContent = (Math.abs(varPercent) * 100).toFixed(2) + '% of portfolio';
+      const timeText = timeHorizon === 1 ? '1 day' : timeHorizon === 5 ? '1 week' : timeHorizon === 21 ? '1 month' : '1 year';
+      document.getElementById('interpretation').textContent = `With ${confidence}% confidence, your portfolio will not lose more than $${varAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')} over the next ${timeText}. In other words, there is only a ${100-confidence}% chance of losing more than this amount.`;
+      document.getElementById('portfolioFloor').textContent = '$' + portfolioFloor.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,201 @@
+<!-- 
+  EXAMPLE INTEGRATION FOR STOCK ANALYSIS PAGE
+  Add this to your stock-analysis.html page
+-->
+
+<!-- Add the article API client -->
+<script src="article-api.js"></script>
+
+<!-- Add this section where you want stock-specific articles -->
+<section class="card" style="margin-top: 24px;">
+  <h2>📊 Stock News & Analysis</h2>
+  
+  <!-- Stock Ticker Input -->
+  <div style="margin-bottom: 20px;">
+    <label style="display: block; margin-bottom: 8px; color: var(--text); font-weight: 500;">
+      Enter Stock Ticker:
+    </label>
+    <div style="display: flex; gap: 12px;">
+      <input 
+        type="text" 
+        id="stock-ticker-input" 
+        placeholder="e.g., AAPL, TSLA, MSFT..." 
+        style="flex: 1; padding: 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 1rem;"
+      />
+      <button id="stock-search-btn" class="btn btn--primary" style="padding: 12px 24px;">
+        🔍 Search News
+      </button>
+    </div>
+  </div>
+  
+  <!-- Popular Tickers Quick Links -->
+  <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+    <span style="color: var(--text-muted); font-size: 0.9rem;">Quick search:</span>
+    <button class="ticker-quick-btn" data-ticker="AAPL" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--accent); cursor: pointer; font-size: 0.9rem;">AAPL</button>
+    <button class="ticker-quick-btn" data-ticker="TSLA" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--accent); cursor: pointer; font-size: 0.9rem;">TSLA</button>
+    <button class="ticker-quick-btn" data-ticker="MSFT" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--accent); cursor: pointer; font-size: 0.9rem;">MSFT</button>
+    <button class="ticker-quick-btn" data-ticker="NVDA" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--accent); cursor: pointer; font-size: 0.9rem;">NVDA</button>
+    <button class="ticker-quick-btn" data-ticker="GOOGL" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--accent); cursor: pointer; font-size: 0.9rem;">GOOGL</button>
+    <button class="ticker-quick-btn" data-ticker="AMZN" style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--accent); cursor: pointer; font-size: 0.9rem;">AMZN</button>
+  </div>
+  
+  <!-- Current Ticker Display -->
+  <div id="stock-current-ticker" style="display: none; margin-bottom: 20px; padding: 12px; background: rgba(0, 212, 255, 0.1); border-radius: 6px; border: 1px solid var(--accent);">
+    <span style="color: var(--text-muted);">Showing articles for:</span>
+    <strong id="stock-ticker-display" style="color: var(--accent); font-size: 1.2rem; margin-left: 8px;"></strong>
+  </div>
+  
+  <!-- Filter Controls -->
+  <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+    <select id="stock-time-filter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+      <option value="">All Time</option>
+      <option value="1">Last 24 Hours</option>
+      <option value="3" selected>Last 3 Days</option>
+      <option value="7">Last Week</option>
+      <option value="30">Last Month</option>
+    </select>
+    
+    <select id="stock-relevance-filter" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+      <option value="0.5">Any Relevance</option>
+      <option value="0.6">60%+ Relevant</option>
+      <option value="0.7" selected>70%+ Relevant</option>
+      <option value="0.8">80%+ Relevant</option>
+    </select>
+  </div>
+  
+  <!-- Loading State -->
+  <div id="stock-loading" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+    <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
+    <div>Loading articles...</div>
+  </div>
+  
+  <!-- Empty State -->
+  <div id="stock-empty-state" style="text-align: center; padding: 60px 20px; color: var(--text-muted);">
+    <div style="font-size: 3rem; margin-bottom: 16px;">📈</div>
+    <h3 style="margin-bottom: 8px; color: var(--text);">Search for Stock News</h3>
+    <p>Enter a ticker symbol above to see the latest articles and analysis</p>
+  </div>
+  
+  <!-- Articles Container -->
+  <div id="stock-articles-container"></div>
+</section>
+
+<script>
+  // Stock Analysis Article Integration
+  let currentStockTicker = null;
+
+  async function loadStockArticles(ticker) {
+    if (!ticker) return;
+    
+    const container = document.getElementById('stock-articles-container');
+    const loading = document.getElementById('stock-loading');
+    const emptyState = document.getElementById('stock-empty-state');
+    const currentTickerDiv = document.getElementById('stock-current-ticker');
+    const tickerDisplay = document.getElementById('stock-ticker-display');
+    const timeFilter = document.getElementById('stock-time-filter').value;
+    const relevanceFilter = document.getElementById('stock-relevance-filter').value;
+    
+    currentStockTicker = ticker.toUpperCase();
+    
+    // Update UI
+    emptyState.style.display = 'none';
+    loading.style.display = 'block';
+    container.innerHTML = '';
+    currentTickerDiv.style.display = 'block';
+    tickerDisplay.textContent = currentStockTicker;
+    
+    try {
+      const result = await ArticleAPI.getStockArticles(currentStockTicker, {
+        limit: 50,
+        daysOld: timeFilter ? parseInt(timeFilter) : null,
+        minRelevance: parseFloat(relevanceFilter)
+      });
+      
+      loading.style.display = 'none';
+      
+      if (result.success) {
+        if (result.articles.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+              <div style="font-size: 2rem; margin-bottom: 12px;">📭</div>
+              <p>No articles found for <strong>${currentStockTicker}</strong></p>
+              <p style="font-size: 0.9rem;">Try a different ticker or adjust your filters</p>
+            </div>
+          `;
+        } else {
+          ArticleAPI.renderArticles(result.articles, 'stock-articles-container');
+          console.log(`Loaded ${result.articles.length} articles for ${currentStockTicker}`);
+        }
+      } else {
+        container.innerHTML = `<p style="color: var(--error); text-align: center; padding: 20px;">Failed to load articles: ${result.error}</p>`;
+      }
+    } catch (error) {
+      loading.style.display = 'none';
+      container.innerHTML = `<p style="color: var(--error); text-align: center; padding: 20px;">Error: ${error.message}</p>`;
+    }
+  }
+
+  function searchStockNews() {
+    const input = document.getElementById('stock-ticker-input');
+    const ticker = input.value.trim();
+    
+    if (ticker) {
+      loadStockArticles(ticker);
+    }
+  }
+
+  // Event listeners
+  document.getElementById('stock-search-btn')?.addEventListener('click', searchStockNews);
+  
+  document.getElementById('stock-ticker-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      searchStockNews();
+    }
+  });
+  
+  document.getElementById('stock-time-filter')?.addEventListener('change', () => {
+    if (currentStockTicker) {
+      loadStockArticles(currentStockTicker);
+    }
+  });
+  
+  document.getElementById('stock-relevance-filter')?.addEventListener('change', () => {
+    if (currentStockTicker) {
+      loadStockArticles(currentStockTicker);
+    }
+  });
+  
+  // Quick ticker buttons
+  document.querySelectorAll('.ticker-quick-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ticker = btn.getAttribute('data-ticker');
+      document.getElementById('stock-ticker-input').value = ticker;
+      loadStockArticles(ticker);
+    });
+  });
+  
+  // Check if ticker in URL (e.g., ?ticker=AAPL)
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ticker = urlParams.get('ticker');
+    
+    if (ticker) {
+      document.getElementById('stock-ticker-input').value = ticker;
+      loadStockArticles(ticker);
+    }
+  });
+</script>
+
+<style>
+  .ticker-quick-btn:hover {
+    background: rgba(0, 212, 255, 0.1) !important;
+    border-color: var(--accent) !important;
+    transform: translateY(-1px);
+  }
+  
+  #stock-ticker-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+  }
+</style>
