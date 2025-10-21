@@ -56,27 +56,27 @@
         </form>
 
         <!-- Quick Access Stock Categories -->
-        <div class="card" style="padding:16px;">
-          <h4 style="margin:0 0 12px 0; font-size:0.95rem; color:#6b7280;">🚀 Quick Access Categories</h4>
-          <div style="display:flex; flex-wrap:wrap; gap:8px;">
-            <button class="chip" style="cursor:pointer; background:#3b82f6; color:white;" onclick="showStockCategory('top10')">Top 10</button>
-            <button class="chip" style="cursor:pointer; background:#10b981; color:white;" onclick="showStockCategory('top100')">Top 100</button>
-            <button class="chip" style="cursor:pointer; background:#f59e0b; color:white;" onclick="showStockCategory('fast-riser')">Fast Risers</button>
-            <button class="chip" style="cursor:pointer; background:#6366f1; color:white;" onclick="showStockCategory('stable')">Stable</button>
-            <button class="chip" style="cursor:pointer; background:#8b5cf6; color:white;" onclick="showStockCategory('dividend')">High Dividend</button>
-            <button class="chip" style="cursor:pointer; background:#ec4899; color:white;" onclick="showStockCategory('tech')">Tech</button>
-            <button class="chip" style="cursor:pointer; background:#14b8a6; color:white;" onclick="showStockCategory('finance')">Finance</button>
-            <button class="chip" style="cursor:pointer; background:#f97316; color:white;" onclick="showStockCategory('healthcare')">Healthcare</button>
-            <button class="chip" style="cursor:pointer; background:#84cc16; color:white;" onclick="showStockCategory('energy')">Energy</button>
-            <button class="chip" style="cursor:pointer; background:#06b6d4; color:white;" onclick="showStockCategory('consumer')">Consumer</button>
+        <div class="card">
+          <h4 style="margin:0 0 8px 0; font-size:0.85rem; color:#6b7280;">Quick Access</h4>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <button class="chip" style="cursor:pointer; background:#3b82f6; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('top10')">Top 10</button>
+            <button class="chip" style="cursor:pointer; background:#10b981; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('top100')">Top 100</button>
+            <button class="chip" style="cursor:pointer; background:#f59e0b; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('fast-riser')">Fast Risers</button>
+            <button class="chip" style="cursor:pointer; background:#6366f1; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('stable')">Stable</button>
+            <button class="chip" style="cursor:pointer; background:#8b5cf6; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('dividend')">Dividend</button>
+            <button class="chip" style="cursor:pointer; background:#ec4899; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('tech')">Tech</button>
+            <button class="chip" style="cursor:pointer; background:#14b8a6; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('finance')">Finance</button>
+            <button class="chip" style="cursor:pointer; background:#f97316; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('healthcare')">Healthcare</button>
+            <button class="chip" style="cursor:pointer; background:#84cc16; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('energy')">Energy</button>
+            <button class="chip" style="cursor:pointer; background:#06b6d4; color:white; font-size:0.75rem; padding:4px 10px;" onclick="showStockCategory('consumer')">Consumer</button>
           </div>
         </div>
 
         <!-- Category Stock List (Hidden by default) -->
-        <div class="card" id="categoryStocksDisplay" style="display:none; max-height:300px; overflow-y:auto;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h4 style="margin:0;" id="categoryTitle">Loading...</h4>
-            <button onclick="document.getElementById('categoryStocksDisplay').style.display='none'" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#6b7280;">✕</button>
+        <div class="card" id="categoryStocksDisplay" style="display:none; max-height:250px; overflow-y:auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h4 style="margin:0; font-size:0.9rem;" id="categoryTitle">Loading...</h4>
+            <button onclick="document.getElementById('categoryStocksDisplay').style.display='none'" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:#6b7280;">✕</button>
           </div>
           <div id="categoryStocksList"></div>
         </div>
@@ -371,23 +371,22 @@
       const stocksToShow = category.tickers.slice(0, 20);
       
       list.innerHTML = `
-        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:8px;">
           ${stocksToShow.map(ticker => `
             <button 
               class="card" 
               onclick="quickAnalyze('${ticker}')"
-              style="cursor:pointer; padding:12px; text-align:left; border:2px solid #e5e7eb; transition:all 0.2s;"
-              onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-2px)'"
+              style="cursor:pointer; padding:8px; text-align:center; border:1px solid #e5e7eb; transition:all 0.2s;"
+              onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-1px)'"
               onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'"
             >
-              <strong style="font-size:1.1rem; color:#1f2937;">${ticker}</strong>
-              <p style="margin:4px 0 0 0; font-size:0.85rem; color:#6b7280;">Click to analyze</p>
+              <strong style="font-size:0.9rem; color:#1f2937;">${ticker}</strong>
             </button>
           `).join('')}
         </div>
         ${category.tickers.length > 20 ? `
-          <p style="text-align:center; margin-top:16px; color:#6b7280; font-size:0.9rem;">
-            Showing 20 of ${category.tickers.length} stocks in this category
+          <p style="text-align:center; margin-top:12px; color:#6b7280; font-size:0.75rem;">
+            Showing 20 of ${category.tickers.length}
           </p>
         ` : ''}
       `;
@@ -536,61 +535,61 @@
                             record.viability === 'D' ? '#ef4444' : '#991b1b';
 
       container.innerHTML = `
-        <header class="analysis__header" style="background:white; padding:20px; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:16px;">
+        <header class="analysis__header" style="background:white; padding:12px; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:12px;">
           <div>
-            <strong style="font-size:1.5rem;">${record.name} (${ticker.toUpperCase()})</strong>
-            <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
-              <span class="chip" style="background:${viabilityColor}; color:white; font-weight:bold; font-size:0.95rem;">Viability: ${record.viability}</span>
-              <span class="chip" style="background:#6366f1; color:white; font-size:0.95rem;">Risk: ${record.risk}</span>
-              <span class="chip" style="font-size:0.95rem;">Window: ${window} days</span>
-              <span class="chip" style="background:#8b5cf6; color:white; font-size:0.95rem;">${record.articlesAnalyzed || 50}+ Sources</span>
+            <strong style="font-size:1.1rem; word-break:break-word;">${record.name} (${ticker.toUpperCase()})</strong>
+            <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+              <span class="chip" style="background:${viabilityColor}; color:white; font-weight:bold; font-size:0.75rem; padding:4px 8px;">Viability: ${record.viability}</span>
+              <span class="chip" style="background:#6366f1; color:white; font-size:0.75rem; padding:4px 8px;">Risk: ${record.risk}</span>
+              <span class="chip" style="font-size:0.75rem; padding:4px 8px;">Window: ${window} days</span>
+              <span class="chip" style="background:#8b5cf6; color:white; font-size:0.75rem; padding:4px 8px;">${record.articlesAnalyzed || 50}+ Sources</span>
             </div>
           </div>
         </header>
 
-        <div class="card" style="padding:16px; background:#f0f9ff; border-color:#0ea5e9; margin-bottom:16px;">
-          <p style="font-size:1.05rem; line-height:1.6; margin:0;">${record.outlook}</p>
-          <p style="margin:12px 0 0 0; font-style:italic; color:#1e40af;">${profileNote}</p>
+        <div class="card" style="padding:12px; background:#f0f9ff; border-color:#0ea5e9; margin-bottom:12px;">
+          <p style="font-size:0.9rem; line-height:1.5; margin:0;">${record.outlook}</p>
+          <p style="margin:10px 0 0 0; font-style:italic; color:#1e40af; font-size:0.85rem;">${profileNote}</p>
         </div>
 
         <!-- Tabbed Interface -->
         <div style="background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); overflow:hidden;">
           <!-- Tab Buttons -->
           <div style="display:flex; border-bottom:2px solid #e5e7eb; background:#f9fafb; overflow-x:auto;">
-            <button class="tab-btn tab-btn--active" onclick="switchTab('overview')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
-              📊 Overview
+            <button class="tab-btn tab-btn--active" onclick="switchTab('overview')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+              Overview
             </button>
-            <button class="tab-btn" onclick="switchTab('fundamentals')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
-              💼 Fundamentals
+            <button class="tab-btn" onclick="switchTab('fundamentals')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+              Fundamentals
             </button>
-            <button class="tab-btn" onclick="switchTab('sentiment')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
-              📈 Sentiment
+            <button class="tab-btn" onclick="switchTab('sentiment')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+              Sentiment
             </button>
-            <button class="tab-btn" onclick="switchTab('risk')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
-              ⚠️ Risk
+            <button class="tab-btn" onclick="switchTab('risk')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+              Risk
             </button>
             ${record.news.length > 0 ? `
-              <button class="tab-btn" onclick="switchTab('news')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
-                📰 News
+              <button class="tab-btn" onclick="switchTab('news')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+                News
               </button>
             ` : ''}
           </div>
 
           <!-- Tab Contents -->
-          <div style="padding:24px;">
+          <div style="padding:12px;">
             <!-- Overview Tab -->
             <div id="overview-tab" class="tab-content">
-              <article style="margin-bottom:20px; padding:20px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white;">
-                <h3 style="color:white; border-bottom:2px solid rgba(255,255,255,0.3); padding-bottom:10px; margin:0 0 16px 0;">Conviction Breakdown</h3>
+              <article style="margin-bottom:12px; padding:12px; background:#3b82f6; border-radius:8px; color:white;">
+                <h3 style="color:white; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:8px; margin:0 0 12px 0; font-size:1rem;">Conviction Breakdown</h3>
                 <div style="margin-top:12px;">
                   ${renderScorecard(record.scores)}
                 </div>
-                <p style="margin:16px 0 0 0; font-size:0.95rem; opacity:0.95;">Overall Score: <strong style="font-size:1.5rem;">${record.scores.conviction}</strong>/100</p>
+                <p style="margin:12px 0 0 0; font-size:0.85rem; opacity:0.95;">Overall Score: <strong style="font-size:1.2rem;">${record.scores.conviction}</strong>/100</p>
               </article>
 
-              <article style="margin-bottom:20px; padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
-                <h3 style="margin:0 0 12px 0;">� Valuation Snapshot</h3>
-                <p style="font-size:1.05rem; margin-bottom:12px;">
+              <article style="margin-bottom:12px; padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px;">
+                <h3 style="margin:0 0 10px 0; font-size:1rem;">Valuation Snapshot</h3>
+                <p style="font-size:0.9rem; margin-bottom:10px;">
                   Current: <strong>${formatCurrency(record.valuation.price)}</strong> · 
                   Target: <strong>${formatCurrency(record.valuation.target)}</strong> · 
                   Upside: <strong style="color:#10b981;">${record.valuation.upside}</strong>
@@ -602,14 +601,14 @@
                 </div>
               </article>
 
-              <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
-                <h3 style="margin:0 0 12px 0;">🎯 Key Highlights</h3>
-                <ul class="bullet-list" style="margin:0;">
+              <article style="padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px;">
+                <h3 style="margin:0 0 10px 0; font-size:1rem;">Key Highlights</h3>
+                <ul class="bullet-list" style="margin:0; font-size:0.85rem;">
                   ${record.highlights.map((point) => `<li>${point}</li>`).join('')}
                 </ul>
                 ${record.catalysts.length > 0 ? `
-                  <h4 style="margin:16px 0 8px 0; font-size:1rem; color:#6366f1;">📅 Catalyst Calendar</h4>
-                  <ul class="bullet-list" style="margin:0;">
+                  <h4 style="margin:12px 0 8px 0; font-size:0.95rem; color:#6366f1;">Catalyst Calendar</h4>
+                  <ul class="bullet-list" style="margin:0; font-size:0.85rem;">
                     ${record.catalysts.map((item) => `<li>${item}</li>`).join('')}
                   </ul>
                 ` : ''}
@@ -618,31 +617,31 @@
 
             <!-- Fundamentals Tab -->
             <div id="fundamentals-tab" class="tab-content" style="display:none;">
-              <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
-                <h3 style="margin:0 0 16px 0;">💼 Fundamentals Dashboard</h3>
+              <article style="padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px;">
+                <h3 style="margin:0 0 12px 0; font-size:1rem;">Fundamentals Dashboard</h3>
                 ${renderFundamentals(record.fundamentals)}
                 ${record.cached ? 
-                  '<p style="margin-top:12px; color:#6b7280; font-size:0.9rem;">📦 Data from cache</p>' : 
-                  '<p style="margin-top:12px; color:#10b981; font-size:0.9rem;">✨ Live data</p>'
+                  '<p style="margin-top:10px; color:#6b7280; font-size:0.8rem;">📦 Data from cache</p>' : 
+                  '<p style="margin-top:10px; color:#10b981; font-size:0.8rem;">✨ Live data</p>'
                 }
               </article>
             </div>
 
             <!-- Sentiment Tab -->
             <div id="sentiment-tab" class="tab-content" style="display:none;">
-              <article style="padding:20px; background:#f0fdf4; border:2px solid #10b981; border-radius:12px;">
-                <h3 style="margin:0 0 8px 0;">📈 Sentiment Trend (${window} day window)</h3>
-                <p style="color:#065f46; margin-bottom:16px;">Tracking market sentiment based on article tone and volume</p>
+              <article style="padding:12px; background:#f0fdf4; border:2px solid #10b981; border-radius:8px;">
+                <h3 style="margin:0 0 8px 0; font-size:1rem;">Sentiment Trend (${window} day window)</h3>
+                <p style="color:#065f46; margin-bottom:12px; font-size:0.85rem;">Tracking market sentiment based on article tone and volume</p>
                 <div class="sentiment">${formatSentiment(record.tone)}</div>
               </article>
             </div>
 
             <!-- Risk Tab -->
             <div id="risk-tab" class="tab-content" style="display:none;">
-              <article style="padding:20px; background:#fef3c7; border:2px solid #fbbf24; border-radius:12px;">
-                <h3 style="margin:0 0 16px 0;">⚠️ Risk Metrics</h3>
-                <ul class="bullet-list" style="margin:0;">
-                  ${record.riskMetrics.map((metric) => `<li><strong>${metric.label}:</strong> <span style="font-size:1.1rem; color:#b45309;">${metric.value}</span></li>`).join('')}
+              <article style="padding:12px; background:#fef3c7; border:2px solid #fbbf24; border-radius:8px;">
+                <h3 style="margin:0 0 12px 0; font-size:1rem;">Risk Metrics</h3>
+                <ul class="bullet-list" style="margin:0; font-size:0.85rem;">
+                  ${record.riskMetrics.map((metric) => `<li><strong>${metric.label}:</strong> <span style="font-size:1rem; color:#b45309;">${metric.value}</span></li>`).join('')}
                 </ul>
               </article>
             </div>
