@@ -108,6 +108,63 @@
 
   <script src="config.js"></script>
   <script>
+  // Device Detection & Responsive Optimization
+  (function() {
+    const detectDevice = () => {
+      const width = window.innerWidth;
+      const userAgent = navigator.userAgent.toLowerCase();
+      
+      // Detect device type
+      const isMobile = /android|webos|iphone|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+      const isTablet = /(ipad|tablet|playbook|silk)|(android(?!.*mobile))/i.test(userAgent);
+      const isDesktop = !isMobile && !isTablet;
+      
+      // Determine device category by screen width
+      let deviceType;
+      if (width <= 480) {
+        deviceType = 'mobile-portrait';
+      } else if (width <= 767) {
+        deviceType = 'mobile-landscape';
+      } else if (width <= 1024) {
+        deviceType = 'tablet';
+      } else if (width <= 1280) {
+        deviceType = 'laptop';
+      } else {
+        deviceType = 'desktop';
+      }
+      
+      // Apply device class to body
+      document.body.classList.remove('mobile-portrait', 'mobile-landscape', 'tablet', 'laptop', 'desktop');
+      document.body.classList.add(deviceType);
+      
+      // Set custom CSS property for JavaScript access
+      document.documentElement.style.setProperty('--device-type', `"${deviceType}"`);
+      
+      // Log device info (helpful for debugging)
+      console.log(`📱 Device: ${deviceType} | Width: ${width}px | User Agent: ${isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'}`);
+      
+      return { deviceType, width, isMobile, isTablet, isDesktop };
+    };
+    
+    // Run on load
+    const device = detectDevice();
+    
+    // Re-detect on resize (with debounce)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(detectDevice, 250);
+    });
+    
+    // Optimize for touch devices
+    if (device.isMobile || device.isTablet) {
+      document.body.classList.add('touch-device');
+      
+      // Improve touch targets
+      document.addEventListener('touchstart', function(){}, {passive: true});
+    }
+  })();
+
   // Fetch comprehensive stock data from live backend API
     let STOCK_DATA = {};
 
