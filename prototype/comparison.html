@@ -51,6 +51,16 @@
           </fieldset>
         </div>
 
+        <div class="card">
+          <label class="field">
+            <span>Or enter custom ticker</span>
+            <div class="grid grid--two">
+              <input id="customTickerInput" type="text" placeholder="e.g. AAPL, MSFT, GOOGL" maxlength="10" style="text-transform: uppercase">
+              <button class="btn btn--secondary" type="button" id="addCustomTickerBtn">Add Ticker</button>
+            </div>
+          </label>
+        </div>
+
         <button class="btn btn--primary" type="button" id="compareButton">Refresh analytics</button>
 
         <section class="card" id="comparisonOutput" aria-live="polite">
@@ -69,6 +79,7 @@
     </main>
   </div>
 
+  <script src="config.js"></script>
   <script>
     const WINDOWS = ['24H', '7D', '30D', '90D', '1Y'];
 
@@ -393,6 +404,10 @@
     }
 
     document.getElementById('compareButton').addEventListener('click', renderComparison);
+    document.getElementById('addCustomTickerBtn').addEventListener('click', addCustomTicker);
+    document.getElementById('customTickerInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addCustomTicker();
+    });
     benchmarkSelect.addEventListener('change', renderComparison);
     timeframeSelect.addEventListener('change', renderComparison);
     metricSelect.addEventListener('change', renderComparison);
@@ -471,7 +486,7 @@
 
       async function fetchTopStocks() {
         try {
-          const res = await fetch('http://localhost:4000/api/stocks/top100');
+          const res = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.STOCKS_TOP100));
           const stocks = await res.json();
           COMPARISON_DATA.assets = Object.fromEntries(stocks.map(stock => [stock.ticker, {
             ticker: stock.ticker,
@@ -504,6 +519,57 @@
           });
         } catch (e) {
           COMPARISON_DATA.assets = {};
+        }
+      }
+
+      // Add custom ticker functionality
+      async function addCustomTicker() {
+        const input = document.getElementById('customTickerInput');
+        const ticker = input.value.trim().toUpperCase();
+        
+        if (!ticker) {
+          alert('Please enter a ticker symbol');
+          return;
+        }
+        
+        if (COMPARISON_DATA.assets[ticker]) {
+          alert(`${ticker} is already in the list`);
+          return;
+        }
+        
+        try {
+          const res = await fetch(API_CONFIG.getUrl(`/api/stocks/cached/${ticker}`));
+          if (!res.ok) throw new Error('Ticker not found');
+          
+          const stock = await res.json();
+          
+          // Add to assets
+          COMPARISON_DATA.assets[ticker] = {
+            ticker: stock.ticker || ticker,
+            name: stock.name || ticker,
+            profile: 'Custom ticker',
+            metrics: {
+              '24H': { return: Math.random()*2, volatility: Math.random()*2, sharpe: 0.8 + Math.random()*0.6 },
+              '7D': { return: Math.random()*4, volatility: Math.random()*3, sharpe: 0.9 + Math.random()*0.6 },
+              '30D': { return: Math.random()*8, volatility: Math.random()*4, sharpe: 1.0 + Math.random()*0.5 },
+              '90D': { return: Math.random()*15, volatility: Math.random()*5, sharpe: 1.1 + Math.random()*0.4 },
+              '1Y': { return: Math.random()*25, volatility: Math.random()*6, sharpe: 1.15 + Math.random()*0.4 }
+            }
+          };
+          
+          // Refresh asset checkboxes
+          const label = document.createElement('label');
+          label.className = 'checkbox-pill';
+          label.innerHTML = `
+            <input type="checkbox" value="${ticker}" checked>
+            <span>${ticker} · ${stock.name || ticker}</span>
+          `;
+          assetOptions.appendChild(label);
+          
+          input.value = '';
+          alert(`Added ${ticker} successfully!`);
+        } catch (e) {
+          alert(`Could not find ticker ${ticker}. Please check the symbol and try again.`);
         }
       }
 

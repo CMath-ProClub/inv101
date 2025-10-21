@@ -77,13 +77,14 @@
     </main>
   </div>
 
+  <script src="config.js"></script>
   <script>
-  // Fetch top 100 stocks (50 by market cap + 50 recognizable) from Google Finance
+  // Fetch stock data from live backend API
     let STOCK_DATA = {};
 
     async function fetchStock(ticker) {
       try {
-        const res = await fetch(`http://localhost:4000/api/stocks/${ticker}`);
+        const res = await fetch(API_CONFIG.getUrl(`/api/stocks/${ticker}`));
         const data = await res.json();
         // Map backend response to expected format
         STOCK_DATA[ticker] = {

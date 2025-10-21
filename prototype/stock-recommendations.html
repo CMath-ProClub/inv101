@@ -77,13 +77,14 @@
     </main>
   </div>
 
+  <script src="config.js"></script>
   <script>
-  // Fetch top 100 stocks (50 by market cap + 50 recognizable) from Google Finance
+  // Fetch top 100 stocks from live backend API
     let RECOMMENDATION_DATA = [];
 
     async function fetchTopStocks() {
       try {
-        const res = await fetch('http://localhost:4000/api/stocks/top100');
+        const res = await fetch(API_CONFIG.getUrl(API_CONFIG.ENDPOINTS.STOCKS_TOP100));
         const stocks = await res.json();
         RECOMMENDATION_DATA = stocks.map(stock => ({
           ticker: stock.ticker,
