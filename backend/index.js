@@ -118,8 +118,6 @@ process.on('exit', (code) => {
   console.log('Process exiting with code', code);
 });
 
-const simulateMatch = require('./simulate');
-
 // ============================================
 // HEALTH CHECK ENDPOINTS
 // ============================================
@@ -195,21 +193,13 @@ app.get('/api/health', (req, res) => {
 /**
  * POST /api/simulate
  * Body: { opponent, durationDays, difficultyPct }
+ * Note: Simulation feature temporarily disabled
  */
 app.post('/api/simulate', async (req, res) => {
-  try {
-    const { opponent, durationDays, difficultyPct, seed } = req.body;
-    // Basic validation and defaults
-    const dur = Math.max(1, parseInt(durationDays || 1, 10));
-    const diff = Math.min(100, Math.max(0, parseInt(difficultyPct || 75, 10)));
-    const opp = typeof opponent === 'string' ? opponent : 'safe';
-
-    const result = await simulateMatch({ opponent: opp, durationDays: dur, difficultyPct: diff, seed });
-    res.json(result);
-  } catch (error) {
-    console.error('Simulation error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
+  res.status(503).json({ 
+    success: false, 
+    error: 'Simulation feature is currently disabled. Focus on real market data analysis!' 
+  });
 });
 
 // Helper: Fetch top large-cap stocks via Yahoo Finance screener
