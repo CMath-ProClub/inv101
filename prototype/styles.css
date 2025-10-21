@@ -1842,6 +1842,44 @@ body.dark-mode .toggle input:checked + .toggle-slider {
   h3 { font-size: 1.7rem; }
 }
 
+/* Prevent horizontal scroll on all devices */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Details/Summary Collapsible Styling */
+details {
+  transition: all 0.3s ease;
+}
+
+details summary {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+details summary:hover {
+  color: var(--accent);
+}
+
+details[open] summary {
+  margin-bottom: 8px;
+}
+
+details summary span {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+details[open] summary span {
+  transform: rotate(90deg);
+}
+
 /* Touch Device Optimizations */
 .touch-device button,
 .touch-device .btn,
@@ -1850,6 +1888,12 @@ body.dark-mode .toggle input:checked + .toggle-slider {
 .touch-device input[type="submit"] {
   min-height: 44px; /* iOS recommended touch target */
   min-width: 44px;
+}
+
+.touch-device details summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .touch-device .tab-btn {

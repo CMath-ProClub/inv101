@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Specific Stock Analysis · Investing101</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,11 +27,6 @@
 
     <main class="app__content">
       <section class="screen screen--active" aria-label="Stock analysis tool">
-        <div class="card card--summary">
-          <h3>Research a Ticker</h3>
-          <p>Enter any symbol to aggregate fundamentals, sentiment, valuation spreads, peer comparisons, and AI-curated catalysts. Designed for investors who want institutional-grade depth.</p>
-        </div>
-
         <form class="card" id="analysisForm">
           <div class="grid grid--two">
             <label class="field">
@@ -83,25 +81,33 @@
 
         <article class="card" id="analysisOutput" aria-live="polite">
           <p style="text-align:center; padding:20px; color:#6b7280;">
-            🔍 Enter a ticker symbol above or select a category to explore stocks.<br>
-            <span style="font-size:0.9rem; margin-top:8px; display:block;">Try: AAPL, MSFT, GOOGL, TSLA, JPM</span>
+            🔍 Enter a ticker above or select a category<br>
+            <span style="font-size:0.85rem; margin-top:6px; display:block; opacity:0.8;">Try: AAPL, MSFT, GOOGL, TSLA, JPM</span>
           </p>
         </article>
 
-        <section class="grid" aria-label="How it works">
-          <article class="card">
-            <h3>Content Scan</h3>
-            <p>The engine parses recent filings, earnings calls, and trusted analyst notes, weighting sources by credibility before grading sentiment.</p>
-          </article>
-          <article class="card">
-            <h3>Viability Model</h3>
-            <p>Fundamental trends, technical momentum, capital flows, and options positioning flow into our viability score so you can judge tactical vs strategic setups.</p>
-          </article>
-          <article class="card">
-            <h3>Peer Context</h3>
-            <p>We benchmark valuation, profitability, and expected upside against direct peers to expose relative opportunities.</p>
-          </article>
-        </section>
+        <!-- Collapsible "How it works" section -->
+        <details class="card" style="cursor:pointer;">
+          <summary style="font-weight:600; font-size:0.9rem; padding:4px 0; user-select:none;">
+            ℹ️ How it works
+          </summary>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e5e7eb;">
+            <div style="display:grid; gap:12px;">
+              <div>
+                <h4 style="margin:0 0 4px 0; font-size:0.9rem;">Content Scan</h4>
+                <p style="margin:0; font-size:0.8rem; color:#6b7280;">Parses filings, earnings calls, and analyst notes weighted by credibility.</p>
+              </div>
+              <div>
+                <h4 style="margin:0 0 4px 0; font-size:0.9rem;">Viability Model</h4>
+                <p style="margin:0; font-size:0.8rem; color:#6b7280;">Analyzes fundamentals, momentum, capital flows, and options positioning.</p>
+              </div>
+              <div>
+                <h4 style="margin:0 0 4px 0; font-size:0.9rem;">Peer Context</h4>
+                <p style="margin:0; font-size:0.8rem; color:#6b7280;">Benchmarks valuation and profitability against direct competitors.</p>
+              </div>
+            </div>
+          </div>
+        </details>
       </section>
     </main>
   </div>
@@ -606,7 +612,12 @@
 
         <div class="card" style="padding:12px; background:#f0f9ff; border-color:#0ea5e9; margin-bottom:12px;">
           <p style="font-size:0.9rem; line-height:1.5; margin:0;">${record.outlook}</p>
-          <p style="margin:10px 0 0 0; font-style:italic; color:#1e40af; font-size:0.85rem;">${profileNote}</p>
+          <details style="margin-top:10px;">
+            <summary style="font-size:0.8rem; color:#1e40af; cursor:pointer; user-select:none; list-style:none; display:flex; align-items:center; gap:4px;">
+              <span style="font-size:0.7rem;">▶</span> ${profile.charAt(0).toUpperCase() + profile.slice(1)} Strategy Tips
+            </summary>
+            <p style="margin:8px 0 0 12px; font-style:italic; color:#1e40af; font-size:0.8rem; line-height:1.4;">${profileNote.replace(/^.*?<strong>.*?<\/strong>\s*/, '')}</p>
+          </details>
         </div>
 
         <!-- Tabbed Interface -->
