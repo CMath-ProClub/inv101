@@ -33,7 +33,7 @@
           <div class="grid grid--two">
             <label class="field">
               <span>Ticker symbol</span>
-              <input id="tickerInput" name="ticker" type="text" placeholder="e.g. INVX" required maxlength="5">
+              <input id="tickerInput" name="ticker" type="text" placeholder="e.g. AAPL" required maxlength="10">
             </label>
             <label class="field">
               <span>Investor profile</span>
@@ -52,11 +52,40 @@
               <option value="365">Last 12 months</option>
             </select>
           </label>
-          <button class="btn btn--primary" type="submit">Analyze</button>
+          <button class="btn btn--primary" type="submit">Analyze Stock</button>
         </form>
 
+        <!-- Quick Access Stock Categories -->
+        <div class="card" style="padding:16px;">
+          <h4 style="margin:0 0 12px 0; font-size:0.95rem; color:#6b7280;">🚀 Quick Access Categories</h4>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <button class="chip" style="cursor:pointer; background:#3b82f6; color:white;" onclick="showStockCategory('top10')">Top 10</button>
+            <button class="chip" style="cursor:pointer; background:#10b981; color:white;" onclick="showStockCategory('top100')">Top 100</button>
+            <button class="chip" style="cursor:pointer; background:#f59e0b; color:white;" onclick="showStockCategory('fast-riser')">Fast Risers</button>
+            <button class="chip" style="cursor:pointer; background:#6366f1; color:white;" onclick="showStockCategory('stable')">Stable</button>
+            <button class="chip" style="cursor:pointer; background:#8b5cf6; color:white;" onclick="showStockCategory('dividend')">High Dividend</button>
+            <button class="chip" style="cursor:pointer; background:#ec4899; color:white;" onclick="showStockCategory('tech')">Tech</button>
+            <button class="chip" style="cursor:pointer; background:#14b8a6; color:white;" onclick="showStockCategory('finance')">Finance</button>
+            <button class="chip" style="cursor:pointer; background:#f97316; color:white;" onclick="showStockCategory('healthcare')">Healthcare</button>
+            <button class="chip" style="cursor:pointer; background:#84cc16; color:white;" onclick="showStockCategory('energy')">Energy</button>
+            <button class="chip" style="cursor:pointer; background:#06b6d4; color:white;" onclick="showStockCategory('consumer')">Consumer</button>
+          </div>
+        </div>
+
+        <!-- Category Stock List (Hidden by default) -->
+        <div class="card" id="categoryStocksDisplay" style="display:none; max-height:300px; overflow-y:auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 style="margin:0;" id="categoryTitle">Loading...</h4>
+            <button onclick="document.getElementById('categoryStocksDisplay').style.display='none'" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#6b7280;">✕</button>
+          </div>
+          <div id="categoryStocksList"></div>
+        </div>
+
         <article class="card" id="analysisOutput" aria-live="polite">
-          <p>Results will appear here with conviction scores, risk gauges, valuation context, and sentiment trendlines. Try searching for INVX, GLX, QRT, or HLT.</p>
+          <p style="text-align:center; padding:20px; color:#6b7280;">
+            🔍 Enter a ticker symbol above or select a category to explore stocks.<br>
+            <span style="font-size:0.9rem; margin-top:8px; display:block;">Try: AAPL, MSFT, GOOGL, TSLA, JPM</span>
+          </p>
         </article>
 
         <section class="grid" aria-label="How it works">
@@ -278,6 +307,123 @@
       }
     }
 
+    // Stock category definitions
+    const STOCK_CATEGORIES = {
+      'top10': {
+        title: '🏆 Top 10 Stocks by Market Cap',
+        tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'LLY', 'V']
+      },
+      'top100': {
+        title: '📈 Top 100 Stocks',
+        tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'LLY', 'V', 'UNH', 'JPM', 'XOM', 'JNJ', 'WMT', 'MA', 'PG', 'AVGO', 'HD', 'ORCL', 'CVX', 'ABBV', 'MRK', 'KO', 'COST', 'PEP', 'BAC', 'ADBE', 'CRM', 'TMO', 'NFLX', 'MCD', 'ACN', 'CSCO', 'LIN', 'AMD', 'CMCSA', 'ABT', 'NKE', 'DHR', 'WFC', 'TXN', 'INTC', 'DIS', 'VZ', 'PM', 'NEE', 'INTU', 'UPS', 'RTX']
+      },
+      'fast-riser': {
+        title: '🚀 Fast Rising Stocks',
+        tickers: ['NVDA', 'AMD', 'TSLA', 'META', 'COIN', 'SNOW', 'CRWD', 'PANW', 'NOW', 'DKNG', 'RIVN', 'ABNB', 'DASH', 'SHOP', 'SPOT', 'SQ', 'PLTR', 'RBLX', 'NET', 'DDOG']
+      },
+      'stable': {
+        title: '🛡️ Stable Blue Chip Stocks',
+        tickers: ['AAPL', 'MSFT', 'JNJ', 'PG', 'KO', 'PEP', 'WMT', 'COST', 'MCD', 'HD', 'LOW', 'TGT', 'UNH', 'CVS', 'ABT', 'TMO', 'NEE', 'DUK', 'SO', 'AEP']
+      },
+      'dividend': {
+        title: '💰 High Dividend Yield Stocks',
+        tickers: ['T', 'VZ', 'XOM', 'CVX', 'PM', 'MO', 'KO', 'PEP', 'JNJ', 'PG', 'ABT', 'MMM', 'IBM', 'INTC', 'KMB', 'GIS', 'K', 'CAG', 'D', 'SO']
+      },
+      'tech': {
+        title: '💻 Technology Sector',
+        tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'ORCL', 'ADBE', 'CRM', 'NFLX', 'CSCO', 'INTC', 'AMD', 'QCOM', 'IBM', 'NOW', 'INTU', 'AVGO', 'TXN', 'PANW', 'CRWD', 'SNOW', 'DDOG', 'NET']
+      },
+      'finance': {
+        title: '🏦 Financial Sector',
+        tickers: ['JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'BLK', 'SCHW', 'AXP', 'USB', 'PNC', 'TFC', 'BK', 'STT', 'NTRS', 'COF', 'DFS', 'SYF', 'AIG', 'MET', 'PRU', 'ALL', 'TRV']
+      },
+      'healthcare': {
+        title: '⚕️ Healthcare Sector',
+        tickers: ['JNJ', 'UNH', 'LLY', 'ABBV', 'MRK', 'TMO', 'ABT', 'DHR', 'BMY', 'AMGN', 'GILD', 'CVS', 'CI', 'HUM', 'ISRG', 'VRTX', 'REGN', 'ZTS', 'BSX', 'MDT', 'SYK', 'BDX', 'ELV']
+      },
+      'energy': {
+        title: '⚡ Energy Sector',
+        tickers: ['XOM', 'CVX', 'COP', 'SLB', 'EOG', 'PSX', 'VLO', 'MPC', 'OKE', 'WMB', 'KMI', 'HAL', 'DVN', 'FANG', 'HES', 'APA', 'MRO', 'OXY', 'BKR', 'NOV']
+      },
+      'consumer': {
+        title: '🛒 Consumer Goods',
+        tickers: ['WMT', 'COST', 'HD', 'LOW', 'TGT', 'TJX', 'ROST', 'NKE', 'SBUX', 'MCD', 'CMG', 'YUM', 'PG', 'KO', 'PEP', 'MDLZ', 'KHC', 'GIS', 'K', 'CAG']
+      }
+    };
+
+    // Show stock category
+    async function showStockCategory(categoryId) {
+      const category = STOCK_CATEGORIES[categoryId];
+      if (!category) return;
+
+      const display = document.getElementById('categoryStocksDisplay');
+      const title = document.getElementById('categoryTitle');
+      const list = document.getElementById('categoryStocksList');
+
+      title.textContent = category.title;
+      list.innerHTML = '<p style="text-align:center; padding:20px;">Loading stocks...</p>';
+      display.style.display = 'block';
+
+      // Scroll to category display
+      display.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Show first 20 stocks in category
+      const stocksToShow = category.tickers.slice(0, 20);
+      
+      list.innerHTML = `
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+          ${stocksToShow.map(ticker => `
+            <button 
+              class="card" 
+              onclick="quickAnalyze('${ticker}')"
+              style="cursor:pointer; padding:12px; text-align:left; border:2px solid #e5e7eb; transition:all 0.2s;"
+              onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-2px)'"
+              onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'"
+            >
+              <strong style="font-size:1.1rem; color:#1f2937;">${ticker}</strong>
+              <p style="margin:4px 0 0 0; font-size:0.85rem; color:#6b7280;">Click to analyze</p>
+            </button>
+          `).join('')}
+        </div>
+        ${category.tickers.length > 20 ? `
+          <p style="text-align:center; margin-top:16px; color:#6b7280; font-size:0.9rem;">
+            Showing 20 of ${category.tickers.length} stocks in this category
+          </p>
+        ` : ''}
+      `;
+    }
+
+    // Quick analyze function
+    function quickAnalyze(ticker) {
+      document.getElementById('tickerInput').value = ticker;
+      document.getElementById('analysisForm').dispatchEvent(new Event('submit'));
+      // Hide category display
+      document.getElementById('categoryStocksDisplay').style.display = 'none';
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('analysisOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // Switch between tabs in analysis display
+    function switchTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+      });
+      
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-btn--active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabName + '-tab').style.display = 'block';
+      
+      // Add active class to clicked button
+      event.target.classList.add('tab-btn--active');
+    }
+
     // ...existing code...
     document.getElementById('analysisForm').addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -390,88 +536,146 @@
                             record.viability === 'D' ? '#ef4444' : '#991b1b';
 
       container.innerHTML = `
-        <header class="analysis__header">
+        <header class="analysis__header" style="background:white; padding:20px; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:16px;">
           <div>
-            <strong style="font-size:1.4rem;">${record.name} (${ticker.toUpperCase()})</strong>
-            <div style="margin-top:8px;">
-              <span class="chip" style="background:${viabilityColor}; color:white; font-weight:bold;">Viability: ${record.viability}</span>
-              <span class="chip" style="background:#6366f1; color:white;">Risk: ${record.risk}</span>
-              <span class="chip">Window: Last ${window} days</span>
-              <span class="chip" style="background:#8b5cf6; color:white;">Sources: ${record.articlesAnalyzed || 50}+</span>
+            <strong style="font-size:1.5rem;">${record.name} (${ticker.toUpperCase()})</strong>
+            <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
+              <span class="chip" style="background:${viabilityColor}; color:white; font-weight:bold; font-size:0.95rem;">Viability: ${record.viability}</span>
+              <span class="chip" style="background:#6366f1; color:white; font-size:0.95rem;">Risk: ${record.risk}</span>
+              <span class="chip" style="font-size:0.95rem;">Window: ${window} days</span>
+              <span class="chip" style="background:#8b5cf6; color:white; font-size:0.95rem;">${record.articlesAnalyzed || 50}+ Sources</span>
             </div>
           </div>
         </header>
 
-        <div class="card" style="margin-top:16px; background:#f0f9ff; border-color:#0ea5e9;">
-          <p style="font-size:1.05rem; line-height:1.6;">${record.outlook}</p>
-          <p style="margin-top:12px; font-style:italic; color:#1e40af;">${profileNote}</p>
+        <div class="card" style="padding:16px; background:#f0f9ff; border-color:#0ea5e9; margin-bottom:16px;">
+          <p style="font-size:1.05rem; line-height:1.6; margin:0;">${record.outlook}</p>
+          <p style="margin:12px 0 0 0; font-style:italic; color:#1e40af;">${profileNote}</p>
         </div>
 
-        <section style="margin-top:20px; display:grid; gap:16px;">
-          <article class="card" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white;">
-            <h3 style="color:white; border-bottom:2px solid rgba(255,255,255,0.3); padding-bottom:10px;">📊 Conviction Breakdown</h3>
-            <div style="margin-top:12px;">
-              ${renderScorecard(record.scores)}
+        <!-- Tabbed Interface -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); overflow:hidden;">
+          <!-- Tab Buttons -->
+          <div style="display:flex; border-bottom:2px solid #e5e7eb; background:#f9fafb; overflow-x:auto;">
+            <button class="tab-btn tab-btn--active" onclick="switchTab('overview')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              📊 Overview
+            </button>
+            <button class="tab-btn" onclick="switchTab('fundamentals')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              💼 Fundamentals
+            </button>
+            <button class="tab-btn" onclick="switchTab('sentiment')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              📈 Sentiment
+            </button>
+            <button class="tab-btn" onclick="switchTab('risk')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              ⚠️ Risk
+            </button>
+            ${record.news.length > 0 ? `
+              <button class="tab-btn" onclick="switchTab('news')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+                📰 News
+              </button>
+            ` : ''}
+          </div>
+
+          <!-- Tab Contents -->
+          <div style="padding:24px;">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+              <article style="margin-bottom:20px; padding:20px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white;">
+                <h3 style="color:white; border-bottom:2px solid rgba(255,255,255,0.3); padding-bottom:10px; margin:0 0 16px 0;">Conviction Breakdown</h3>
+                <div style="margin-top:12px;">
+                  ${renderScorecard(record.scores)}
+                </div>
+                <p style="margin:16px 0 0 0; font-size:0.95rem; opacity:0.95;">Overall Score: <strong style="font-size:1.5rem;">${record.scores.conviction}</strong>/100</p>
+              </article>
+
+              <article style="margin-bottom:20px; padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                <h3 style="margin:0 0 12px 0;">� Valuation Snapshot</h3>
+                <p style="font-size:1.05rem; margin-bottom:12px;">
+                  Current: <strong>${formatCurrency(record.valuation.price)}</strong> · 
+                  Target: <strong>${formatCurrency(record.valuation.target)}</strong> · 
+                  Upside: <strong style="color:#10b981;">${record.valuation.upside}</strong>
+                </p>
+                <div class="summary-grid">
+                  ${Object.entries(record.valuation.multiples)
+                    .map((entry) => `<div class="stat"><span>${entry[0]}</span><strong>${entry[1]}</strong></div>`)
+                    .join('')}
+                </div>
+              </article>
+
+              <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                <h3 style="margin:0 0 12px 0;">🎯 Key Highlights</h3>
+                <ul class="bullet-list" style="margin:0;">
+                  ${record.highlights.map((point) => `<li>${point}</li>`).join('')}
+                </ul>
+                ${record.catalysts.length > 0 ? `
+                  <h4 style="margin:16px 0 8px 0; font-size:1rem; color:#6366f1;">📅 Catalyst Calendar</h4>
+                  <ul class="bullet-list" style="margin:0;">
+                    ${record.catalysts.map((item) => `<li>${item}</li>`).join('')}
+                  </ul>
+                ` : ''}
+              </article>
             </div>
-            <p style="margin-top:12px; font-size:0.9rem; opacity:0.9;">Overall Score: <strong style="font-size:1.3rem;">${record.scores.conviction}</strong>/100</p>
-          </article>
 
-          <article class="card">
-            <h3>💼 Fundamentals Dashboard</h3>
-            ${renderFundamentals(record.fundamentals)}
-            ${record.cached ? '<p style="margin-top:10px; color:#6b7280; font-size:0.85rem;">📦 Data from cache</p>' : '<p style="margin-top:10px; color:#10b981; font-size:0.85rem;">✨ Live data</p>'}
-          </article>
-
-          <article class="card" style="background:#fef3c7; border-color:#fbbf24;">
-            <h3>⚠️ Risk Metrics</h3>
-            <ul class="bullet-list">
-              ${record.riskMetrics.map((metric) => `<li><strong>${metric.label}:</strong> <span style="font-size:1.05rem; color:#b45309;">${metric.value}</span></li>`).join('')}
-            </ul>
-          </article>
-
-          <article class="card">
-            <h3>💰 Valuation Snapshot</h3>
-            <p style="font-size:1.05rem;">Current price: <strong>${formatCurrency(record.valuation.price)}</strong> · Street target: <strong>${formatCurrency(record.valuation.target)}</strong> · Implied upside: <strong style="color:#10b981;">${record.valuation.upside}</strong></p>
-            <div class="summary-grid" style="margin-top:12px;">
-              ${Object.entries(record.valuation.multiples)
-                .map((entry) => `<div class="stat"><span>${entry[0]}</span><strong>${entry[1]}</strong></div>`)
-                .join('')}
+            <!-- Fundamentals Tab -->
+            <div id="fundamentals-tab" class="tab-content" style="display:none;">
+              <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                <h3 style="margin:0 0 16px 0;">💼 Fundamentals Dashboard</h3>
+                ${renderFundamentals(record.fundamentals)}
+                ${record.cached ? 
+                  '<p style="margin-top:12px; color:#6b7280; font-size:0.9rem;">📦 Data from cache</p>' : 
+                  '<p style="margin-top:12px; color:#10b981; font-size:0.9rem;">✨ Live data</p>'
+                }
+              </article>
             </div>
-          </article>
-        </section>
 
-        <section class="card" style="margin-top:20px; background:#f0fdf4; border-color:#10b981;">
-          <h3>📈 Sentiment Trend (${window} day window)</h3>
-          <p style="color:#065f46; margin-bottom:12px;">Tracking market sentiment based on article tone and volume</p>
-          <div class="sentiment">${formatSentiment(record.tone)}</div>
-        </section>
+            <!-- Sentiment Tab -->
+            <div id="sentiment-tab" class="tab-content" style="display:none;">
+              <article style="padding:20px; background:#f0fdf4; border:2px solid #10b981; border-radius:12px;">
+                <h3 style="margin:0 0 8px 0;">📈 Sentiment Trend (${window} day window)</h3>
+                <p style="color:#065f46; margin-bottom:16px;">Tracking market sentiment based on article tone and volume</p>
+                <div class="sentiment">${formatSentiment(record.tone)}</div>
+              </article>
+            </div>
 
-        <section class="card" style="margin-top:20px;">
-          <h3>🎯 Key Highlights</h3>
-          <ul class="bullet-list">
-            ${record.highlights.map((point) => `<li>${point}</li>`).join('')}
-          </ul>
-          ${record.catalysts.length > 0 ? `
-            <h4 style="margin-top:16px; font-size:1rem; color:#6366f1;">📅 Catalyst Calendar</h4>
-            <ul class="bullet-list" style="margin-top:8px;">
-              ${record.catalysts.map((item) => `<li>${item}</li>`).join('')}
-            </ul>
-          ` : ''}
-        </section>
+            <!-- Risk Tab -->
+            <div id="risk-tab" class="tab-content" style="display:none;">
+              <article style="padding:20px; background:#fef3c7; border:2px solid #fbbf24; border-radius:12px;">
+                <h3 style="margin:0 0 16px 0;">⚠️ Risk Metrics</h3>
+                <ul class="bullet-list" style="margin:0;">
+                  ${record.riskMetrics.map((metric) => `<li><strong>${metric.label}:</strong> <span style="font-size:1.1rem; color:#b45309;">${metric.value}</span></li>`).join('')}
+                </ul>
+              </article>
+            </div>
 
-        ${record.news.length > 0 ? `
-          <section class="card" style="margin-top:20px;">
-            <h3>📰 Recent Coverage (${record.news.length} articles)</h3>
-            <div class="grid">${renderNews(record.news)}</div>
-          </section>
-        ` : ''}
+            <!-- News Tab -->
+            ${record.news.length > 0 ? `
+              <div id="news-tab" class="tab-content" style="display:none;">
+                <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                  <h3 style="margin:0 0 16px 0;">📰 Recent Coverage (${record.news.length} articles)</h3>
+                  <div class="grid">${renderNews(record.news)}</div>
+                </article>
+              </div>
+            ` : ''}
+          </div>
+        </div>
 
         <div class="card" style="margin-top:20px; background:#f9fafb; border:2px dashed #d1d5db;">
-          <p style="text-align:center; color:#6b7280; font-style:italic;">
+          <p style="text-align:center; color:#6b7280; font-style:italic; margin:0;">
             💡 <strong>Note:</strong> This analysis combines real-time market data from Yahoo Finance with ${record.articlesAnalyzed || 50}+ articles. 
             Scores are calculated based on price momentum, market cap, volatility, and ${profile} investor profile preferences.
           </p>
         </div>
+
+        <style>
+          .tab-btn--active {
+            color: #3b82f6 !important;
+            border-bottom-color: #3b82f6 !important;
+            background: white !important;
+          }
+          .tab-btn:hover {
+            background: #f3f4f6 !important;
+          }
+        </style>
       `;
     }
 
