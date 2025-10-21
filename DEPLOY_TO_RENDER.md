@@ -46,12 +46,13 @@ Fill in these settings:
 
 **Build Command:** 
 ```
-npm install
+cd backend && npm install
 ```
+⚠️ **Important:** Make sure to type `npm` not `nmp`!
 
 **Start Command:**
 ```
-node index.js
+cd backend && node index.js
 ```
 
 **Instance Type:** `Free`
