@@ -7,10 +7,10 @@ Your `.env` file currently has **exposed API keys**! These should NOT be committ
 
 **Current exposed keys:**
 ```
-THENEWSAPI_TOKEN=Pebo5INe3IlZjcCUITVLc8AX4gEUUv266aH6sdCT
-CURRENTS_API_KEY=H2haKxvNiv0L27DzvAZ_GH9ekf2hG2dZdzAsA00VQLIs-Rsi
-GUARDIAN_API_KEY=a5bc2f17-5b2c-452e-a574-0cc21a8e58cb
-NEWSDATA_API_KEY=pub_f5e1a3c85b3b42009b4af840031ac238
+THENEWSAPI_TOKEN=your_api_key_here
+CURRENTS_API_KEY=your_api_key_here
+GUARDIAN_API_KEY=your_api_key_here
+NEWSDATA_API_KEY=your_api_key_here
 ```
 
 **ACTION REQUIRED:**

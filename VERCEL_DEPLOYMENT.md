@@ -78,10 +78,10 @@ vercel --prod
 ```
 MONGODB_URI = mongodb+srv://your-user:your-password@cluster.mongodb.net/investing101?retryWrites=true&w=majority
 NEWSAPI_API_KEY = your_newsapi_key
-THENEWSAPI_TOKEN = Pebo5INe3IlZjcCUITVLc8AX4gEUUv266aH6sdCT
-CURRENTS_API_KEY = H2haKxvNiv0L27DzvAZ_GH9ekf2hG2dZdzAsA00VQLIs-Rsi
-GUARDIAN_API_KEY = a5bc2f17-5b2c-452e-a574-0cc21a8e58cb
-NEWSDATA_API_KEY = pub_f5e1a3c85b3b42009b4af840031ac238
+THENEWSAPI_TOKEN = your_thenewsapi_key
+CURRENTS_API_KEY = your_currents_key
+GUARDIAN_API_KEY = your_guardian_key
+NEWSDATA_API_KEY = your_newsdata_key
 NYTIMES_API_KEY = your_nytimes_key
 NODE_ENV = production
 ```

@@ -11,27 +11,27 @@
 ### 2. **TheNewsAPI**
 - **Status**: ✅ Working  
 - **Articles Fetched**: ~12 articles
-- **API Key**: `Pebo5INe3IlZjcCUITVLc8AX4gEUUv266aH6sdCT`
+- **API Key**: `your_api_key_here`
 - **Coverage**: Business, technology, world news
 
 ### 3. **Currents API**
 - **Status**: ✅ Working
 - **Articles Fetched**: ~120 articles
-- **API Key**: `H2haKxvNiv0L27DzvAZ_GH9ekf2hG2dZdzAsA00VQLIs-Rsi`
+- **API Key**: `your_api_key_here`
 - **URL**: https://currentsapi.services/
 - **Coverage**: Business, finance, technology, world news
 
 ### 4. **The Guardian Open Platform**
 - **Status**: ✅ Working
 - **Articles Fetched**: ~200 articles (most productive!)
-- **API Key**: `a5bc2f17-5b2c-452e-a574-0cc21a8e58cb`
+- **API Key**: `your_api_key_here`
 - **URL**: https://open-platform.theguardian.com
 - **Coverage**: Business, money, world, technology sections
 
 ### 5. **NewsData.io**
 - **Status**: ⚠️ Configured but needs fixes
 - **Articles Fetched**: 0 (422 error - parameter issue)
-- **API Key**: `pub_f5e1a3c85b3b42009b4af840031ac238`
+- **API Key**: `your_api_key_here`
 - **URL**: https://newsdata.io/
 - **Issue**: Fixed country parameter to use single value instead of comma-separated list
 - **Coverage**: Business, top news
