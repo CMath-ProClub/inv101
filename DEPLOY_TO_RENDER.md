@@ -52,8 +52,9 @@ cd backend && npm install
 
 **Start Command:**
 ```
-node index.js
+node backend/index.js
 ```
+⚠️ **Important:** Use `node backend/index.js` not `cd backend && node index.js`!
 
 **Instance Type:** `Free`
 
