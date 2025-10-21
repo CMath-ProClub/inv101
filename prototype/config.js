@@ -2,8 +2,8 @@
 // Update this with your live Render URL after deployment
 
 const API_CONFIG = {
-  // Change this to your Render URL (e.g., 'https://inv101.onrender.com')
-  BASE_URL: 'http://localhost:4000',
+  // Production Render URL
+  BASE_URL: 'https://inv101.onrender.com',
   
   // Endpoints
   ENDPOINTS: {
