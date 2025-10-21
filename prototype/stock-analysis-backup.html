@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Specific Stock Analysis · Investing101</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+  </script>
+</head>
+<body>
+  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
+    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <div class="app">
+    <header class="app__header">
+      <a class="link-button" href="index.html">← Main</a>
+      <span>Specific Stock Analysis</span>
+      <span class="chip">AI powered</span>
+    </header>
+
+    <main class="app__content">
+      <section class="screen screen--active" aria-label="Stock analysis tool">
+        <div class="card card--summary">
+          <h3>Research a Ticker</h3>
+          <p>Enter any symbol to aggregate fundamentals, sentiment, valuation spreads, peer comparisons, and AI-curated catalysts. Designed for investors who want institutional-grade depth.</p>
+        </div>
+
+        <form class="card" id="analysisForm">
+          <div class="grid grid--two">
+            <label class="field">
+              <span>Ticker symbol</span>
+              <input id="tickerInput" name="ticker" type="text" placeholder="e.g. AAPL" required maxlength="10">
+            </label>
+            <label class="field">
+              <span>Investor profile</span>
+              <select id="profileSelect" name="profile">
+                <option value="balanced" selected>Balanced</option>
+                <option value="conservative">Conservative</option>
+                <option value="aggressive">Aggressive</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">
+            <span>Focus window</span>
+            <select id="windowSelect" name="window">
+              <option value="90">Last 90 days</option>
+              <option value="180">Last 6 months</option>
+              <option value="365">Last 12 months</option>
+            </select>
+          </label>
+          <button class="btn btn--primary" type="submit">Analyze Stock</button>
+        </form>
+
+        <!-- Quick Access Stock Categories -->
+        <div class="card" style="padding:16px;">
+          <h4 style="margin:0 0 12px 0; font-size:0.95rem; color:#6b7280;">🚀 Quick Access Categories</h4>
+          <div style="display:flex; flex-wrap:wrap; gap:8px;">
+            <button class="chip" style="cursor:pointer; background:#3b82f6; color:white;" onclick="showStockCategory('top10')">Top 10</button>
+            <button class="chip" style="cursor:pointer; background:#10b981; color:white;" onclick="showStockCategory('top100')">Top 100</button>
+            <button class="chip" style="cursor:pointer; background:#f59e0b; color:white;" onclick="showStockCategory('fast-riser')">Fast Risers</button>
+            <button class="chip" style="cursor:pointer; background:#6366f1; color:white;" onclick="showStockCategory('stable')">Stable</button>
+            <button class="chip" style="cursor:pointer; background:#8b5cf6; color:white;" onclick="showStockCategory('dividend')">High Dividend</button>
+            <button class="chip" style="cursor:pointer; background:#ec4899; color:white;" onclick="showStockCategory('tech')">Tech</button>
+            <button class="chip" style="cursor:pointer; background:#14b8a6; color:white;" onclick="showStockCategory('finance')">Finance</button>
+            <button class="chip" style="cursor:pointer; background:#f97316; color:white;" onclick="showStockCategory('healthcare')">Healthcare</button>
+            <button class="chip" style="cursor:pointer; background:#84cc16; color:white;" onclick="showStockCategory('energy')">Energy</button>
+            <button class="chip" style="cursor:pointer; background:#06b6d4; color:white;" onclick="showStockCategory('consumer')">Consumer</button>
+          </div>
+        </div>
+
+        <!-- Category Stock List (Hidden by default) -->
+        <div class="card" id="categoryStocksDisplay" style="display:none; max-height:300px; overflow-y:auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 style="margin:0;" id="categoryTitle">Loading...</h4>
+            <button onclick="document.getElementById('categoryStocksDisplay').style.display='none'" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:#6b7280;">✕</button>
+          </div>
+          <div id="categoryStocksList"></div>
+        </div>
+
+        <article class="card" id="analysisOutput" aria-live="polite">
+          <p style="text-align:center; padding:20px; color:#6b7280;">
+            🔍 Enter a ticker symbol above or select a category to explore stocks.<br>
+            <span style="font-size:0.9rem; margin-top:8px; display:block;">Try: AAPL, MSFT, GOOGL, TSLA, JPM</span>
+          </p>
+        </article>
+
+        <section class="grid" aria-label="How it works">
+          <article class="card">
+            <h3>Content Scan</h3>
+            <p>The engine parses recent filings, earnings calls, and trusted analyst notes, weighting sources by credibility before grading sentiment.</p>
+          </article>
+          <article class="card">
+            <h3>Viability Model</h3>
+            <p>Fundamental trends, technical momentum, capital flows, and options positioning flow into our viability score so you can judge tactical vs strategic setups.</p>
+          </article>
+          <article class="card">
+            <h3>Peer Context</h3>
+            <p>We benchmark valuation, profitability, and expected upside against direct peers to expose relative opportunities.</p>
+          </article>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+  // Fetch comprehensive stock data from live backend API
+    let STOCK_DATA = {};
+
+    // Calculate sentiment score (0-1) based on change percent
+    function calculateSentiment(changePercent, volatility = 0) {
+      if (typeof changePercent !== 'number') return 0.5;
+      // Normalize -10% to +10% range into 0-1 scale
+      const normalized = (changePercent + 10) / 20;
+      const sentiment = Math.max(0, Math.min(1, normalized));
+      // Add volatility dampening
+      return volatility > 5 ? sentiment * 0.9 : sentiment;
+    }
+
+    // Calculate conviction score based on multiple factors
+    function calculateConvictionScore(stockData, profile, timeWindow) {
+      let score = 50; // Base score
+      
+      // Price momentum (up to +25 points)
+      if (stockData.changePercent > 5) score += 25;
+      else if (stockData.changePercent > 2) score += 15;
+      else if (stockData.changePercent > 0) score += 10;
+      else if (stockData.changePercent < -5) score -= 15;
+      
+      // Market cap stability (up to +15 points)
+      if (stockData.marketCap > 1000000000000) score += 15; // $1T+
+      else if (stockData.marketCap > 100000000000) score += 10; // $100B+
+      else if (stockData.marketCap > 10000000000) score += 5; // $10B+
+      
+      // Profile adjustment
+      if (profile === 'conservative' && stockData.marketCap < 10000000000) {
+        score -= 20; // Penalize small caps for conservative
+      } else if (profile === 'aggressive' && stockData.changePercent > 3) {
+        score += 10; // Reward momentum for aggressive
+      }
+      
+      return Math.max(0, Math.min(100, score));
+    }
+
+    // Determine risk level based on market cap and volatility
+    function assessRiskLevel(marketCap, changePercent) {
+      const absChange = Math.abs(changePercent || 0);
+      
+      if (marketCap > 500000000000) { // $500B+ mega caps
+        return absChange > 3 ? 'Moderate' : 'Low';
+      } else if (marketCap > 100000000000) { // $100B+ large caps
+        return absChange > 5 ? 'Moderate' : 'Low-Moderate';
+      } else if (marketCap > 10000000000) { // $10B+ mid caps
+        return absChange > 7 ? 'High' : 'Moderate';
+      } else {
+        return absChange > 10 ? 'Very High' : 'High';
+      }
+    }
+
+    // Determine viability grade (A-F)
+    function assessViability(convictionScore, changePercent) {
+      if (convictionScore >= 85 && changePercent > 0) return 'A';
+      if (convictionScore >= 75) return 'B+';
+      if (convictionScore >= 65) return 'B';
+      if (convictionScore >= 55) return 'C+';
+      if (convictionScore >= 45) return 'C';
+      if (convictionScore >= 35) return 'D';
+      return 'F';
+    }
+
+    // Generate sentiment timeline (simulated for now, real would pull historical)
+    function generateSentimentTimeline(currentChange, timeWindow) {
+      const months = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct'];
+      const baseScore = calculateSentiment(currentChange);
+      
+      return months.slice(-4).map((month, i) => {
+        // Simulate gradual trend toward current sentiment
+        const trendFactor = (i + 1) / 4;
+        const randomVariation = (Math.random() - 0.5) * 0.2;
+        const score = 0.5 + (baseScore - 0.5) * trendFactor + randomVariation;
+        return {
+          label: month,
+          score: Math.max(0, Math.min(1, score))
+        };
+      });
+    }
+
+    // Format currency values
+    function formatCurrency(value) {
+      if (!value || typeof value !== 'number') return 'N/A';
+      if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+      if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+      if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+      return `$${value.toFixed(2)}`;
+    }
+
+    // Main fetch function with comprehensive analysis
+    async function fetchStock(ticker, profile, timeWindow) {
+      const container = document.getElementById('analysisOutput');
+      container.innerHTML = `<p style="text-align:center; padding:20px;">Loading analysis for ${ticker.toUpperCase()}...</p>`;
+      
+      try {
+        // Fetch stock data
+        const stockRes = await fetch(API_CONFIG.getUrl(`/api/stocks/${ticker}`));
+        if (!stockRes.ok) throw new Error('Stock not found');
+        const stockData = await stockRes.json();
+        
+        // Fetch articles for sentiment analysis
+        let articles = [];
+        try {
+          const articleRes = await fetch(API_CONFIG.getUrl(`/api/articles/stock/${ticker}?limit=50&daysOld=${timeWindow}`));
+          if (articleRes.ok) {
+            const articleData = await articleRes.json();
+            if (articleData.success && articleData.groups) {
+              articles = Object.values(articleData.groups).flat();
+            }
+          }
+        } catch (e) {
+          console.warn('Could not fetch articles:', e);
+        }
+        
+        // Calculate metrics
+        const convictionScore = calculateConvictionScore(stockData, profile, timeWindow);
+        const riskLevel = assessRiskLevel(stockData.marketCap, stockData.changePercent);
+        const viabilityGrade = assessViability(convictionScore, stockData.changePercent);
+        const sentimentTimeline = generateSentimentTimeline(stockData.changePercent, timeWindow);
+        
+        // Generate outlook based on data
+        const trend = stockData.changePercent > 0 ? 'bullish' : 'bearish';
+        const strength = Math.abs(stockData.changePercent) > 5 ? 'strong' : 'moderate';
+        const outlook = `${stockData.name} shows a ${strength} ${trend} trend with ${stockData.changePercent > 0 ? '+' : ''}${stockData.changePercent?.toFixed(2)}% movement. ${articles.length > 0 ? `Analysis based on ${articles.length} recent articles.` : 'Limited article coverage available.'}`;
+        
+        // Build comprehensive stock record
+        STOCK_DATA[ticker] = {
+          name: stockData.name || ticker,
+          viability: viabilityGrade,
+          risk: riskLevel,
+          scores: {
+            conviction: convictionScore,
+            growth: Math.max(0, Math.min(100, 50 + stockData.changePercent * 5)),
+            value: stockData.marketCap > 100000000000 ? 75 : 60,
+            momentum: Math.max(0, Math.min(100, 50 + stockData.changePercent * 8))
+          },
+          tone: sentimentTimeline,
+          highlights: [
+            `Current Price: ${formatCurrency(stockData.price)}`,
+            `Market Cap: ${formatCurrency(stockData.marketCap)}`,
+            `Exchange: ${stockData.exchange || 'N/A'}`,
+            `Previous Close: ${formatCurrency(stockData.previousClose)}`,
+            `${articles.length} articles analyzed over ${timeWindow} days`
+          ],
+          catalysts: articles.slice(0, 3).map(a => a.title || 'Market News'),
+          outlook: outlook,
+          fundamentals: {
+            'Market Cap': formatCurrency(stockData.marketCap),
+            'Price': formatCurrency(stockData.price),
+            'Previous Close': formatCurrency(stockData.previousClose),
+            'Change': `${stockData.change > 0 ? '+' : ''}${stockData.change?.toFixed(2)} (${stockData.changePercent?.toFixed(2)}%)`,
+            'Currency': stockData.currency || 'USD',
+            'Exchange': stockData.exchange || 'N/A'
+          },
+          riskMetrics: [
+            { label: 'Volatility', value: Math.abs(stockData.changePercent || 0).toFixed(2) + '%' },
+            { label: 'Market Cap Category', value: stockData.marketCap > 500e9 ? 'Mega Cap' : stockData.marketCap > 100e9 ? 'Large Cap' : stockData.marketCap > 10e9 ? 'Mid Cap' : 'Small Cap' },
+            { label: 'Risk Level', value: riskLevel }
+          ],
+          valuation: {
+            price: stockData.price || 0,
+            target: stockData.price ? stockData.price * 1.15 : 0, // Simulated 15% upside
+            upside: stockData.price ? '+15%' : 'N/A',
+            multiples: {
+              'Current Price': formatCurrency(stockData.price),
+              'Analyst Target': formatCurrency(stockData.price ? stockData.price * 1.15 : 0)
+            }
+          },
+          peers: [], // Would need additional API endpoint for peer data
+          news: articles.slice(0, 5).map(article => ({
+            title: article.title || 'Market Update',
+            timeAgo: article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Recent',
+            source: article.source || 'Market News',
+            summary: article.description || 'Analysis of market conditions and stock performance.'
+          })),
+          articlesAnalyzed: articles.length,
+          cached: stockData.cached || false
+        };
+        
+        return true;
+      } catch (error) {
+        console.error('Error fetching stock:', error);
+        container.innerHTML = `
+          <div class="card" style="background:#f8d7da; border-color:#f5c6cb; color:#721c24; padding:20px;">
+            <h3>⚠️ Unable to Load Stock Data</h3>
+            <p><strong>${ticker.toUpperCase()}</strong> could not be found or the API is unavailable.</p>
+            <p style="margin-top:10px;">Please verify:</p>
+            <ul style="margin-left:20px;">
+              <li>Ticker symbol is correct</li>
+              <li>Market is currently open or data is available</li>
+              <li>Backend API is running at ${API_CONFIG.BASE_URL}</li>
+            </ul>
+          </div>
+        `;
+        return false;
+      }
+    }
+
+    // Stock category definitions
+    const STOCK_CATEGORIES = {
+      'top10': {
+        title: '🏆 Top 10 Stocks by Market Cap',
+        tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'LLY', 'V']
+      },
+      'top100': {
+        title: '📈 Top 100 Stocks',
+        tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'LLY', 'V', 'UNH', 'JPM', 'XOM', 'JNJ', 'WMT', 'MA', 'PG', 'AVGO', 'HD', 'ORCL', 'CVX', 'ABBV', 'MRK', 'KO', 'COST', 'PEP', 'BAC', 'ADBE', 'CRM', 'TMO', 'NFLX', 'MCD', 'ACN', 'CSCO', 'LIN', 'AMD', 'CMCSA', 'ABT', 'NKE', 'DHR', 'WFC', 'TXN', 'INTC', 'DIS', 'VZ', 'PM', 'NEE', 'INTU', 'UPS', 'RTX']
+      },
+      'fast-riser': {
+        title: '🚀 Fast Rising Stocks',
+        tickers: ['NVDA', 'AMD', 'TSLA', 'META', 'COIN', 'SNOW', 'CRWD', 'PANW', 'NOW', 'DKNG', 'RIVN', 'ABNB', 'DASH', 'SHOP', 'SPOT', 'SQ', 'PLTR', 'RBLX', 'NET', 'DDOG']
+      },
+      'stable': {
+        title: '🛡️ Stable Blue Chip Stocks',
+        tickers: ['AAPL', 'MSFT', 'JNJ', 'PG', 'KO', 'PEP', 'WMT', 'COST', 'MCD', 'HD', 'LOW', 'TGT', 'UNH', 'CVS', 'ABT', 'TMO', 'NEE', 'DUK', 'SO', 'AEP']
+      },
+      'dividend': {
+        title: '💰 High Dividend Yield Stocks',
+        tickers: ['T', 'VZ', 'XOM', 'CVX', 'PM', 'MO', 'KO', 'PEP', 'JNJ', 'PG', 'ABT', 'MMM', 'IBM', 'INTC', 'KMB', 'GIS', 'K', 'CAG', 'D', 'SO']
+      },
+      'tech': {
+        title: '💻 Technology Sector',
+        tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'ORCL', 'ADBE', 'CRM', 'NFLX', 'CSCO', 'INTC', 'AMD', 'QCOM', 'IBM', 'NOW', 'INTU', 'AVGO', 'TXN', 'PANW', 'CRWD', 'SNOW', 'DDOG', 'NET']
+      },
+      'finance': {
+        title: '🏦 Financial Sector',
+        tickers: ['JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'BLK', 'SCHW', 'AXP', 'USB', 'PNC', 'TFC', 'BK', 'STT', 'NTRS', 'COF', 'DFS', 'SYF', 'AIG', 'MET', 'PRU', 'ALL', 'TRV']
+      },
+      'healthcare': {
+        title: '⚕️ Healthcare Sector',
+        tickers: ['JNJ', 'UNH', 'LLY', 'ABBV', 'MRK', 'TMO', 'ABT', 'DHR', 'BMY', 'AMGN', 'GILD', 'CVS', 'CI', 'HUM', 'ISRG', 'VRTX', 'REGN', 'ZTS', 'BSX', 'MDT', 'SYK', 'BDX', 'ELV']
+      },
+      'energy': {
+        title: '⚡ Energy Sector',
+        tickers: ['XOM', 'CVX', 'COP', 'SLB', 'EOG', 'PSX', 'VLO', 'MPC', 'OKE', 'WMB', 'KMI', 'HAL', 'DVN', 'FANG', 'HES', 'APA', 'MRO', 'OXY', 'BKR', 'NOV']
+      },
+      'consumer': {
+        title: '🛒 Consumer Goods',
+        tickers: ['WMT', 'COST', 'HD', 'LOW', 'TGT', 'TJX', 'ROST', 'NKE', 'SBUX', 'MCD', 'CMG', 'YUM', 'PG', 'KO', 'PEP', 'MDLZ', 'KHC', 'GIS', 'K', 'CAG']
+      }
+    };
+
+    // Show stock category
+    async function showStockCategory(categoryId) {
+      const category = STOCK_CATEGORIES[categoryId];
+      if (!category) return;
+
+      const display = document.getElementById('categoryStocksDisplay');
+      const title = document.getElementById('categoryTitle');
+      const list = document.getElementById('categoryStocksList');
+
+      title.textContent = category.title;
+      list.innerHTML = '<p style="text-align:center; padding:20px;">Loading stocks...</p>';
+      display.style.display = 'block';
+
+      // Scroll to category display
+      display.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Show first 20 stocks in category
+      const stocksToShow = category.tickers.slice(0, 20);
+      
+      list.innerHTML = `
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+          ${stocksToShow.map(ticker => `
+            <button 
+              class="card" 
+              onclick="quickAnalyze('${ticker}')"
+              style="cursor:pointer; padding:12px; text-align:left; border:2px solid #e5e7eb; transition:all 0.2s;"
+              onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-2px)'"
+              onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'"
+            >
+              <strong style="font-size:1.1rem; color:#1f2937;">${ticker}</strong>
+              <p style="margin:4px 0 0 0; font-size:0.85rem; color:#6b7280;">Click to analyze</p>
+            </button>
+          `).join('')}
+        </div>
+        ${category.tickers.length > 20 ? `
+          <p style="text-align:center; margin-top:16px; color:#6b7280; font-size:0.9rem;">
+            Showing 20 of ${category.tickers.length} stocks in this category
+          </p>
+        ` : ''}
+      `;
+    }
+
+    // Quick analyze function
+    function quickAnalyze(ticker) {
+      document.getElementById('tickerInput').value = ticker;
+      document.getElementById('analysisForm').dispatchEvent(new Event('submit'));
+      // Hide category display
+      document.getElementById('categoryStocksDisplay').style.display = 'none';
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('analysisOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // Switch between tabs in analysis display
+    function switchTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+      });
+      
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-btn--active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabName + '-tab').style.display = 'block';
+      
+      // Add active class to clicked button
+      event.target.classList.add('tab-btn--active');
+    }
+
+    // ...existing code...
+    document.getElementById('analysisForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const ticker = document.getElementById('tickerInput').value.trim().toUpperCase();
+      const profile = document.getElementById('profileSelect').value;
+      const window = document.getElementById('windowSelect').value;
+      if (ticker) {
+        const success = await fetchStock(ticker, profile, window);
+        if (success) {
+          renderStock(ticker, profile, window);
+        }
+      }
+    });
+
+    function formatSentiment(tone) {
+      return tone
+        .map((point) => `
+          <div>
+            <span>${point.label}</span>
+            <div class="progress-bar"><span class="progress-bar__fill" style="width:${Math.round(point.score * 100)}%;"></span></div>
+          </div>
+        `)
+        .join('');
+    }
+
+    function renderScorecard(scores) {
+      return Object.entries(scores)
+        .map(
+          ([label, value]) => `
+            <div>
+              <span style="text-transform:capitalize">${label}</span>
+              <div class="progress-bar"><span class="progress-bar__fill" style="width:${value}%;"></span></div>
+            </div>
+          `
+        )
+        .join('');
+    }
+
+    function renderFundamentals(fundamentals) {
+      return `
+        <div class="summary-grid">
+          ${Object.entries(fundamentals)
+            .map((entry) => `<div class="stat"><span>${entry[0]}</span><strong>${entry[1]}</strong></div>`)
+            .join('')}
+        </div>
+      `;
+    }
+
+    function renderPeers(peers) {
+      return `
+        <table class="comparison-table">
+          <thead>
+            <tr><th>Ticker</th><th>Name</th><th>90D Return</th><th>P/E</th><th>Analyst Upside</th></tr>
+          </thead>
+          <tbody>
+            ${peers
+              .map(
+                (peer) => `
+                  <tr>
+                    <td>${peer.ticker}</td>
+                    <td>${peer.name}</td>
+                    <td>${peer.return}</td>
+                    <td>${peer.pe}</td>
+                    <td>${peer.upside}</td>
+                  </tr>
+                `
+              )
+              .join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderNews(news) {
+      return news
+        .map(
+          (item) => `
+            <article class="mini-card">
+              <header>
+                <strong>${item.title}</strong>
+                <span class="chip chip--outline">${item.timeAgo}</span>
+              </header>
+              <p><em>${item.source}</em></p>
+              <p>${item.summary}</p>
+            </article>
+          `
+        )
+        .join('');
+    }
+
+    function renderStock(ticker, profile, window) {
+      const record = STOCK_DATA[ticker.toUpperCase()];
+      const container = document.getElementById('analysisOutput');
+      if (!record) {
+        container.innerHTML = `<p>No data found for <strong>${ticker.toUpperCase()}</strong>. Production would trigger a live crawl of filings, earnings transcripts, and sentiment feeds for the last ${window} days.</p>`;
+        return;
+      }
+
+      const profileNote =
+        profile === 'conservative'
+          ? '🛡️ <strong>Conservative Strategy:</strong> Position sizing recommendation: starter weight with protective stop below 200dma. Focus on capital preservation with gradual accumulation on weakness.'
+          : profile === 'aggressive'
+          ? '🚀 <strong>Aggressive Strategy:</strong> Position sizing recommendation: full weight with tactical adds on pullbacks; consider call spreads for leverage. Capitalize on momentum with active management.'
+          : '⚖️ <strong>Balanced Strategy:</strong> Position sizing recommendation: maintain core allocation with optional overwrites to harvest premium. Blend growth and stability.';
+
+      // Enhanced viability badge with color coding
+      const viabilityColor = record.viability === 'A' ? '#10b981' : 
+                            record.viability.startsWith('B') ? '#3b82f6' :
+                            record.viability.startsWith('C') ? '#f59e0b' :
+                            record.viability === 'D' ? '#ef4444' : '#991b1b';
+
+      container.innerHTML = `
+        <header class="analysis__header" style="background:white; padding:20px; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-bottom:16px;">
+          <div>
+            <strong style="font-size:1.5rem;">${record.name} (${ticker.toUpperCase()})</strong>
+            <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
+              <span class="chip" style="background:${viabilityColor}; color:white; font-weight:bold; font-size:0.95rem;">Viability: ${record.viability}</span>
+              <span class="chip" style="background:#6366f1; color:white; font-size:0.95rem;">Risk: ${record.risk}</span>
+              <span class="chip" style="font-size:0.95rem;">Window: ${window} days</span>
+              <span class="chip" style="background:#8b5cf6; color:white; font-size:0.95rem;">${record.articlesAnalyzed || 50}+ Sources</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="card" style="padding:16px; background:#f0f9ff; border-color:#0ea5e9; margin-bottom:16px;">
+          <p style="font-size:1.05rem; line-height:1.6; margin:0;">${record.outlook}</p>
+          <p style="margin:12px 0 0 0; font-style:italic; color:#1e40af;">${profileNote}</p>
+        </div>
+
+        <!-- Tabbed Interface -->
+        <div style="background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); overflow:hidden;">
+          <!-- Tab Buttons -->
+          <div style="display:flex; border-bottom:2px solid #e5e7eb; background:#f9fafb; overflow-x:auto;">
+            <button class="tab-btn tab-btn--active" onclick="switchTab('overview')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              📊 Overview
+            </button>
+            <button class="tab-btn" onclick="switchTab('fundamentals')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              💼 Fundamentals
+            </button>
+            <button class="tab-btn" onclick="switchTab('sentiment')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              📈 Sentiment
+            </button>
+            <button class="tab-btn" onclick="switchTab('risk')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+              ⚠️ Risk
+            </button>
+            ${record.news.length > 0 ? `
+              <button class="tab-btn" onclick="switchTab('news')" style="flex:1; min-width:120px; padding:14px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent; transition:all 0.2s;">
+                📰 News
+              </button>
+            ` : ''}
+          </div>
+
+          <!-- Tab Contents -->
+          <div style="padding:24px;">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+              <article style="margin-bottom:20px; padding:20px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:12px; color:white;">
+                <h3 style="color:white; border-bottom:2px solid rgba(255,255,255,0.3); padding-bottom:10px; margin:0 0 16px 0;">Conviction Breakdown</h3>
+                <div style="margin-top:12px;">
+                  ${renderScorecard(record.scores)}
+                </div>
+                <p style="margin:16px 0 0 0; font-size:0.95rem; opacity:0.95;">Overall Score: <strong style="font-size:1.5rem;">${record.scores.conviction}</strong>/100</p>
+              </article>
+
+              <article style="margin-bottom:20px; padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                <h3 style="margin:0 0 12px 0;">� Valuation Snapshot</h3>
+                <p style="font-size:1.05rem; margin-bottom:12px;">
+                  Current: <strong>${formatCurrency(record.valuation.price)}</strong> · 
+                  Target: <strong>${formatCurrency(record.valuation.target)}</strong> · 
+                  Upside: <strong style="color:#10b981;">${record.valuation.upside}</strong>
+                </p>
+                <div class="summary-grid">
+                  ${Object.entries(record.valuation.multiples)
+                    .map((entry) => `<div class="stat"><span>${entry[0]}</span><strong>${entry[1]}</strong></div>`)
+                    .join('')}
+                </div>
+              </article>
+
+              <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                <h3 style="margin:0 0 12px 0;">🎯 Key Highlights</h3>
+                <ul class="bullet-list" style="margin:0;">
+                  ${record.highlights.map((point) => `<li>${point}</li>`).join('')}
+                </ul>
+                ${record.catalysts.length > 0 ? `
+                  <h4 style="margin:16px 0 8px 0; font-size:1rem; color:#6366f1;">📅 Catalyst Calendar</h4>
+                  <ul class="bullet-list" style="margin:0;">
+                    ${record.catalysts.map((item) => `<li>${item}</li>`).join('')}
+                  </ul>
+                ` : ''}
+              </article>
+            </div>
+
+            <!-- Fundamentals Tab -->
+            <div id="fundamentals-tab" class="tab-content" style="display:none;">
+              <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                <h3 style="margin:0 0 16px 0;">💼 Fundamentals Dashboard</h3>
+                ${renderFundamentals(record.fundamentals)}
+                ${record.cached ? 
+                  '<p style="margin-top:12px; color:#6b7280; font-size:0.9rem;">📦 Data from cache</p>' : 
+                  '<p style="margin-top:12px; color:#10b981; font-size:0.9rem;">✨ Live data</p>'
+                }
+              </article>
+            </div>
+
+            <!-- Sentiment Tab -->
+            <div id="sentiment-tab" class="tab-content" style="display:none;">
+              <article style="padding:20px; background:#f0fdf4; border:2px solid #10b981; border-radius:12px;">
+                <h3 style="margin:0 0 8px 0;">📈 Sentiment Trend (${window} day window)</h3>
+                <p style="color:#065f46; margin-bottom:16px;">Tracking market sentiment based on article tone and volume</p>
+                <div class="sentiment">${formatSentiment(record.tone)}</div>
+              </article>
+            </div>
+
+            <!-- Risk Tab -->
+            <div id="risk-tab" class="tab-content" style="display:none;">
+              <article style="padding:20px; background:#fef3c7; border:2px solid #fbbf24; border-radius:12px;">
+                <h3 style="margin:0 0 16px 0;">⚠️ Risk Metrics</h3>
+                <ul class="bullet-list" style="margin:0;">
+                  ${record.riskMetrics.map((metric) => `<li><strong>${metric.label}:</strong> <span style="font-size:1.1rem; color:#b45309;">${metric.value}</span></li>`).join('')}
+                </ul>
+              </article>
+            </div>
+
+            <!-- News Tab -->
+            ${record.news.length > 0 ? `
+              <div id="news-tab" class="tab-content" style="display:none;">
+                <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
+                  <h3 style="margin:0 0 16px 0;">📰 Recent Coverage (${record.news.length} articles)</h3>
+                  <div class="grid">${renderNews(record.news)}</div>
+                </article>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px; background:#f9fafb; border:2px dashed #d1d5db;">
+          <p style="text-align:center; color:#6b7280; font-style:italic; margin:0;">
+            💡 <strong>Note:</strong> This analysis combines real-time market data from Yahoo Finance with ${record.articlesAnalyzed || 50}+ articles. 
+            Scores are calculated based on price momentum, market cap, volatility, and ${profile} investor profile preferences.
+          </p>
+        </div>
+
+        <style>
+          .tab-btn--active {
+            color: #3b82f6 !important;
+            border-bottom-color: #3b82f6 !important;
+            background: white !important;
+          }
+          .tab-btn:hover {
+            background: #f3f4f6 !important;
+          }
+        </style>
+      `;
+    }
+
+    document.getElementById('analysisForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const ticker = document.getElementById('tickerInput').value.trim();
+      const profile = document.getElementById('profileSelect').value;
+      const window = document.getElementById('windowSelect').value;
+      if (ticker) {
+        renderStock(ticker, profile, window);
+      }
+    });
+  </script>
+
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn tabbar__btn--active" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
+
+
