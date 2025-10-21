@@ -1,16 +1,35 @@
 {
-  "name": "googlefinance-backend",
+  "name": "inv101-backend",
   "version": "1.0.0",
-  "description": "Express backend to scrape Google Finance and provide stock data API endpoints.",
+  "description": "Express backend for Investing101 - provides stock data, news articles, and simulation API endpoints.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "node index.js",
+    "railway-start": "node index.js",
+    "scrape": "node run-all-scrapers.js",
+    "scrape-stocks": "node init-stock-cache.js",
+    "check-db": "node check-database.js",
+    "test-apis": "node test-apis.js",
+    "verify-stocks": "node verify-1500.js",
+    "postinstall": "echo '✅ Dependencies installed successfully'",
+    "test": "node -c index.js && echo '✅ Syntax check passed'"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "mongoose": "^8.0.0"
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "mongodb-memory-server": "^8.12.0",
+    "mongoose": "^8.0.0",
+    "node-cron": "^4.2.1",
+    "seedrandom": "^3.0.5",
+    "yahoo-finance2": "^2.13.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

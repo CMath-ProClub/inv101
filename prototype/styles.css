@@ -227,6 +227,140 @@
   --shadow: 0 10px 30px rgba(31, 42, 55, 0.08);
 }
 
+/* Compatibility layer: allow dark/compact class on either <html> or <body>.
+   Use the generic .dark-mode / .compact-mode selectors so pages that add the
+   class to documentElement (html) or document.body both work consistently. */
+.dark-mode {
+  color-scheme: dark;
+  --bg: #1a1a1a;
+  --bg-card: #2a2a2a;
+  --bg-muted: #333333;
+  --accent: #00d4ff;
+  --accent-dark: #00a8cc;
+  --text: #e5e5e5;
+  --text-muted: #a0a0a0;
+  --border: rgba(0, 212, 255, 0.15);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode {
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+}
+
+.dark-mode .feature-link--split,
+.dark-mode .feature-link--vertical,
+.dark-mode .feature-link--row,
+.dark-mode .feature-link--profile,
+.dark-mode .feature-link.card {
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+}
+
+.dark-mode .feature-link--split:hover,
+.dark-mode .feature-link--vertical:hover,
+.dark-mode .feature-link--row:hover,
+.dark-mode .feature-link--profile:hover,
+.dark-mode .feature-link.card:hover {
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+}
+
+.dark-mode .card {
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
+}
+
+.dark-mode .tabbar {
+  background: var(--bg-card);
+  border-top: 2px solid var(--accent);
+  box-shadow: 0 -4px 20px rgba(0, 212, 255, 0.2);
+}
+
+.dark-mode .btn--primary {
+  background: var(--accent);
+  color: #000000;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+
+.dark-mode .btn--primary:hover {
+  background: var(--accent-dark);
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+}
+
+/* Compact mode compatibility */
+.compact-mode .app__content {
+  padding: 16px;
+  padding-bottom: 120px;
+}
+
+.compact-mode .card {
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.compact-mode h2 {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.compact-mode h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.compact-mode p {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.compact-mode .feature-links {
+  gap: 8px;
+  max-height: none;
+  overflow: visible;
+}
+
+.compact-mode .feature-link.card {
+  max-height: 48px;
+  min-height: 48px;
+}
+
+.compact-mode .feature-link.card h3 {
+  font-size: 0.85rem;
+}
+
+.compact-mode .feature-links--split {
+  gap: 12px;
+}
+
+.compact-mode .feature-link--split {
+  min-height: 260px;
+}
+
+.compact-mode .feature-link--vertical {
+  min-height: 135px;
+}
+
+.compact-mode .feature-link--row {
+  min-height: 72px;
+}
+
+.compact-mode .feature-links--rows {
+  gap: 10px;
+}
+
+.compact-mode .tabbar {
+  padding: 8px;
+}
+
+.compact-mode .tabbar__btn {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+.compact-mode .icon--tab {
+  width: 18px;
+  height: 18px;
+}
+
 /* Dark Mode */
 body.dark-mode {
   color-scheme: dark;
@@ -399,6 +533,42 @@ body {
 .app__logo {
   height: 36px;
   width: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .app {
+    margin: 12px;
+    border-radius: 16px;
+  }
+
+  .app__header {
+    padding: 12px 14px;
+  }
+
+  .app__logo {
+    height: 28px; /* slightly smaller on small phones */
+  }
+
+  .app__header-actions {
+    gap: 8px;
+  }
+
+  main.app__content {
+    padding: 12px;
+    padding-bottom: 120px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .app {
+    margin: 20px;
+    max-width: 520px;
+  }
+
+  .app__logo {
+    height: 32px;
+  }
 }
 
 .app__header-actions {
@@ -779,7 +949,8 @@ main.app__content {
   grid-template-rows: repeat(5, 1fr);
   gap: 6px;
   margin: 0;
-  max-height: 300px;
+  max-height: none; /* allow content to size naturally so items are not clipped in compact mode */
+  overflow: visible;
 }
 
 .feature-link.card {

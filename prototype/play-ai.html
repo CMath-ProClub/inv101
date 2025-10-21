@@ -26,7 +26,7 @@
       <section class="screen screen--active" aria-label="AI opponent customizer">
         <div class="card card--summary">
           <h3>Configure Your Match</h3>
-          <p>Choose an opponent archetype, select a historical window, and set the duration. The engine replays real market data to keep every session fresh.</p>
+          <p>Choose an opponent archetype and set the duration and difficulty. The engine will select historical market slices server-side to drive each session.</p>
         </div>
 
         <form class="card" id="aiForm">
@@ -40,21 +40,23 @@
             </select>
           </label>
           <label class="field">
-            <span>Historical scenario</span>
-            <select id="scenarioSelect"></select>
+            <span>Match duration</span>
+            <!-- Duration slider: 1 day -> 3650 days (~10 years) -->
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="range" id="durationRange" min="1" max="3650" value="1" step="1" style="flex:1;">
+              <output id="durationLabel">1 day</output>
+            </div>
+            <small style="display:block;color:var(--text-muted);margin-top:6px;">Use the slider to pick any duration between 1 day and 10 years.</small>
           </label>
           <label class="field">
-            <span>Match duration</span>
-            <select id="durationSelect">
-              <option value="1d">1 Day</option>
-              <option value="1w">1 Week</option>
-              <option value="1m">1 Month</option>
-              <option value="3m">3 Months</option>
-              <option value="6m">6 Months</option>
-              <option value="1y">1 Year</option>
-            </select>
+            <span>Opponent difficulty</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="range" id="difficultyRange" min="0" max="100" value="75" step="5" style="flex:1;">
+              <output id="difficultyLabel">75%</output>
+            </div>
+            <small style="display:block;color:var(--text-muted);margin-top:6px;">Difficulty controls the opponent's trade accuracy and precision (higher = better AI performance).</small>
           </label>
-          <button class="btn btn--primary" type="submit">Generate Game Plan</button>
+          <button class="btn btn--primary" type="submit" id="submitBtn">Generate Game Plan</button>
         </form>
 
         <article class="card" id="aiSummary" aria-live="polite">
@@ -74,34 +76,8 @@
   </div>
 
   <script>
-    const SCENARIOS = [
-      {
-        id: 'black-monday',
-        label: 'Black Monday 1987',
-        tier: 'Strategist',
-        description: 'Extreme volatility, rapid circuit breakers, and historic panic selling.'
-      },
-      {
-        id: 'financial-crisis',
-        label: 'Financial Crisis 2008',
-        tier: 'Scholar',
-        description: 'Banks under stress, credit spreads wide, defensive sectors shine.'
-      },
-      {
-        id: 'pandemic',
-        label: 'Pandemic Volatility 2020',
-        tier: 'All tiers',
-        description: 'Record-breaking swings, tech resilience, and stimulus-fueled rebounds.'
-      },
-      {
-        id: 'dot-com',
-        label: 'Dot-com Boom 1999',
-        tier: 'Analyst',
-        description: 'Momentum fever, speculative IPOs, and sector rotation whiplash.'
-      }
-    ];
 
-    const OPPONENTS = {
+  const OPPONENTS = {
       safe: {
         name: 'Safe Guardian',
         focus: 'Capital preservation',
@@ -128,58 +104,144 @@
       }
     };
 
-    function populateScenarios() {
-      const select = document.getElementById('scenarioSelect');
-      SCENARIOS.forEach((scenario) => {
-        const option = document.createElement('option');
-        option.value = scenario.id;
-        option.textContent = `${scenario.label} (${scenario.tier})`;
-        select.appendChild(option);
-      });
+    // No scenario selector on the client: server will pick historical slices.
+
+    function humanizeDuration(days) {
+      if (days <= 1) return '1 day';
+      if (days < 7) return `${days} days`;
+      if (days < 30) return `${Math.round(days/7)} week(s)`;
+      if (days < 365) return `${Math.round(days/30)} month(s)`;
+      return `${(days/365).toFixed(1)} year(s)`;
     }
 
-    function renderSummary(opponentId, scenarioId, duration) {
+    function renderSummary(opponentId, durationDays, difficultyPct, stats) {
       const opponent = OPPONENTS[opponentId];
-      const scenario = SCENARIOS.find((item) => item.id === scenarioId);
       const summary = document.getElementById('aiSummary');
-      if (!opponent || !scenario) {
+      if (!opponent) {
         summary.innerHTML = '<p>Choose valid options to preview the matchup.</p>';
         return;
       }
+      const durationText = humanizeDuration(durationDays);
+      const diffLabel = difficultyPct >= 80 ? 'Hard' : difficultyPct >= 50 ? 'Medium' : 'Easy';
 
-      const durationText = {
-        '1d': '1 trading day',
-        '1w': '1 week',
-        '1m': '1 month',
-        '3m': '3 months',
-        '6m': '6 months',
-        '1y': '1 year'
-      }[duration];
+      // If server stats are provided, render them prominently
+      let serverStatsHtml = '';
+      if (stats) {
+        serverStatsHtml = `
+          <h4>Simulation results</h4>
+          <ul class="bullet-list">
+            <li>Return: <strong>${(stats.returnPct*100).toFixed(2)}%</strong></li>
+            <li>Annualized volatility (est): <strong>${(stats.volatilityPct*100).toFixed(2)}%</strong></li>
+            <li>Trading days: <strong>${stats.tradingDays}</strong></li>
+            <li>Wins / Losses: <strong>${stats.wins} / ${stats.losses}</strong></li>
+          </ul>
+        `;
+      }
 
       summary.innerHTML = `
         <header class="analysis__header">
           <strong>${opponent.name}</strong>
           <span class="chip">Focus: ${opponent.focus}</span>
         </header>
-        <p>${scenario.description}</p>
-        <p>Duration: <strong>${durationText}</strong></p>
+        <p>Duration: <strong>${durationText}</strong> &middot; Difficulty: <strong>${diffLabel}</strong></p>
         <ul class="bullet-list">
           ${opponent.tactics.map((tactic) => `<li>${tactic}</li>`).join('')}
         </ul>
         <p><em>Exploit:</em> ${opponent.weakness}</p>
+        ${serverStatsHtml}
       `;
     }
 
-    document.getElementById('aiForm').addEventListener('submit', (event) => {
+    // Wire form and controls
+    const aiForm = document.getElementById('aiForm');
+    const durationRange = document.getElementById('durationRange');
+    const durationLabel = document.getElementById('durationLabel');
+    const difficultyRange = document.getElementById('difficultyRange');
+    const difficultyLabel = document.getElementById('difficultyLabel');
+
+    function syncDurationLabel() {
+      const days = parseInt(durationRange.value, 10);
+      durationLabel.value = humanizeDuration(days);
+    }
+
+    function syncDifficultyLabel() {
+      difficultyLabel.value = `${difficultyRange.value}%`;
+    }
+
+    // Persist settings
+    function saveSettings() {
+      localStorage.setItem('ai_opponent', document.getElementById('opponentSelect').value);
+      localStorage.setItem('ai_duration_days', durationRange.value);
+      localStorage.setItem('ai_difficulty_pct', difficultyRange.value);
+    }
+
+    // Restore if present
+    function restoreSettings() {
+      const opp = localStorage.getItem('ai_opponent');
+      const dur = localStorage.getItem('ai_duration_days');
+      const diff = localStorage.getItem('ai_difficulty_pct');
+      if (opp) document.getElementById('opponentSelect').value = opp;
+      if (dur) durationRange.value = dur;
+      if (diff) difficultyRange.value = diff;
+      syncDurationLabel();
+      syncDifficultyLabel();
+    }
+
+    durationRange.addEventListener('input', syncDurationLabel);
+    difficultyRange.addEventListener('input', syncDifficultyLabel);
+
+    aiForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const opponent = document.getElementById('opponentSelect').value;
-      const scenario = document.getElementById('scenarioSelect').value;
-      const duration = document.getElementById('durationSelect').value;
-      renderSummary(opponent, scenario, duration);
+      const durationDays = parseInt(durationRange.value, 10);
+      const difficultyPct = parseInt(difficultyRange.value, 10);
+      saveSettings();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Generating...';
+
+      // POST to backend simulate endpoint. The server will choose historical slices.
+      try {
+        const res = await fetch('/api/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ opponent, durationDays, difficultyPct })
+        });
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+        const data = await res.json();
+        if (data && data.stats) {
+          renderSummary(opponent, durationDays, difficultyPct, data.stats);
+        } else {
+          // Fallback to client preview if response unexpected
+          renderSummary(opponent, durationDays, difficultyPct);
+        }
+      } catch (err) {
+        console.warn('Simulation request failed, showing client preview:', err);
+        const summary = document.getElementById('aiSummary');
+        summary.innerHTML = `
+          <div style="color: var(--error-color); padding: 16px; border: 1px solid var(--error-color); border-radius: 8px; background: var(--error-bg);">
+            <h4>❌ Simulation Failed</h4>
+            <p>Unable to generate game plan. Please check your connection and try again.</p>
+            <p><small>Error: ${err.message}</small></p>
+          </div>
+        `;
+        renderSummary(opponent, durationDays, difficultyPct);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
     });
 
-    populateScenarios();
-    renderSummary('safe', 'black-monday', '1d');
+    // No scenarios to populate on the client; server will pick historical data.
+    restoreSettings();
+    // initial render using restored/default values
+    renderSummary(
+      document.getElementById('opponentSelect').value,
+      parseInt(document.getElementById('durationRange').value, 10),
+      parseInt(document.getElementById('difficultyRange').value, 10)
+    );
   </script>
 
   <nav class="tabbar" aria-label="Primary navigation">
@@ -228,6 +290,9 @@
       <span>Profile</span>
     </a>
   </nav>
+  
+  <!-- Article Display Component -->
+  <script src="article-display.js"></script>
 </body>
 </html>
 

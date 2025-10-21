@@ -89,7 +89,8 @@ const articleSchema = new mongoose.Schema({
     index: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  suppressReservedKeysWarning: true
 });
 
 // Compound indexes for efficient queries
@@ -241,7 +242,19 @@ articleSchema.statics.pruneToDistribution = async function(targetTotal = 750, ta
   const keepWeek = days3to7.slice(0, targetWeekCount - target3DayCount).map(a => a._id);
   const keepOlder = older.slice(0, targetOlderCount).map(a => a._id);
 
-  const keepIds = [...keep3Day, ...keepWeek, ...keepOlder];
+  let keepIds = [...keep3Day, ...keepWeek, ...keepOlder];
+
+  if (keepIds.length < targetTotal) {
+    const needed = targetTotal - keepIds.length;
+    const fallback = await this.find({
+      isActive: true,
+      _id: { $nin: keepIds }
+    })
+    .sort({ publishDate: -1, relevanceScore: -1 })
+    .limit(needed);
+
+    keepIds = [...keepIds, ...fallback.map(a => a._id)];
+  }
 
   // Soft delete everything else
   const result = await this.updateMany(

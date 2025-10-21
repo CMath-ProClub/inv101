@@ -48,6 +48,24 @@ Scrapes from 15+ reputable financial news sources:
 - Relevance scoring for quality control
 - Automatic pruning to maintain optimal distribution
 
+## Configuration
+
+- **Core Variables**: `NEWSAPI_KEY`, `NEWSAPI_QUERIES`, `NEWSAPI_PAGE_SIZE`, `NEWSAPI_MAX_PAGES`, `ARTICLE_CACHE_MIN`, `ARTICLE_CACHE_RECENT_PERCENT`, `ARTICLE_CACHE_WEEK_PERCENT`.
+- **TheNewsAPI**: `THENEWSAPI_TOKEN`, `THENEWSAPI_LOCALES`, `THENEWSAPI_CATEGORIES`, `THENEWSAPI_LIMIT`.
+- **Currents API**: `CURRENTS_API_KEY`, `CURRENTS_API_CATEGORIES`.
+- **Guardian Open Platform**: `GUARDIAN_API_KEY`, `GUARDIAN_SECTIONS`, `GUARDIAN_PAGE_SIZE`.
+- **NewsData.io**: `NEWSDATA_API_KEY`, `NEWSDATA_CATEGORIES`, `NEWSDATA_COUNTRIES`.
+- **New York Times Article Search**: `NYTIMES_API_KEY`, `NYTIMES_QUERIES`, `NYTIMES_SECTIONS`, `NYTIMES_LOOKBACK_DAYS`, `NYTIMES_MAX_PAGES`.
+
+Example PowerShell configuration:
+
+```powershell
+setx CURRENTS_API_KEY "your_currents_api_key"
+setx GUARDIAN_API_KEY "your_guardian_api_key"
+setx NEWSDATA_API_KEY "your_newsdata_api_key"
+setx NYTIMES_API_KEY "your_nytimes_api_key"
+```
+
 ## API Endpoints
 
 ### GET `/api/articles/market`

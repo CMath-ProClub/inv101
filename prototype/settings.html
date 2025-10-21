@@ -147,6 +147,7 @@
     // Check for saved dark mode preference
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
     if (isDarkMode) {
+      document.documentElement.classList.add('dark-mode');
       document.body.classList.add('dark-mode');
       darkModeToggle.checked = true;
     }
@@ -154,9 +155,11 @@
     // Toggle dark mode
     darkModeToggle.addEventListener('change', function() {
       if (this.checked) {
+        document.documentElement.classList.add('dark-mode');
         document.body.classList.add('dark-mode');
         localStorage.setItem('darkMode', 'true');
       } else {
+        document.documentElement.classList.remove('dark-mode');
         document.body.classList.remove('dark-mode');
         localStorage.setItem('darkMode', 'false');
       }
@@ -168,6 +171,7 @@
     // Check for saved compact mode preference
     const isCompactMode = localStorage.getItem('compactMode') === 'true';
     if (isCompactMode) {
+      document.documentElement.classList.add('compact-mode');
       document.body.classList.add('compact-mode');
       compactModeToggle.checked = true;
     }
@@ -175,9 +179,11 @@
     // Toggle compact mode
     compactModeToggle.addEventListener('change', function() {
       if (this.checked) {
+        document.documentElement.classList.add('compact-mode');
         document.body.classList.add('compact-mode');
         localStorage.setItem('compactMode', 'true');
       } else {
+        document.documentElement.classList.remove('compact-mode');
         document.body.classList.remove('compact-mode');
         localStorage.setItem('compactMode', 'false');
       }

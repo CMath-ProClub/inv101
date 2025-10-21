@@ -20,3 +20,15 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+
+# Vercel
+.vercel
+.vercel/
+
+# Environment files
+backend/.env
+.env.local
+.env.production
+
+# MongoDB Memory Server
+mongodb-binaries/

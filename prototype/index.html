@@ -9,26 +9,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script>
-    // Apply dark mode before page renders to prevent flash
+    // Apply dark/compact classes early to prevent flash
     if (localStorage.getItem('darkMode') === 'true') {
-      document.documentElement.classList.add('dark-mode-loading');
+      document.documentElement.classList.add('dark-mode');
+      document.body.classList.add('dark-mode');
+    }
+    if (localStorage.getItem('compactMode') === 'true') {
+      document.documentElement.classList.add('compact-mode');
+      document.body.classList.add('compact-mode');
     }
   </script>
 </head>
 <body>
   <script>
-    // Apply dark mode to body
+    // Apply dark/compact classes to both documentElement and body for compatibility
     if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark-mode');
       document.body.classList.add('dark-mode');
     }
-    // Apply compact mode to body
     if (localStorage.getItem('compactMode') === 'true') {
+      document.documentElement.classList.add('compact-mode');
       document.body.classList.add('compact-mode');
     }
   </script>
   <div class="app">
     <header class="app__header">
-      <img class="app__logo" src="../Investing101.png" alt="Investing101 logo">
+  <img class="app__logo" src="assets/Investing101.png" alt="Investing101 logo">
       <div class="app__header-actions">
         <button class="icon-button" type="button" aria-label="Notifications">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

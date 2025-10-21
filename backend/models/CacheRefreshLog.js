@@ -17,7 +17,9 @@ const cacheRefreshLogSchema = new mongoose.Schema({
     source: String,
     articlesFound: Number,
     articlesAdded: Number,
-    errors: [String]
+    duplicatesSkipped: Number,
+    error: String,
+    errorList: [String]
   }],
   totalArticlesFound: {
     type: Number,
@@ -54,7 +56,7 @@ const cacheRefreshLogSchema = new mongoose.Schema({
     enum: ['running', 'completed', 'failed', 'partial'],
     default: 'running'
   },
-  errors: [{
+  errorList: [{
     message: String,
     source: String,
     timestamp: Date
@@ -65,7 +67,8 @@ const cacheRefreshLogSchema = new mongoose.Schema({
     default: 'auto'
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  suppressReservedKeysWarning: true
 });
 
 // Index for querying recent refresh logs
