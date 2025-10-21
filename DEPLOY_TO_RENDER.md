@@ -52,7 +52,7 @@ cd backend && npm install
 
 **Start Command:**
 ```
-cd backend && node index.js
+node index.js
 ```
 
 **Instance Type:** `Free`
@@ -75,11 +75,9 @@ mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/investing101?retr
 - **Key:** `NODE_ENV`
 - **Value:** `production`
 
-**Variable 3:**
-- **Key:** `PORT`
-- **Value:** `10000`
-
 (Add your API keys too if you have them configured)
+
+**Note:** Render automatically sets the `PORT` environment variable - you don't need to set it manually!
 
 ---
 
