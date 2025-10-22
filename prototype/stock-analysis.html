@@ -467,23 +467,35 @@
       }, 100);
     }
 
-    // Switch between tabs in analysis display
+    // Switch between tabs in analysis display (works for both sidebar and tabs)
     function switchTab(tabName) {
       // Hide all tab contents
       document.querySelectorAll('.tab-content').forEach(tab => {
         tab.style.display = 'none';
       });
       
-      // Remove active class from all tab buttons
+      // Remove active class from all mobile tab buttons
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('tab-btn--active');
       });
       
-      // Show selected tab content
-      document.getElementById(tabName + '-tab').style.display = 'block';
+      // Remove active class from all sidebar buttons
+      document.querySelectorAll('.sidebar-btn').forEach(btn => {
+        btn.classList.remove('sidebar-btn--active');
+      });
       
-      // Add active class to clicked button
-      event.target.classList.add('tab-btn--active');
+      // Show selected tab content
+      const tabElement = document.getElementById(tabName + '-tab');
+      if (tabElement) {
+        tabElement.style.display = 'block';
+      }
+      
+      // Add active class to clicked button (works for both sidebar and tabs)
+      if (event && event.target) {
+        event.target.classList.add(
+          event.target.classList.contains('sidebar-btn') ? 'sidebar-btn--active' : 'tab-btn--active'
+        );
+      }
     }
 
     // ...existing code...
@@ -620,33 +632,60 @@
           </details>
         </div>
 
-        <!-- Tabbed Interface -->
-        <div style="background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1); overflow:hidden;">
-          <!-- Tab Buttons -->
-          <div style="display:flex; border-bottom:2px solid #e5e7eb; background:#f9fafb; overflow-x:auto;">
-            <button class="tab-btn tab-btn--active" onclick="switchTab('overview')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+        <!-- Responsive Layout: Sidebar on Desktop, Tabs on Mobile -->
+        <div class="analysis-layout">
+          <!-- Sidebar Navigation (Desktop Only) -->
+          <nav class="analysis-sidebar">
+            <button class="sidebar-btn sidebar-btn--active" onclick="switchTab('overview')">
+              <span class="sidebar-btn__icon">📊</span>
+              <span class="sidebar-btn__text">Overview</span>
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('fundamentals')">
+              <span class="sidebar-btn__icon">💼</span>
+              <span class="sidebar-btn__text">Fundamentals</span>
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('sentiment')">
+              <span class="sidebar-btn__icon">📈</span>
+              <span class="sidebar-btn__text">Sentiment</span>
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('risk')">
+              <span class="sidebar-btn__icon">⚠️</span>
+              <span class="sidebar-btn__text">Risk</span>
+            </button>
+            ${record.news.length > 0 ? `
+              <button class="sidebar-btn" onclick="switchTab('news')">
+                <span class="sidebar-btn__icon">📰</span>
+                <span class="sidebar-btn__text">News</span>
+              </button>
+            ` : ''}
+          </nav>
+
+          <!-- Mobile Tab Bar (Mobile/Tablet Only) -->
+          <div class="analysis-tabs">
+            <button class="tab-btn tab-btn--active" onclick="switchTab('overview')">
               Overview
             </button>
-            <button class="tab-btn" onclick="switchTab('fundamentals')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+            <button class="tab-btn" onclick="switchTab('fundamentals')">
               Fundamentals
             </button>
-            <button class="tab-btn" onclick="switchTab('sentiment')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+            <button class="tab-btn" onclick="switchTab('sentiment')">
               Sentiment
             </button>
-            <button class="tab-btn" onclick="switchTab('risk')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+            <button class="tab-btn" onclick="switchTab('risk')">
               Risk
             </button>
             ${record.news.length > 0 ? `
-              <button class="tab-btn" onclick="switchTab('news')" style="flex:1; min-width:70px; padding:10px 6px; border:none; background:transparent; cursor:pointer; font-weight:600; font-size:0.8rem; border-bottom:3px solid transparent; transition:all 0.2s;">
+              <button class="tab-btn" onclick="switchTab('news')">
                 News
               </button>
             ` : ''}
           </div>
 
-          <!-- Tab Contents -->
-          <div style="padding:12px;">
+          <!-- Content Area -->
+          <div class="analysis-content">
             <!-- Overview Tab -->
             <div id="overview-tab" class="tab-content">
+              <div class="analysis-grid">
               <article style="margin-bottom:12px; padding:12px; background:#3b82f6; border-radius:8px; color:white;">
                 <h3 style="color:white; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:8px; margin:0 0 12px 0; font-size:1rem;">Conviction Breakdown</h3>
                 <div style="margin-top:12px;">
@@ -681,6 +720,7 @@
                   </ul>
                 ` : ''}
               </article>
+              </div>
             </div>
 
             <!-- Fundamentals Tab -->
@@ -723,6 +763,7 @@
                 </article>
               </div>
             ` : ''}
+          </div>
           </div>
         </div>
 

@@ -1757,7 +1757,7 @@ body.dark-mode .toggle input:checked + .toggle-slider {
   h2 { font-size: 1.8rem; }
   h3 { font-size: 1.4rem; }
 
-  /* Stock Analysis - Laptop */
+  /* Stock Analysis - Laptop: Switch to Sidebar */
   .analysis__header {
     padding: 18px !important;
   }
@@ -1766,10 +1766,29 @@ body.dark-mode .toggle input:checked + .toggle-slider {
     font-size: 1.4rem !important;
   }
 
-  .tab-btn {
-    min-width: 110px !important;
-    padding: 13px 14px !important;
-    font-size: 0.9rem !important;
+  /* Show sidebar, hide mobile tabs */
+  .analysis-layout {
+    display: flex;
+  }
+
+  .analysis-sidebar {
+    display: flex;
+    min-width: 180px;
+  }
+
+  .analysis-tabs {
+    display: none;
+  }
+
+  .analysis-content {
+    flex: 1;
+    padding: 20px;
+  }
+
+  /* Grid layout for desktop */
+  .analysis-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 
   .tab-content {
@@ -1802,7 +1821,7 @@ body.dark-mode .toggle input:checked + .toggle-slider {
   h2 { font-size: 2rem; }
   h3 { font-size: 1.5rem; }
 
-  /* Stock Analysis - Desktop */
+  /* Stock Analysis - Desktop: Sidebar Layout */
   .analysis__header {
     padding: 20px !important;
   }
@@ -1811,10 +1830,40 @@ body.dark-mode .toggle input:checked + .toggle-slider {
     font-size: 1.5rem !important;
   }
 
-  .tab-btn {
-    min-width: 120px !important;
-    padding: 14px 18px !important;
-    font-size: 1rem !important;
+  /* Show sidebar, hide mobile tabs */
+  .analysis-layout {
+    display: flex;
+  }
+
+  .analysis-sidebar {
+    display: flex;
+    min-width: 220px;
+  }
+
+  .sidebar-btn {
+    font-size: 1rem;
+    padding: 14px 18px;
+  }
+
+  .sidebar-btn__icon {
+    font-size: 1.4rem;
+  }
+
+  .analysis-tabs {
+    display: none;
+  }
+
+  .analysis-content {
+    flex: 1;
+    padding: 24px;
+    max-height: 800px;
+    overflow-y: auto;
+  }
+
+  /* Grid layout for desktop - 2 column */
+  .analysis-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
   }
 
   .tab-content {
@@ -1850,6 +1899,122 @@ html, body {
 
 * {
   box-sizing: border-box;
+}
+
+/* ============================================
+   ANALYSIS LAYOUT - SIDEBAR & TABS
+   Chess.com-inspired responsive layout
+   ============================================ */
+
+/* Container for analysis layout */
+.analysis-layout {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* Desktop Sidebar Navigation */
+.analysis-sidebar {
+  display: none; /* Hidden on mobile */
+  flex-direction: column;
+  gap: 0;
+  background: #f9fafb;
+  border-right: 2px solid #e5e7eb;
+  padding: 8px;
+  min-width: 200px;
+}
+
+.sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #4b5563;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar-btn:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.sidebar-btn--active {
+  background: #3b82f6;
+  color: white;
+}
+
+.sidebar-btn--active:hover {
+  background: #2563eb;
+}
+
+.sidebar-btn__icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.sidebar-btn__text {
+  flex: 1;
+}
+
+/* Mobile Tab Bar */
+.analysis-tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  background: #f9fafb;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.analysis-tabs::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.tab-btn {
+  flex: 1;
+  min-width: 70px;
+  padding: 10px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.8rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  color: #6b7280;
+}
+
+.tab-btn:hover {
+  color: #1f2937;
+  background: #f3f4f6;
+}
+
+.tab-btn--active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: white;
+}
+
+/* Content Area */
+.analysis-content {
+  padding: 12px;
+  overflow-y: auto;
+}
+
+/* Grid layout for desktop content */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
 }
 
 /* Details/Summary Collapsible Styling */
