@@ -1582,6 +1582,19 @@ body.dark-mode .toggle input:checked + .toggle-slider {
     padding: 3px 6px !important;
   }
 
+  /* Layout: Tabs visible, Sidebar hidden on mobile */
+  .analysis-sidebar {
+    display: none !important;
+  }
+
+  .analysis-tabs {
+    display: flex !important;
+  }
+
+  .analysis-content {
+    padding: 10px !important;
+  }
+
   /* Tab system for mobile */
   .tab-btn {
     min-width: 60px !important;
@@ -1658,7 +1671,15 @@ body.dark-mode .toggle input:checked + .toggle-slider {
   h2 { font-size: 1.4rem; }
   h3 { font-size: 1.2rem; }
 
-  /* Stock Analysis - Landscape Mobile */
+  /* Stock Analysis - Landscape Mobile: Tabs visible, Sidebar hidden */
+  .analysis-sidebar {
+    display: none !important;
+  }
+
+  .analysis-tabs {
+    display: flex !important;
+  }
+
   .tab-btn {
     min-width: 70px !important;
     padding: 10px 6px !important;
@@ -1706,7 +1727,15 @@ body.dark-mode .toggle input:checked + .toggle-slider {
   h2 { font-size: 1.6rem; }
   h3 { font-size: 1.3rem; }
 
-  /* Stock Analysis - Tablet */
+  /* Stock Analysis - Tablet: Tabs visible, Sidebar hidden */
+  .analysis-sidebar {
+    display: none !important;
+  }
+
+  .analysis-tabs {
+    display: flex !important;
+  }
+
   .analysis__header {
     padding: 16px !important;
   }
@@ -1768,16 +1797,16 @@ body.dark-mode .toggle input:checked + .toggle-slider {
 
   /* Show sidebar, hide mobile tabs */
   .analysis-layout {
-    display: flex;
+    display: flex !important;
   }
 
   .analysis-sidebar {
-    display: flex;
+    display: flex !important;
     min-width: 180px;
   }
 
   .analysis-tabs {
-    display: none;
+    display: none !important;
   }
 
   .analysis-content {
@@ -1832,11 +1861,11 @@ body.dark-mode .toggle input:checked + .toggle-slider {
 
   /* Show sidebar, hide mobile tabs */
   .analysis-layout {
-    display: flex;
+    display: flex !important;
   }
 
   .analysis-sidebar {
-    display: flex;
+    display: flex !important;
     min-width: 220px;
   }
 
@@ -1850,7 +1879,7 @@ body.dark-mode .toggle input:checked + .toggle-slider {
   }
 
   .analysis-tabs {
-    display: none;
+    display: none !important;
   }
 
   .analysis-content {
