@@ -7,6 +7,7 @@ const articleCache = require('./articleCache');
 const yahooFinance = require('yahoo-finance2').default;
 const scheduler = require('./scheduler');
 const stockCache = require('./stockCache');
+const stockMarketData = require('./stockMarketData');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -599,6 +600,124 @@ app.get('/api/articles/refresh-history', async (req, res) => {
       history
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Stock Market Simulator Endpoints
+ */
+
+// Get all stock market data
+app.get('/api/stocks/all', async (req, res) => {
+  try {
+    const forceRefresh = req.query.refresh === 'true';
+    const stockData = await stockMarketData.getStockData(forceRefresh);
+    
+    res.json({
+      success: true,
+      count: Object.keys(stockData).length,
+      stocks: Object.values(stockData),
+      lastUpdated: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error fetching all stocks:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Search stocks
+app.get('/api/stocks/search', async (req, res) => {
+  try {
+    const query = req.query.q || '';
+    const stockData = await stockMarketData.getStockData();
+    const results = stockMarketData.searchStocks(query, stockData);
+    
+    res.json({
+      success: true,
+      query,
+      count: results.length,
+      results
+    });
+  } catch (error) {
+    console.error('Error searching stocks:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get top movers (gainers/losers)
+app.get('/api/stocks/movers', async (req, res) => {
+  try {
+    const type = req.query.type || 'gainers'; // 'gainers' or 'losers'
+    const limit = parseInt(req.query.limit) || 20;
+    const stockData = await stockMarketData.getStockData();
+    const movers = stockMarketData.getTopMovers(stockData, type, limit);
+    
+    res.json({
+      success: true,
+      type,
+      count: movers.length,
+      movers
+    });
+  } catch (error) {
+    console.error('Error fetching top movers:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get stocks by sector
+app.get('/api/stocks/sector/:sector', async (req, res) => {
+  try {
+    const sector = req.params.sector;
+    const stockData = await stockMarketData.getStockData();
+    const stocks = stockMarketData.getStocksBySector(stockData, sector);
+    
+    res.json({
+      success: true,
+      sector,
+      count: stocks.length,
+      stocks
+    });
+  } catch (error) {
+    console.error('Error fetching stocks by sector:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get specific stock quote
+app.get('/api/stocks/quote/:symbol', async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const quotes = await stockMarketData.fetchStockQuotes([symbol]);
+    
+    if (quotes[symbol]) {
+      res.json({
+        success: true,
+        stock: quotes[symbol]
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: 'Stock not found'
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching stock quote:', error);
     res.status(500).json({
       success: false,
       error: error.message
