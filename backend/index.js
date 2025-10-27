@@ -738,6 +738,7 @@ async function startServer() {
       
       // Start scheduled tasks
       scheduler.startScheduledRefresh('0 */6 * * *');    // Every 6 hours
+      scheduler.startMidnightScraper('0 0 * * *');       // Daily at midnight
       scheduler.startStockCacheRefresh('0 3,9,15,21 * * *'); // Every 6 hours (offset)
       scheduler.startDailyCleanup('0 2 * * *');         // Daily at 2 AM
       

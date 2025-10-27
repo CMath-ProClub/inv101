@@ -36,6 +36,34 @@ class ArticleScheduler {
   }
 
   /**
+   * Start midnight scraper run (runs all scrapers daily at midnight)
+   * Default: Daily at 00:00 (midnight)
+   */
+  startMidnightScraper(cronExpression = '0 0 * * *') {
+    console.log(`📅 Scheduling midnight scraper: ${cronExpression}`);
+    
+    const task = cron.schedule(cronExpression, async () => {
+      console.log('\n🌙 Midnight scraper task triggered');
+      console.log(`⏰ Time: ${new Date().toLocaleString()}`);
+      try {
+        const stats = await articleCache.refreshCache('midnight-scheduled');
+        console.log('✅ Midnight scraper completed:', {
+          articlesAdded: stats.articlesAdded,
+          duplicatesSkipped: stats.duplicatesSkipped,
+          sources: stats.sourceBreakdown?.length || 0,
+          duration: `${stats.duration}s`
+        });
+      } catch (error) {
+        console.error('❌ Midnight scraper failed:', error.message);
+      }
+    });
+
+    this.tasks.push(task);
+    console.log('✅ Midnight scraper scheduled successfully');
+    console.log('🌙 Scrapers will run automatically every day at midnight');
+  }
+
+  /**
    * Start scheduled stock cache refresh
    * Default: Every 6 hours (offset by 3 hours from articles)
    */

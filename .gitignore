@@ -27,8 +27,17 @@ build/
 
 # Environment files
 backend/.env
+.env
+.env.*
+!.env.example
 .env.local
 .env.production
 
 # MongoDB Memory Server
 mongodb-binaries/
+
+# Sensitive data
+*.pem
+*.key
+*.cert
+.secrets
