@@ -742,6 +742,12 @@ async function startServer() {
       scheduler.startStockCacheRefresh('0 3,9,15,21 * * *'); // Every 6 hours (offset)
       scheduler.startDailyCleanup('0 2 * * *');         // Daily at 2 AM
       
+      // Start self-ping to keep Render instance awake (only in production)
+      const appUrl = process.env.RENDER_EXTERNAL_URL || process.env.APP_URL;
+      if (appUrl) {
+        scheduler.startSelfPing(appUrl);
+      }
+      
       // Initialize stock cache in background with smaller batches
       console.log('📊 Initializing stock cache in background...');
       stockCache.refreshAll().then(result => {

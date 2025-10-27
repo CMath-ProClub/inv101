@@ -117,6 +117,42 @@ class ArticleScheduler {
   }
 
   /**
+   * Start self-ping to keep Render instance awake
+   * Pings every 10 minutes to prevent spin-down on free tier
+   */
+  startSelfPing(appUrl) {
+    if (!appUrl || appUrl.includes('localhost')) {
+      console.log('⏭️  Skipping self-ping (running locally)');
+      return;
+    }
+
+    console.log(`📅 Scheduling self-ping: */10 * * * * (every 10 minutes)`);
+    
+    const task = cron.schedule('*/10 * * * *', async () => {
+      try {
+        const fetch = (await import('node-fetch')).default;
+        const pingUrl = `${appUrl}/health`;
+        const response = await fetch(pingUrl, { 
+          method: 'GET',
+          timeout: 5000 
+        });
+        
+        if (response.ok) {
+          console.log(`🏓 Self-ping successful (${response.status})`);
+        } else {
+          console.warn(`⚠️  Self-ping returned ${response.status}`);
+        }
+      } catch (error) {
+        console.warn('⚠️  Self-ping failed:', error.message);
+      }
+    });
+
+    this.tasks.push(task);
+    console.log('✅ Self-ping scheduled successfully');
+    console.log('🌐 Keeping Render instance awake');
+  }
+
+  /**
    * Calculate next run time for a cron expression
    */
   getNextRunTime(cronExpression) {
