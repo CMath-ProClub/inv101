@@ -155,13 +155,46 @@
     
     // Handle sidebar navigation when DOM is ready
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', handleSidebarNavigation);
+      document.addEventListener('DOMContentLoaded', function() {
+        handleSidebarNavigation();
+        loadSharedAssets();
+      });
     } else {
       handleSidebarNavigation();
+      loadSharedAssets();
     }
   }
 
   // Start detection
   init();
+
+  /**
+   * Dynamically load shared UI CSS/JS and initialize shared UI elements
+   * This keeps existing pages untouched while ensuring a consistent header/tabbar/sidebar
+   */
+  function loadSharedAssets() {
+    try {
+      // Avoid double-loading
+      if (document.querySelector('link[data-shared-ui]')) return;
+
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'shared-ui.css';
+      link.setAttribute('data-shared-ui', 'true');
+      document.head.appendChild(link);
+
+      var script = document.createElement('script');
+      script.src = 'shared-ui.js';
+      script.defer = true;
+      script.onload = function() {
+        if (window.sharedUI && typeof window.sharedUI.ensureSharedUI === 'function') {
+          try { window.sharedUI.ensureSharedUI(); } catch (e) { console.warn('sharedUI init failed', e); }
+        }
+      };
+      document.head.appendChild(script);
+    } catch (e) {
+      console.warn('Failed to load shared UI assets', e);
+    }
+  }
 
 })();
