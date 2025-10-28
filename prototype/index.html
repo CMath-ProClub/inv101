@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -33,61 +33,7 @@
       document.body.classList.add('compact-mode');
     }
   </script>
-  <div class="app">
-    <!-- Desktop Sidebar Navigation -->
-    <aside class="sidebar">
-      <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
-        <img src="assets/Investing101.png" alt="Investing101 logo">
-      </a>
-      <nav class="sidebar__nav" aria-label="Primary navigation">
-        <a class="sidebar__btn sidebar__btn--active" href="index.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3 10.5L12 3l9 7.5" />
-            <path d="M5 10.5V21h14V10.5" />
-            <path d="M9 21v-6h6v6" />
-          </svg>
-          <span>Main Dashboard</span>
-        </a>
-        <a class="sidebar__btn" href="simulator.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <circle cx="12" cy="12" r="3" />
-            <path d="M12 3v3" />
-            <path d="M12 18v3" />
-            <path d="M3 12h3" />
-            <path d="M18 12h3" />
-          </svg>
-          <span>Simulator & AI</span>
-        </a>
-        <a class="sidebar__btn" href="lessons.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
-            <path d="M4 12l8 3 8-3" />
-            <path d="M12 5v10" />
-          </svg>
-          <span>Lessons</span>
-        </a>
-        <a class="sidebar__btn" href="calculators.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <path d="M7 8h10" />
-            <path d="M7 12h10" />
-            <path d="M7 16h3" />
-            <path d="M14 16h3" />
-          </svg>
-          <span>Calculators</span>
-        </a>
-        <a class="sidebar__btn" href="profile.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-          </svg>
-          <span>Profile</span>
-        </a>
-      </nav>
-    </aside>
-
-    <header class="app__header">
+  <div class="app">    <!-- sidebar removed  shared-ui provides navigation (keeps layout simpler). --><header class="app__header">
   <img class="app__logo" src="assets/Investing101.png" alt="Investing101 logo">
       <div class="app__header-actions">
         <button class="icon-button" type="button" aria-label="Notifications">
@@ -106,7 +52,7 @@
       <section id="home" class="screen screen--active" aria-label="Main dashboard">
         <!-- Welcome Message -->
         <div style="background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%); padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);">
-          <h2 style="color: white; margin: 0 0 8px 0; font-size: 1.5rem;">Welcome to Investing101! 👋</h2>
+          <h2 style="color: white; margin: 0 0 8px 0; font-size: 1.5rem;">Welcome to Investing101! ðŸ‘‹</h2>
           <p style="color: rgba(255, 255, 255, 0.95); margin: 0; font-size: 0.95rem; line-height: 1.5;">
             Your journey to financial literacy starts here. Explore market analysis, learn investing fundamentals, use powerful calculators, and test your skills.
           </p>
@@ -134,11 +80,11 @@
       <section id="simulator" class="screen" aria-label="Simulation and AI challenges">
         <section class="feature-links feature-links--split" aria-label="Simulator links">
           <a class="feature-link--split" href="simulator.html">
-            <span style="font-size: 2.5rem;">🎯</span>
+            <span style="font-size: 2.5rem;">ðŸŽ¯</span>
             <span>Market Simulation</span>
           </a>
           <a class="feature-link--split" href="play-ai.html">
-            <span style="font-size: 2.5rem;">🤖</span>
+            <span style="font-size: 2.5rem;">ðŸ¤–</span>
             <span>Play the AI</span>
           </a>
         </section>
@@ -147,19 +93,19 @@
       <section id="lessons" class="screen" aria-label="Lessons and curriculum">
         <section class="feature-links feature-links--vertical" aria-label="Lesson links">
           <a class="feature-link--vertical" href="lessons-foundations.html">
-            <span style="font-size: 2rem;">📚</span>
+            <span style="font-size: 2rem;">ðŸ“š</span>
             <span>Foundations</span>
           </a>
           <a class="feature-link--vertical" href="lessons-instruments.html">
-            <span style="font-size: 2rem;">🔧</span>
+            <span style="font-size: 2rem;">ðŸ”§</span>
             <span>Instruments & Accounts</span>
           </a>
           <a class="feature-link--vertical" href="lessons-practical.html">
-            <span style="font-size: 2rem;">💼</span>
+            <span style="font-size: 2rem;">ðŸ’¼</span>
             <span>Practical Investing</span>
           </a>
           <a class="feature-link--vertical" href="lessons-market.html">
-            <span style="font-size: 2rem;">📊</span>
+            <span style="font-size: 2rem;">ðŸ“Š</span>
             <span>Market Understanding</span>
           </a>
         </section>
@@ -168,31 +114,31 @@
       <section id="calculators" class="screen" aria-label="Calculator suite">
         <section class="feature-links feature-links--rows" aria-label="Calculator links">
           <a class="feature-link--row" href="calculator-core.html">
-            <span style="font-size: 1.5rem;">💰</span>
+            <span style="font-size: 1.5rem;">ðŸ’°</span>
             <span>CORE</span>
           </a>
           <a class="feature-link--row" href="calculator-risk.html">
-            <span style="font-size: 1.5rem;">⚠️</span>
+            <span style="font-size: 1.5rem;">âš ï¸</span>
             <span>RISK</span>
           </a>
           <a class="feature-link--row" href="calculator-stock.html">
-            <span style="font-size: 1.5rem;">📈</span>
+            <span style="font-size: 1.5rem;">ðŸ“ˆ</span>
             <span>STOCK</span>
           </a>
           <a class="feature-link--row" href="calculator-asset.html">
-            <span style="font-size: 1.5rem;">🏦</span>
+            <span style="font-size: 1.5rem;">ðŸ¦</span>
             <span>ASSET</span>
           </a>
           <a class="feature-link--row" href="calculator-retire.html">
-            <span style="font-size: 1.5rem;">🏖️</span>
+            <span style="font-size: 1.5rem;">ðŸ–ï¸</span>
             <span>RETIRE</span>
           </a>
           <a class="feature-link--row" href="calculator-tax.html">
-            <span style="font-size: 1.5rem;">📋</span>
+            <span style="font-size: 1.5rem;">ðŸ“‹</span>
             <span>TAX</span>
           </a>
           <a class="feature-link--row" href="calculator-crypto.html">
-            <span style="font-size: 1.5rem;">₿</span>
+            <span style="font-size: 1.5rem;">â‚¿</span>
             <span>CRYPTO</span>
           </a>
         </section>
@@ -201,23 +147,23 @@
       <section id="profile" class="screen" aria-label="Profile and progression">
         <section class="feature-links feature-links--profile" aria-label="Profile links">
           <a class="feature-link--profile" href="profile.html">
-            <span style="font-size: 3rem;">👤</span>
+            <span style="font-size: 3rem;">ðŸ‘¤</span>
             <span>Profile</span>
           </a>
           <a class="feature-link--profile" href="friends.html">
-            <span style="font-size: 3rem;">👥</span>
+            <span style="font-size: 3rem;">ðŸ‘¥</span>
             <span>Friends</span>
           </a>
           <a class="feature-link--profile" href="settings.html">
-            <span style="font-size: 3rem;">⚙️</span>
+            <span style="font-size: 3rem;">âš™ï¸</span>
             <span>Settings</span>
           </a>
           <a class="feature-link--profile" href="subscription.html">
-            <span style="font-size: 3rem;">💳</span>
+            <span style="font-size: 3rem;">ðŸ’³</span>
             <span>Subscription</span>
           </a>
           <a class="feature-link--profile" href="newsletter.html">
-            <span style="font-size: 3rem;">📧</span>
+            <span style="font-size: 3rem;">ðŸ“§</span>
             <span>Newsletter</span>
           </a>
         </section>
@@ -277,4 +223,5 @@
   </script>
 </body>
 </html>
+
 

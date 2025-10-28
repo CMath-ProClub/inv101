@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -91,33 +91,7 @@
   </style>
 </head>
 <body>
-  <div class="app">
-    <!-- Desktop Sidebar Navigation -->
-    <aside class="sidebar">
-      <div class="sidebar__logo">
-        <img src="assets/Investing101.png" alt="Investing101 logo">
-      </div>
-      <nav class="sidebar__nav" aria-label="Primary navigation">
-        <a class="sidebar__btn sidebar__btn--active" href="responsive-test.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 10.5L12 3l9 7.5" />
-            <path d="M5 10.5V21h14V10.5" />
-            <path d="M9 21v-6h6v6" />
-          </svg>
-          <span>Responsive Test</span>
-        </a>
-        <a class="sidebar__btn" href="index.html">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 10.5L12 3l9 7.5" />
-            <path d="M5 10.5V21h14V10.5" />
-            <path d="M9 21v-6h6v6" />
-          </svg>
-          <span>Main Dashboard</span>
-        </a>
-      </nav>
-    </aside>
-
-    <header class="app__header">
+  <div class="app">    <!-- sidebar removed  shared-ui provides navigation (keeps layout simpler). --><header class="app__header">
       <img class="app__logo" src="assets/Investing101.png" alt="Investing101 logo">
       <div class="app__header-actions">
         <button class="btn btn--ghost" type="button">
@@ -129,7 +103,7 @@
     <main class="app__content">
       <section id="home" class="screen screen--active">
         <div style="background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%); padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);">
-          <h2 style="color: white; margin: 0 0 12px 0; font-size: 1.75rem;">📱 Responsive Design Test</h2>
+          <h2 style="color: white; margin: 0 0 12px 0; font-size: 1.75rem;">ðŸ“± Responsive Design Test</h2>
           <p style="color: rgba(255, 255, 255, 0.95); margin: 0; font-size: 1rem; line-height: 1.6;">
             This page demonstrates the responsive behavior of the Investing101 application. 
             Resize your browser window or use DevTools device emulation to test different screen sizes.
@@ -137,9 +111,9 @@
         </div>
 
         <div class="card" style="margin-bottom: 20px;">
-          <h3>🎯 What to Test</h3>
+          <h3>ðŸŽ¯ What to Test</h3>
           <ul>
-            <li><strong>Desktop (≥1280px):</strong> Sidebar navigation appears on the left</li>
+            <li><strong>Desktop (â‰¥1280px):</strong> Sidebar navigation appears on the left</li>
             <li><strong>Tablet (768-1279px):</strong> Full-width with bottom tab bar</li>
             <li><strong>Mobile (&lt;768px):</strong> Compact mobile view with bottom tabs</li>
             <li><strong>Orientation:</strong> Rotate device or resize to test landscape/portrait</li>
@@ -147,7 +121,7 @@
         </div>
 
         <div class="card">
-          <h3>📏 Current Breakpoints</h3>
+          <h3>ðŸ“ Current Breakpoints</h3>
           <ul style="list-style: none; padding: 0;">
             <li style="padding: 8px; background: var(--bg-muted); margin: 4px 0; border-radius: 8px;">
               <strong>Mobile Small:</strong> &lt; 480px
@@ -162,13 +136,13 @@
               <strong>Tablet Landscape:</strong> 1024px - 1279px
             </li>
             <li style="padding: 8px; background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%); margin: 4px 0; border-radius: 8px; color: white;">
-              <strong>Desktop (Sidebar):</strong> ≥ 1280px
+              <strong>Desktop (Sidebar):</strong> â‰¥ 1280px
             </li>
             <li style="padding: 8px; background: var(--bg-muted); margin: 4px 0; border-radius: 8px;">
-              <strong>Large Desktop:</strong> ≥ 1600px
+              <strong>Large Desktop:</strong> â‰¥ 1600px
             </li>
             <li style="padding: 8px; background: var(--bg-muted); margin: 4px 0; border-radius: 8px;">
-              <strong>Full HD+:</strong> ≥ 1920px
+              <strong>Full HD+:</strong> â‰¥ 1920px
             </li>
           </ul>
         </div>
@@ -232,9 +206,9 @@
   </div>
 
   <!-- Device Info Panel -->
-  <button class="test-toggle" onclick="togglePanel()">📊 Device Info</button>
+  <button class="test-toggle" onclick="togglePanel()">ðŸ“Š Device Info</button>
   <div class="test-panel" id="testPanel" style="display: none;">
-    <button class="test-panel__close" onclick="togglePanel()">×</button>
+    <button class="test-panel__close" onclick="togglePanel()">Ã—</button>
     <h3>Device Information</h3>
     <div class="test-panel__item">
       <span class="test-panel__label">Type:</span>
@@ -314,3 +288,4 @@
   </script>
 </body>
 </html>
+
