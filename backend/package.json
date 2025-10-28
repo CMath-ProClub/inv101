@@ -13,16 +13,20 @@
     "test-apis": "node test-apis.js",
     "verify-stocks": "node verify-1500.js",
     "postinstall": "echo '✅ Dependencies installed successfully'",
-    "test": "node -c index.js && echo '✅ Syntax check passed'"
+    "test": "jest --runInBand",
+    "test:unit": "jest --runInBand"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
+  "cookie-parser": "^1.4.6",
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "express-rate-limit": "^7.5.1",
-    "mongodb-memory-server": "^8.12.0",
+  "mongodb-memory-server": "^8.12.0",
+  "jest": "^29.0.0",
+  "supertest": "^6.3.3",
     "mongoose": "^8.0.0",
     "node-cron": "^4.2.1",
     "node-fetch": "^3.3.2",

@@ -204,11 +204,10 @@
 
       // POST to backend simulate endpoint. The server will choose historical slices.
       try {
-        const res = await fetch('/api/simulate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ opponent, durationDays, difficultyPct })
-        });
+        const payload = JSON.stringify({ opponent, durationDays, difficultyPct });
+        const res = (window.apiClient && window.apiClient.fetchWithAuth)
+          ? await window.apiClient.fetchWithAuth('/api/simulate', { method: 'POST', body: payload })
+          : await fetch('/api/simulate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload });
         if (!res.ok) throw new Error('Server error: ' + res.status);
         const data = await res.json();
         if (data && data.stats) {
@@ -243,6 +242,9 @@
       parseInt(document.getElementById('difficultyRange').value, 10)
     );
   </script>
+
+  <script src="api-client.js"></script>
+  <script src="auth-widget.js"></script>
 
   <nav class="tabbar" aria-label="Primary navigation">
     <a class="tabbar__btn" href="index.html">

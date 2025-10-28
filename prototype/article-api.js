@@ -121,20 +121,12 @@ class ArticleAPI {
    */
   static async refreshCache(ticker = null, politician = null) {
     try {
-      const response = await fetch(`${ARTICLE_API_BASE}/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ticker, politician })
-      });
-      
+      const url = `${ARTICLE_API_BASE}/refresh`;
+      const response = (window.apiClient && window.apiClient.fetchWithAuth)
+        ? await window.apiClient.fetchWithAuth(url, { method: 'POST', body: JSON.stringify({ ticker, politician }) })
+        : await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker, politician }) });
       const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to refresh cache');
-      }
-
+      if (!data.success) throw new Error(data.error || 'Failed to refresh cache');
       return data;
     } catch (error) {
       console.error('Error refreshing cache:', error);

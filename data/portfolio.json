@@ -1,0 +1,13 @@
+{
+  "account": {
+    "accountValue": 169705.10,
+    "buyingPower": 68505.27,
+    "cash": -32683.64,
+    "annualReturn": 14.55
+  },
+  "holdings": [
+    { "symbol": "AMZN", "purchasePrice": 176.81, "qty": 560 },
+    { "symbol": "DBD", "purchasePrice": 8.74, "qty": 500 },
+    { "symbol": "FNF", "purchasePrice": 51.36, "qty": 60 }
+  ]
+}

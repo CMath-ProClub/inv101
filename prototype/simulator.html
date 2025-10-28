@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Simulator</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="simulator-invest101.css">
   <script>
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
   </script>
@@ -67,16 +68,141 @@
     </aside>
 
     <main class="app__content">
-      <section class="feature-links--split">
-        <a href="simulation.html" class="feature-link--split">
-          <span style="font-size: 2.5rem;">🎯</span>
-          Market Simulation
-        </a>
-        <a href="play-ai.html" class="feature-link--split">
-          <span style="font-size: 2.5rem;">🤖</span>
-          Play the AI
-        </a>
-      </section>
+      <!-- Integrated Investopedia-style simulator content (permanent) -->
+      <div class="invest-sim-wrap">
+        <header class="invest-sim-top">
+          <div class="brand">Investing101 Simulator</div>
+          <div class="top-actions">
+            <button class="btn btn-ghost">Stocks</button>
+            <button class="btn">Crypto</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div id="userEmail" class="muted" style="display:none;"></div>
+              <button id="signinBtn" class="btn btn-primary">Sign In</button>
+              <button id="signoutBtn" class="btn btn-ghost" style="display:none;">Sign Out</button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Sign-in modal -->
+        <div id="authModal" class="modal" style="display:none;">
+          <div class="modal-inner">
+            <h3 id="authTitle">Sign In</h3>
+            <div>
+              <input id="authEmail" type="email" placeholder="Email" />
+            </div>
+            <div>
+              <input id="authPassword" type="password" placeholder="Password" />
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+              <button id="authSignin" class="btn btn-primary">Sign In</button>
+              <button id="authSignup" class="btn">Sign Up</button>
+              <button id="authClose" class="btn btn-ghost">Close</button>
+            </div>
+            <div id="authMsg" style="margin-top:8px;color:var(--text-muted)"></div>
+          </div>
+        </div>
+
+        <!-- Trade modal (replaces prompt-based flow) -->
+        <div id="tradeModal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="tradeTitle" aria-hidden="true">
+          <div class="modal-inner" role="document">
+            <h3 id="tradeTitle">Trade</h3>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <select id="tradeType" style="flex:1;">
+                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
+                <option value="short">Short</option>
+              </select>
+              <input id="tradeSymbol" type="text" placeholder="Symbol" style="width:120px;" />
+            </div>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <input id="tradeQty" type="number" placeholder="Quantity" style="flex:1;" />
+              <input id="tradePrice" type="number" placeholder="Price (optional)" style="width:160px;" />
+            </div>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+              <button id="tradeConfirm" class="btn btn-primary">Confirm Trade</button>
+              <button id="tradeCancel" class="btn btn-ghost">Cancel</button>
+            </div>
+            <div id="tradeMsg" style="margin-top:8px;color:var(--text-muted)"></div>
+          </div>
+        </div>
+
+        <!-- Confirmation modal (used instead of window.confirm) -->
+        <div id="confirmModal" class="modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-hidden="true">
+          <div class="modal-inner" role="document">
+            <h3 id="confirmTitle">Confirm</h3>
+            <div id="confirmMsg" style="margin-top:8px; white-space:pre-wrap; color:var(--text);"></div>
+            <div style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+              <button id="confirmCancel" class="btn btn-ghost">Cancel</button>
+              <button id="confirmOk" class="btn btn-primary">Confirm</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="overview-grid">
+          <article class="overview-card acct-card">
+            <h3 class="small-muted">Overview</h3>
+            <div class="account-value" id="accountValue">$169,705.10</div>
+            <div class="acct-stats">
+              <div>
+                <div class="muted">Today's Change</div>
+                <div class="value positive" id="todaysChange">+$0.00 <span class="muted">(0.00%)</span></div>
+              </div>
+              <div>
+                <div class="muted">Annual Return</div>
+                <div class="value" id="annualReturn">14.55%</div>
+              </div>
+            </div>
+
+            <div class="acct-bottom">
+              <div>
+                <div class="muted">Buying Power</div>
+                <div class="value" id="buyingPower">$68,505.27</div>
+              </div>
+              <div>
+                <div class="muted">Cash</div>
+                <div class="value negative" id="cash">-$32,683.64</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="overview-card chart-card">
+            <div class="chart-header">
+              <div class="muted">Performance</div>
+              <div class="chart-controls">
+                <button class="chip active">1W</button>
+                <button class="chip">1M</button>
+                <button class="chip">3M</button>
+                <button class="chip">1Y</button>
+              </div>
+            </div>
+            <div style="position:relative; height:260px;">
+              <canvas id="performanceChart" width="600" height="260"></canvas>
+            </div>
+            <div class="chart-cta">
+              <button class="btn btn-primary">Performance History</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="holdings">
+          <div class="holdings-header">
+            <h2>Holdings</h2>
+            <div class="holdings-summary">
+              <div>Total Value <strong id="totalValue">$202,394.20</strong></div>
+              <div>Total Gain/Loss <strong id="gainLoss" class="positive">$69,227.95 (51.99%)</strong></div>
+            </div>
+          </div>
+
+          <div class="holdings-table" id="holdingsTable">
+            <!-- adapter JS will populate rows (uses backend via stock-simulator.js when available) -->
+          </div>
+        </section>
+
+        <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+          <div class="loading-box"><div class="loading-text">Loading...</div></div>
+        </div>
+        <div id="errorContainer"></div>
+      </div>
     </main>
   </div>
   <nav class="tabbar" aria-label="Primary navigation">
@@ -126,6 +252,11 @@
     </a>
   </nav>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="stock-simulator.js"></script>
+  <script src="api-client.js"></script>
+  <script src="simulator-invest101.js"></script>
+  <script src="auth-widget.js"></script>
   <script src="device-detection.js"></script>
 </body>
 </html>

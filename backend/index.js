@@ -5,11 +5,19 @@ const rateLimit = require('express-rate-limit');
 const connectDB = require('./config/database');
 const articleCache = require('./articleCache');
 const yahooFinance = require('yahoo-finance2').default;
+const fs = require('fs');
+const Portfolio = require('./models/Portfolio');
+const User = require('./models/User');
+const Stock = require('./models/Stock');
+const { authMiddleware, assertJwtSecretValid, JWT_SECRET } = require('./middleware/auth');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const scheduler = require('./scheduler');
 const stockCache = require('./stockCache');
 const stockMarketData = require('./stockMarketData');
 
 const app = express();
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 // Prevent process from exiting on validation errors
@@ -37,6 +45,14 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Environment
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Validate JWT secret for production; throw to stop startup if invalid.
+try {
+  assertJwtSecretValid(isProduction);
+} catch (err) {
+  console.error('FATAL:', err.message);
+  if (typeof originalExit === 'function') originalExit(1);
+}
 
 // Enhanced logging with timestamps
 const originalLog = console.log;
@@ -83,7 +99,7 @@ const corsOptions = {
           callback(new Error('Not allowed by CORS'));
         }
       }
-    : '*', // Allow all origins in development
+    : true, // allow any origin in development but not using '*' so credentials can work
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -107,11 +123,16 @@ const apiLimiter = rateLimit({
 });
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
 const staticDir = path.join(__dirname, '..', 'prototype');
 app.use(express.static(staticDir));
 const PORT = process.env.PORT || 4000;
+// Token lifetimes
+const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || '15m';
+const REFRESH_TOKEN_MAX_AGE_DAYS = parseInt(process.env.REFRESH_TOKEN_DAYS || '30', 10);
+const cookieSameSite = isProduction ? 'strict' : 'lax';
 
 // Connect to MongoDB
 
@@ -725,11 +746,389 @@ app.get('/api/stocks/quote/:symbol', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/portfolio
+ * Serves a demo portfolio JSON from the repo and optionally enriches it with live quotes
+ * Query: ?live=true to fetch current prices for each holding
+ */
+app.get('/api/portfolio', async (req, res) => {
+  try {
+    // Prefer DB-backed portfolio if available
+    let portfolioDoc = null;
+    try {
+      portfolioDoc = await Portfolio.findOne().lean();
+    } catch (e) {
+      console.warn('DB lookup for portfolio failed (continuing to file fallback):', e.message);
+    }
+
+    // If DB document exists, use it
+    if (portfolioDoc) {
+      const portfolio = { account: portfolioDoc.account || {}, holdings: portfolioDoc.holdings || [] };
+      // If live enrichment requested, fetch current prices for holdings
+      if (req.query.live === 'true' && portfolio.holdings.length > 0) {
+        const symbols = portfolio.holdings.map(h => h.symbol.toUpperCase());
+        try {
+          const quotes = await stockMarketData.fetchStockQuotes(symbols);
+          portfolio.holdings = portfolio.holdings.map(h => {
+            const q = quotes[h.symbol] || quotes[h.symbol.toUpperCase()] || {};
+            return {
+              ...h,
+              currentPrice: q.price || q.regularMarketPrice || null,
+              change: q.change || q.regularMarketChange || 0,
+              changePercent: q.changePercent || q.regularMarketChangePercent || 0
+            };
+          });
+          // Recalculate accountValue
+          let totalValue = 0;
+          portfolio.holdings.forEach(h => {
+            const p = Number(h.currentPrice || h.purchasePrice || 0);
+            totalValue += p * Number(h.qty || 0);
+          });
+          portfolio.account.accountValue = Number(totalValue.toFixed(2));
+        } catch (e) {
+          console.warn('Failed to enrich DB portfolio with live quotes:', e.message);
+        }
+      }
+      return res.json({ success: true, portfolio });
+    }
+
+    // Fallback to file-based demo portfolio
+    const filePath = path.join(__dirname, '..', 'data', 'portfolio.json');
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, error: 'Portfolio file not found' });
+    }
+
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const portfolio = JSON.parse(raw);
+
+    if (req.query.live === 'true') {
+      const symbols = portfolio.holdings.map(h => h.symbol.toUpperCase());
+      try {
+        const quotes = await stockMarketData.fetchStockQuotes(symbols);
+        portfolio.holdings = portfolio.holdings.map(h => {
+          const q = quotes[h.symbol] || quotes[h.symbol.toUpperCase()] || {};
+          return {
+            ...h,
+            currentPrice: q.price || q.regularMarketPrice || null,
+            change: q.change || q.regularMarketChange || 0,
+            changePercent: q.changePercent || q.regularMarketChangePercent || 0
+          };
+        });
+
+        let totalValue = 0;
+        portfolio.holdings.forEach(h => {
+          const p = Number(h.currentPrice || h.purchasePrice || 0);
+          totalValue += p * Number(h.qty || 0);
+        });
+        portfolio.account.accountValue = Number(totalValue.toFixed(2));
+      } catch (e) {
+        console.warn('Failed to enrich portfolio with live quotes:', e.message);
+      }
+    }
+
+    res.json({ success: true, portfolio });
+  } catch (error) {
+    console.error('Error reading portfolio:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// AUTH routes
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ success: false, error: 'email and password required' });
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(409).json({ success: false, error: 'User already exists' });
+  const user = await User.createWithPassword(email, password);
+  // create empty portfolio for user
+  const p = new Portfolio({ userId: user._id.toString(), account: {}, holdings: [] });
+  await p.save();
+    // Issue access + refresh tokens (access short-lived, refresh long-lived)
+    const accessToken = jwt.sign({ sub: user._id.toString(), email: user.email }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+    const refreshTokenPlain = crypto.randomBytes(48).toString('hex');
+    // persist refresh token hash and get its id
+    let tokenId = null;
+    try { tokenId = await user.addRefreshToken(refreshTokenPlain); } catch (err) { console.warn('Failed to persist refresh token:', err.message); }
+    // Set HttpOnly cookies so client JS cannot read tokens directly
+  res.cookie('inv101_token', accessToken, { httpOnly: true, secure: isProduction, sameSite: cookieSameSite, maxAge: 15 * 60 * 1000 });
+  // Cookie contains id.plain so server can lookup by id and compare hash
+  if (tokenId) {
+    res.cookie('inv101_refresh', `${tokenId}.${refreshTokenPlain}`, { httpOnly: true, secure: isProduction, sameSite: cookieSameSite, maxAge: REFRESH_TOKEN_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 });
+  }
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Signup error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ success: false, error: 'email and password required' });
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    const valid = await user.verifyPassword(password);
+    if (!valid) return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    // Issue access + refresh tokens
+    const accessToken = jwt.sign({ sub: user._id.toString(), email: user.email }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+    const refreshTokenPlain = crypto.randomBytes(48).toString('hex');
+    let tokenId = null;
+    try { tokenId = await user.addRefreshToken(refreshTokenPlain); } catch (err) { console.warn('Failed to persist refresh token:', err.message); }
+  res.cookie('inv101_token', accessToken, { httpOnly: true, secure: isProduction, sameSite: cookieSameSite, maxAge: 15 * 60 * 1000 });
+  if (tokenId) {
+    res.cookie('inv101_refresh', `${tokenId}.${refreshTokenPlain}`, { httpOnly: true, secure: isProduction, sameSite: cookieSameSite, maxAge: REFRESH_TOKEN_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 });
+  }
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Login error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// GET /api/auth/me - return basic user info when authenticated
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+  try {
+    res.json({ success: true, user: req.user });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/auth/logout
+app.post('/api/auth/logout', async (req, res) => {
+  try {
+    const refreshToken = req.cookies && req.cookies.inv101_refresh;
+    if (refreshToken) {
+      try {
+        const found = await User.findByRefreshTokenCookie(refreshToken);
+        if (found && found.user && found.tokenId) {
+          await found.user.removeRefreshTokenById(found.tokenId);
+        }
+      } catch (err) { console.warn('Logout: failed to remove refresh token', err.message); }
+    }
+    // Clear cookies
+    res.clearCookie('inv101_token');
+    res.clearCookie('inv101_refresh');
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Logout error:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/auth/refresh - rotates refresh token and returns a new access token
+app.post('/api/auth/refresh', refreshLimiter, async (req, res) => {
+  try {
+  const incoming = req.cookies && req.cookies.inv101_refresh;
+  if (!incoming) return res.status(401).json({ success: false, error: 'Refresh token missing' });
+  const found = await User.findByRefreshTokenCookie(incoming);
+  if (!found || !found.user) return res.status(401).json({ success: false, error: 'Invalid refresh token' });
+  const user = found.user;
+  const tokenId = found.tokenId;
+  // Rotate token: remove old, issue new (stored hashed by model helper)
+  await user.removeRefreshTokenById(tokenId);
+  const newRefreshPlain = crypto.randomBytes(48).toString('hex');
+  const newId = await user.addRefreshToken(newRefreshPlain);
+    const accessToken = jwt.sign({ sub: user._id.toString(), email: user.email }, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+  res.cookie('inv101_token', accessToken, { httpOnly: true, secure: isProduction, sameSite: cookieSameSite, maxAge: 15 * 60 * 1000 });
+  if (newId) {
+    res.cookie('inv101_refresh', `${newId}.${newRefreshPlain}`, { httpOnly: true, secure: isProduction, sameSite: cookieSameSite, maxAge: REFRESH_TOKEN_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 });
+  }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Refresh error:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Portfolio buy/sell endpoints
+app.post('/api/portfolio/buy', authMiddleware, async (req, res) => {
+  try {
+    const { symbol, qty, price } = req.body;
+    if (!symbol || !qty || qty <= 0) return res.status(400).json({ success: false, error: 'symbol and positive qty required' });
+
+    // find or create portfolio for the authenticated user
+    let portfolio = await Portfolio.findOne({ userId: req.user.id });
+    if (!portfolio) {
+      portfolio = new Portfolio({ userId: req.user.id, account: {}, holdings: [] });
+    }
+    if (!portfolio) {
+      portfolio = new Portfolio({ account: {}, holdings: [] });
+    }
+
+    const s = symbol.toUpperCase();
+    const existing = portfolio.holdings.find(h => h.symbol === s);
+    if (existing) {
+      // Weighted average purchase price
+      const oldQty = Number(existing.qty || 0);
+      const newQty = oldQty + Number(qty);
+      const oldVal = oldQty * Number(existing.purchasePrice || 0);
+      const addVal = Number(qty) * Number(price || existing.purchasePrice || 0);
+      existing.purchasePrice = newQty > 0 ? Number((oldVal + addVal) / newQty) : existing.purchasePrice;
+      existing.qty = newQty;
+    } else {
+      portfolio.holdings.push({ symbol: s, purchasePrice: Number(price || 0), qty: Number(qty) });
+    }
+
+    // Recalculate accountValue (best-effort: use provided price or fetch live)
+    try {
+      const symbols = portfolio.holdings.map(h => h.symbol);
+      const quotes = await stockMarketData.fetchStockQuotes(symbols);
+      const currentPrices = Object.fromEntries(Object.entries(quotes).map(([k,v]) => [k, v.price || v.regularMarketPrice || 0]));
+      portfolio.recalculateAccountValue(currentPrices);
+    } catch (e) {
+      portfolio.recalculateAccountValue();
+    }
+
+  await portfolio.save();
+    res.json({ success: true, portfolio });
+  } catch (error) {
+    console.error('Error buying asset:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/portfolio/sell', authMiddleware, async (req, res) => {
+  try {
+    const { symbol, qty, price } = req.body;
+    if (!symbol || !qty || qty <= 0) return res.status(400).json({ success: false, error: 'symbol and positive qty required' });
+
+  let portfolio = await Portfolio.findOne({ userId: req.user.id });
+    if (!portfolio) return res.status(404).json({ success: false, error: 'Portfolio not found' });
+
+    const s = symbol.toUpperCase();
+    const existing = portfolio.holdings.find(h => h.symbol === s);
+    if (!existing) return res.status(404).json({ success: false, error: 'Holding not found' });
+
+    const sellQty = Math.min(Number(qty), Number(existing.qty || 0));
+    existing.qty = Number(existing.qty) - sellQty;
+    if (existing.qty <= 0) {
+      portfolio.holdings = portfolio.holdings.filter(h => h.symbol !== s);
+    }
+
+    // Credit cash by proceeds (best-effort)
+    const proceeds = sellQty * Number(price || existing.purchasePrice || 0);
+    portfolio.account.cash = Number((portfolio.account.cash || 0) + proceeds);
+
+    try {
+      const symbols = portfolio.holdings.map(h => h.symbol);
+      const quotes = await stockMarketData.fetchStockQuotes(symbols);
+      const currentPrices = Object.fromEntries(Object.entries(quotes).map(([k,v]) => [k, v.price || v.regularMarketPrice || 0]));
+      portfolio.recalculateAccountValue(currentPrices);
+    } catch (e) {
+      portfolio.recalculateAccountValue();
+    }
+
+    await portfolio.save();
+    res.json({ success: true, portfolio });
+  } catch (error) {
+    console.error('Error selling asset:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Short a position: create/increase a short and credit cash by proceeds
+app.post('/api/portfolio/short', authMiddleware, async (req, res) => {
+  try {
+    const { symbol, qty, price } = req.body;
+    if (!symbol || !qty || qty <= 0) return res.status(400).json({ success: false, error: 'symbol and positive qty required' });
+
+    let portfolio = await Portfolio.findOne({ userId: req.user.id });
+    if (!portfolio) return res.status(404).json({ success: false, error: 'Portfolio not found' });
+
+    const s = symbol.toUpperCase();
+    const existing = portfolio.shorts.find(h => h.symbol === s);
+    if (existing) {
+      existing.qty = Number(existing.qty || 0) + Number(qty);
+      // keep purchasePrice as average of short entry prices
+      const oldQty = Number(existing.qty || 0);
+      const addVal = Number(qty) * Number(price || existing.purchasePrice || 0);
+      const oldVal = (oldQty - Number(qty)) * Number(existing.purchasePrice || 0);
+      const newQty = oldQty;
+      existing.purchasePrice = newQty > 0 ? Number((oldVal + addVal) / newQty) : existing.purchasePrice;
+    } else {
+      portfolio.shorts.push({ symbol: s, purchasePrice: Number(price || 0), qty: Number(qty) });
+    }
+
+    // Credit cash by proceeds of short sale
+    const proceeds = Number(qty) * Number(price || 0);
+    portfolio.account.cash = Number((portfolio.account.cash || 0) + proceeds);
+
+    try {
+      const symbols = [...portfolio.holdings.map(h => h.symbol), ...portfolio.shorts.map(h => h.symbol)];
+      const quotes = await stockMarketData.fetchStockQuotes(symbols);
+      const currentPrices = Object.fromEntries(Object.entries(quotes).map(([k,v]) => [k, v.price || v.regularMarketPrice || 0]));
+      portfolio.recalculateAccountValue(currentPrices);
+    } catch (e) {
+      portfolio.recalculateAccountValue();
+    }
+
+    await portfolio.save();
+    res.json({ success: true, portfolio });
+  } catch (error) {
+    console.error('Error shorting asset:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/demo/spy
+ * Serves a small SPY demo time series from data/demo_spy.json
+ */
+app.get('/api/demo/spy', (req, res) => {
+  try {
+    const filePath = path.join(__dirname, '..', 'data', 'demo_spy.json');
+    if (!fs.existsSync(filePath)) return res.status(404).json({ success: false, error: 'Demo SPY not found' });
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const json = JSON.parse(raw);
+    res.json({ success: true, data: json });
+  } catch (e) {
+    console.error('Error reading demo spy:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // Connect to MongoDB and start server
 async function startServer() {
   try {
     await connectDB();
     console.log('✅ Database connected successfully');
+
+    // Seed portfolio from demo file if DB is empty
+    try {
+      const count = await Portfolio.countDocuments();
+      if (count === 0) {
+        const demoPath = path.join(__dirname, '..', 'data', 'portfolio.json');
+        if (fs.existsSync(demoPath)) {
+          const raw = fs.readFileSync(demoPath, 'utf8');
+          const demo = JSON.parse(raw);
+          const p = new Portfolio(demo);
+          await p.save();
+          console.log('🪴 Seeded portfolio collection from demo file');
+        }
+      } else {
+        console.log(`📦 Portfolio collection already has ${count} document(s)`);
+      }
+    } catch (seedErr) {
+      console.warn('⚠️ Portfolio seeding skipped:', seedErr.message);
+    }
+    // Seed stock symbols into Stocks collection for simulator search/autocomplete
+    try {
+      const stockCount = await Stock.countDocuments();
+      if (stockCount === 0) {
+        console.log('🪴 Seeding Stocks collection from symbol list...');
+        const symbols = stockMarketData.STOCK_SYMBOLS || [];
+        const docs = symbols.map(s => ({ symbol: s.toUpperCase(), name: s }));
+        if (docs.length) await Stock.insertMany(docs);
+        console.log(`🪴 Seeded ${docs.length} stocks`);
+      } else {
+        console.log(`📦 Stocks collection already has ${stockCount} document(s)`);
+      }
+    } catch (seedErr) {
+      console.warn('⚠️ Stocks seeding skipped:', seedErr.message);
+    }
     
     app.listen(PORT, () => {
       console.log(`\n🚀 Yahoo Finance backend running on port ${PORT}`);
@@ -764,4 +1163,9 @@ async function startServer() {
   }
 }
 
-startServer();
+// Only start server when this file is run directly. Export app/startServer for tests.
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer };

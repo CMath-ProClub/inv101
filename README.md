@@ -239,6 +239,25 @@ npm run scrape
 
 ## 🤝 Contributing
 
+## 🔐 Auth, Refresh Tokens & Local Unit Tests
+
+This project uses short-lived access tokens (stored in an HttpOnly cookie `inv101_token`) and rotating refresh tokens (stored in an HttpOnly cookie `inv101_refresh`). For local development you can run the following commands in PowerShell to install dependencies and run the unit tests we scaffolded.
+
+PowerShell commands:
+
+```powershell
+cd backend
+npm install
+npm test
+```
+
+Notes:
+- The test suite uses `mongodb-memory-server` to run fast unit tests for the `User` and `Portfolio` models without requiring an external MongoDB instance.
+- The server exposes `/api/auth/logout` to clear tokens and `/api/auth/refresh` to rotate refresh tokens and re-issue a fresh access token.
+- For cross-device persistence use a hosted MongoDB and set `MONGODB_URI` in `backend/.env`.
+
+If you'd like I can add full integration tests that start the Express app and exercise the auth and portfolio endpoints end-to-end (this requires minor refactors to export the app instance from `backend/index.js`).
+
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License

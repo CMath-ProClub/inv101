@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investing101 Simulator — Mock</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="simulator-invest101.css">
+</head>
+<body>
+  <div class="invest-sim-wrap">
+    <header class="invest-sim-top">
+      <div class="brand">Investing101 Simulator</div>
+      <div class="top-actions">
+        <button class="btn btn-ghost">Stocks</button>
+        <button class="btn">Crypto</button>
+      </div>
+    </header>
+
+    <section class="overview-grid">
+      <article class="overview-card acct-card">
+        <h3 class="small-muted">Overview</h3>
+        <div class="account-value">$169,705.10</div>
+        <div class="acct-stats">
+          <div>
+            <div class="muted">Today's Change</div>
+            <div class="value positive">+$0.00 <span class="muted">(0.00%)</span></div>
+          </div>
+          <div>
+            <div class="muted">Annual Return</div>
+            <div class="value">14.55%</div>
+          </div>
+        </div>
+
+        <div class="acct-bottom">
+          <div>
+            <div class="muted">Buying Power</div>
+            <div class="value">$68,505.27</div>
+          </div>
+          <div>
+            <div class="muted">Cash</div>
+            <div class="value negative">-$32,683.64</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="overview-card chart-card">
+        <div class="chart-header">
+          <div class="muted">Performance</div>
+          <div class="chart-controls">
+            <button class="chip active">1W</button>
+            <button class="chip">1M</button>
+            <button class="chip">3M</button>
+            <button class="chip">1Y</button>
+          </div>
+        </div>
+        <canvas id="performanceChart" width="600" height="260"></canvas>
+        <div class="chart-cta">
+          <button class="btn btn-primary">Performance History</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="holdings">
+      <div class="holdings-header">
+        <h2>Holdings</h2>
+        <div class="holdings-summary">
+          <div>Total Value <strong>$202,394.20</strong></div>
+          <div>Total Gain/Loss <strong class="positive">$69,227.95 (51.99%)</strong></div>
+        </div>
+      </div>
+
+      <div class="holdings-table" id="holdingsTable">
+        <!-- JS will populate rows -->
+      </div>
+    </section>
+
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+      <div class="loading-box"><div class="loading-text">Loading...</div></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="simulator-invest101.js"></script>
+</body>
+</html>
