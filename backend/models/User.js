@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('../lib/bcrypt-wrapper');
 const crypto = require('crypto');
 
 const RefreshTokenSchema = new mongoose.Schema({
