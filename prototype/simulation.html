@@ -1,187 +1,146 @@
-<!DOCTYPE html><!DOCTYPE html>
-
-<html lang="en"><html lang="en">
-
-<head><head>
-
-  <meta charset="UTF-8">  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1">  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Stock Market Simulator · Investing 101</title>  <title>Market Simulation · Investing101</title>
-
-  <link rel="stylesheet" href="styles.css">  <link rel="preconnect" href="https://fonts.googleapis.com">
-
-  <style>  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    .simulator-container {  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-      display: grid;  <link rel="stylesheet" href="styles.css">
-
-      grid-template-columns: 1fr;  <script>
-
-      gap: 24px;    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
-
-      padding: 20px;  </script>
-
-      max-width: 1800px;</head>
-
-      margin: 0 auto;<body>
-
-    }  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
-
-    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
-
-    @media (min-width: 1280px) {  <div class="app">
-
-      .simulator-container {    <header class="app__header">
-
-        grid-template-columns: 300px 1fr;      <a class="link-button" href="index.html">← Sim/AI</a>
-
-        padding: 32px;      <span>Market Simulation</span>
-
-      }      <span class="chip">$10,000 virtual cash</span>
-
-    }    </header>
-
-
-
-    /* Search & Filter Panel */    <main class="app__content">
-
-    .search-panel {      <section class="screen screen--active" aria-label="Market simulator">
-
-      background: var(--bg-card);        <div class="card card--summary">
-
-      border-radius: 16px;          <h3>Build Your Practice Portfolio</h3>
-
-      padding: 24px;          <p>Live prices stream from Google Finance in production. This prototype lets you simulate allocations, diversification, and cash management.</p>
-
-      box-shadow: 0 4px 12px rgba(31, 42, 55, 0.08);        </div>
-
-      height: fit-content;
-
-      position: sticky;        <form class="card" id="orderForm">
-
-      top: 20px;          <label class="field">
-
-    }            <span>Asset</span>
-
-            <select id="assetSelect"></select>
-
-    .search-box {          </label>
-
-      position: relative;          <label class="field">
-
-      margin-bottom: 20px;            <span>Share quantity</span>
-
-    }            <input id="quantityInput" type="number" min="1" step="1" value="1" required>
-
-          </label>
-
-    .search-input {          <button class="btn btn--primary" type="submit">Place Order</button>
-
-      width: 100%;        </form>
-
-      padding: 14px 40px 14px 16px;
-
-      border: 2px solid var(--border);        <article class="card">
-
-      border-radius: 12px;          <h3>Portfolio Snapshot</h3>
-
-      font-size: 1rem;          <p id="cashBalance">Cash remaining: $10,000.00</p>
-
-      background: var(--bg);          <div id="portfolioTable"></div>
-
-      color: var(--text);        </article>
-
-      transition: all 0.2s;
-
-    }        <article class="card">
-
-          <h3>Challenge Goals</h3>
-
-    .search-input:focus {          <ul class="bullet-list">
-
-      outline: none;            <li>Allocate across at least three sectors.</li>
-
-      border-color: var(--accent);            <li>Keep cash above 5% to handle volatility.</li>
-
-      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);            <li>Beat the S&amp;P over a one month test period.</li>
-
-    }          </ul>
-
-        </article>
-
-    .search-icon {      </section>
-
-      position: absolute;    </main>
-
-      right: 12px;  </div>
-
-      top: 50%;
-
-      transform: translateY(-50%);  <script>
-
-      color: var(--text-muted);    const STARTING_CASH = 10000;
-
-    }    const ASSETS = {
-
-      INVX: { name: 'Invictus Energy', price: 48.12, sector: 'Energy' },
-
-    .filter-section {      GLX: { name: 'Glacier Logistics', price: 72.45, sector: 'Industrial' },
-
-      margin-bottom: 24px;      QRT: { name: 'Quantum Retail Tech', price: 113.9, sector: 'Technology' },
-
-    }      HLT: { name: 'HealthPlus Therapeutics', price: 36.05, sector: 'Healthcare' },
-
-      CRX: { name: 'CryptoX Index', price: 8.24, sector: 'Crypto' },
-
-    .filter-title {      ETFX: { name: 'Global ETF Basket', price: 125.5, sector: 'ETF' }
-
-      font-size: 0.9rem;    };
-
-      font-weight: 600;
-
-      color: var(--text-muted);    const holdings = {};
-
-      margin-bottom: 12px;    let cash = STARTING_CASH;
-
-      text-transform: uppercase;
-
-      letter-spacing: 0.5px;    const assetSelect = document.getElementById('assetSelect');
-
-    }    const quantityInput = document.getElementById('quantityInput');
-
-    const portfolioTable = document.getElementById('portfolioTable');
-
-    .filter-buttons {    const cashBalance = document.getElementById('cashBalance');
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Simulation · Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .simulator-container {
       display: grid;
-
-      gap: 8px;    function initAssets() {
-
-    }      Object.entries(ASSETS).forEach(([ticker, asset]) => {
-
-        const option = document.createElement('option');
-
-    .filter-btn {        option.value = ticker;
-
-      padding: 10px 16px;        option.textContent = `${ticker} · ${asset.name} ($${asset.price.toFixed(2)})`;
-
-      border: 2px solid var(--border);        assetSelect.appendChild(option);
-
-      border-radius: 8px;      });
-
-      background: var(--bg);    }
-
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 20px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    @media (min-width: 1280px) {
+      .simulator-container {
+        grid-template-columns: 300px 1fr;
+        padding: 32px;
+      }
+    .card {
+      width: 100%;
+      padding: 14px 40px 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--bg);
       color: var(--text);
-
-      font-weight: 600;    function renderPortfolio() {
-
-      cursor: pointer;      const rows = Object.entries(holdings)
-
-      transition: all 0.2s;        .map(([ticker, quantity]) => {
-
+      transition: all 0.2s;
+    }
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+    .search-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    .filter-section {
+      margin-bottom: 24px;
+    }
+    .filter-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .filter-buttons {
+      display: grid;
+      gap: 8px;
+    }
+    .filter-btn {
+      padding: 10px 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .filter-btn:hover {
+      border-color: var(--accent);
+      background: rgba(0, 212, 255, 0.05);
+    }
+    .filter-btn.active {
+      background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%);
+      color: white;
+      border-color: var(--accent);
+    }
+    .market-overview {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(31, 42, 55, 0.08);
+    }
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    /* ...existing CSS... */
+  </style>
+  <!-- ...existing HTML content... -->
+  <script>
+    const STARTING_CASH = 10000;
+    const ASSETS = {
+      INVX: { name: 'Invictus Energy', price: 48.12, sector: 'Energy' },
+      GLX: { name: 'Glacier Logistics', price: 72.45, sector: 'Industrial' },
+      QRT: { name: 'Quantum Retail Tech', price: 113.9, sector: 'Technology' },
+      HLT: { name: 'HealthPlus Therapeutics', price: 36.05, sector: 'Healthcare' },
+      CRX: { name: 'CryptoX Index', price: 8.24, sector: 'Crypto' },
+      ETFX: { name: 'Global ETF Basket', price: 125.5, sector: 'ETF' }
+    };
+    const holdings = {};
+    let cash = STARTING_CASH;
+    const assetSelect = document.getElementById('assetSelect');
+    const quantityInput = document.getElementById('quantityInput');
+    const portfolioTable = document.getElementById('portfolioTable');
+    const cashBalance = document.getElementById('cashBalance');
+    function initAssets() {
+      Object.entries(ASSETS).forEach(([ticker, asset]) => {
+        const option = document.createElement('option');
+        option.value = ticker;
+        option.textContent = `${ticker} · ${asset.name} ($${asset.price.toFixed(2)})`;
+        assetSelect.appendChild(option);
+      });
+    }
+    function renderPortfolio() {
+      const rows = Object.entries(holdings)
+        .map(([ticker, quantity]) => {
+          const asset = ASSETS[ticker];
+          const positionValue = quantity * asset.price;
+          return `
+            <tr>
+              <td>${ticker}</td>
+              <td>${asset.name}</td>
+              <td>${asset.sector}</td>
+              <td>${quantity}</td>
+              <td>$${asset.price.toFixed(2)}</td>
+              <td>$${positionValue.toFixed(2)}</td>
+            </tr>
+          `;
+        })
+        .join('');
+      // ...existing JS for rendering table...
+    }
+    // ...existing JS functions...
+  </script>
       text-align: left;          const asset = ASSETS[ticker];
 
       font-size: 0.9rem;          const positionValue = quantity * asset.price;
