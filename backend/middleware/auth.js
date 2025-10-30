@@ -15,6 +15,11 @@ try {
 }
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
+// Immediately throw if in production and JWT_SECRET is missing or default
+if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me' || process.env.JWT_SECRET === 'your-secure-jwt-secret-here')) {
+  throw new Error('JWT_SECRET missing or using default value in production. Set a secure JWT_SECRET in your environment variables.');
+}
+
 function authMiddleware(req, res, next) {
   // Support Authorization header or HttpOnly cookie `inv101_token`
   const authHeader = req.headers.authorization || req.headers.Authorization || '';
