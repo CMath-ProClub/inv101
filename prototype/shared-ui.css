@@ -67,25 +67,36 @@ html, body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
 .sidebar__btn .icon{width:22px;height:22px;margin-bottom:6px}
 .sidebar__btn span{font-size:11px}
 
-/* Ensure main app content doesn't sit under fixed tabbar/sidebar */
-@media (max-width: 1023px){
-  body {padding-bottom: 92px}
-  .app__content{padding-top:72px}
+
+/* Responsive layout improvements */
+@media (max-width: 600px) {
+  .app__header { flex-direction: column; align-items: flex-start; padding: 10px 8px; }
+  .app__logo { height: 32px; }
+  .app__header-actions { gap: 4px; }
+  .app__content { padding: 8px 2px 80px 2px; }
+  .card { padding: 10px; font-size: 0.95rem; }
+  .feature-link.card h3 { font-size: 1.1rem; }
 }
 
-/* Desktop: hide mobile tabbar, allow sidebar and offset content */
-@media (min-width: 1024px){
-  .tabbar{display:none}
-  .app__content{margin-left:110px;padding-top:24px}
+@media (max-width: 900px) {
+  .app__content { padding: 8px 2px 80px 2px; }
+  .card { padding: 12px; }
 }
 
-/* Default content padding to avoid being covered by sticky header */
-.app__content{padding:16px;padding-top:72px}
+@media (min-width: 601px) and (max-width: 1023px) {
+  .app__header { padding: 12px 10px; }
+  .app__content { padding: 12px 6px 92px 6px; }
+}
 
-.app__content{padding:16px;padding-top:72px;background:var(--bg)}
+@media (min-width: 1024px) {
+  .tabbar { display: none; }
+  .app__content { margin-left: 110px; padding: 24px 24px 24px 24px; }
+}
 
-.card {background:var(--bg-card);border-radius:12px;padding:16px;border:1px solid var(--border);box-shadow:0 6px 18px rgba(31,42,55,0.03)}
+.app__content { padding: 16px; padding-top: 72px; background: var(--bg); transition: padding 0.2s; }
 
-.btn {display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:0;font-weight:600;cursor:pointer}
-.btn--primary{background:var(--accent);color:white}
-.btn--secondary{background:var(--muted);color:var(--text)}
+.card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(31,42,55,0.03); transition: padding 0.2s, font-size 0.2s; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 10px; border: 0; font-weight: 600; cursor: pointer; }
+.btn--primary { background: var(--accent); color: white; }
+.btn--secondary { background: var(--muted); color: var(--text); }
