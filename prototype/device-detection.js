@@ -138,30 +138,26 @@
    * Initialize device detection
    */
   function init() {
-    // Initial detection
-    updateLayout();
-    
-    // Update on resize with debouncing
-    let resizeTimer;
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(updateLayout, 250);
-    });
-    
-    // Update on orientation change
-    window.addEventListener('orientationchange', function() {
-      setTimeout(updateLayout, 100);
-    });
-    
-    // Handle sidebar navigation when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        handleSidebarNavigation();
-        loadSharedAssets();
-      });
-    } else {
+    // Ensure all DOM access waits for DOMContentLoaded
+    function onReady() {
+      updateLayout();
       handleSidebarNavigation();
       loadSharedAssets();
+      // Update on resize with debouncing
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateLayout, 250);
+      });
+      // Update on orientation change
+      window.addEventListener('orientationchange', function() {
+        setTimeout(updateLayout, 100);
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', onReady);
+    } else {
+      onReady();
     }
   }
 

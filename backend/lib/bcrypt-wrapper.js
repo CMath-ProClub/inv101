@@ -1,3 +1,4 @@
+const path = require('path');
 let bcrypt;
 try {
   bcrypt = require('bcrypt');
@@ -30,5 +31,3 @@ try {
     };
   }
 }
-
-module.exports = bcrypt;

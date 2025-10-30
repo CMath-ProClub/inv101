@@ -10,7 +10,17 @@ const Portfolio = require('./models/Portfolio');
 const User = require('./models/User');
 const Stock = require('./models/Stock');
 const { authMiddleware, assertJwtSecretValid, JWT_SECRET } = require('./middleware/auth');
-const jwt = require('jsonwebtoken');
+let jwt;
+try {
+  jwt = require('jsonwebtoken');
+} catch (err) {
+  // Fallback to backend/node_modules if resolver can't find the package
+  try {
+    jwt = require(path.join(__dirname, 'node_modules', 'jsonwebtoken'));
+  } catch (err2) {
+    throw err; // surface original error
+  }
+}
 const crypto = require('crypto');
 const scheduler = require('./scheduler');
 const stockCache = require('./stockCache');
@@ -148,31 +158,50 @@ process.on('exit', (code) => {
  * GET /health
  * Comprehensive health check for monitoring services
  */
-app.get('/health', (req, res) => {
-  const health = {
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    caches: {
-      stocks: {
-        size: stockCache.cache.size,
-        lastRefresh: stockCache.lastRefresh,
-        needsRefresh: stockCache.needsRefresh()
-      },
-      articles: {
-        size: articleCache.cache.size,
-        lastUpdate: articleCache.lastUpdate
+app.get('/health', async (req, res) => {
+  try {
+    // Article cache is DB-backed (articleCacheService) so it may not expose
+    // an in-memory `cache` property. Prefer the getter if available.
+    let articleStats = null;
+    try {
+      if (articleCache && typeof articleCache.getCacheStats === 'function') {
+        articleStats = await articleCache.getCacheStats();
       }
-    },
-    memory: {
-      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + ' MB',
-      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB'
+    } catch (e) {
+      console.warn('⚠️  Failed to read article cache stats:', e.message);
+      articleStats = null;
     }
-  };
-  
-  res.json(health);
+
+    const health = {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      caches: {
+        stocks: {
+          size: (stockCache && stockCache.cache) ? stockCache.cache.size : 0,
+          lastRefresh: stockCache ? stockCache.lastRefresh : null,
+          needsRefresh: stockCache ? stockCache.needsRefresh() : true
+        },
+        articles: {
+          // If articleStats is available, prefer its totals; otherwise fall back to any in-memory cache shape
+          total: articleStats && typeof articleStats.total !== 'undefined' ? articleStats.total : (articleCache && articleCache.cache ? articleCache.cache.size : null),
+          lastUpdate: articleCache && (articleCache.lastRefresh || articleCache.lastUpdate) ? (articleCache.lastRefresh || articleCache.lastUpdate) : null
+        }
+      },
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + ' MB',
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB'
+      }
+    };
+
+    res.json(health);
+  } catch (err) {
+    console.error('Health endpoint failure:', err && err.message ? err.message : err);
+    // Return a 500 with error details to help debugging (no secrets should be here)
+    res.status(500).json({ status: 'error', error: err && err.message ? err.message : String(err) });
+  }
 });
 
 /**

@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const connectDB = require('../config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('../lib/bcrypt-wrapper');
 const crypto = require('crypto');
 
 async function migrate() {

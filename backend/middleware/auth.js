@@ -1,4 +1,18 @@
-const jwt = require('jsonwebtoken');
+const path = require('path');
+let jwt;
+try {
+  jwt = require('jsonwebtoken');
+} catch (err) {
+  // In some deployment environments the module resolver may not locate
+  // packages installed inside the backend folder when starting from the
+  // repository root. Try a safe fallback to the backend/node_modules path.
+  try {
+    jwt = require(path.join(__dirname, '..', 'node_modules', 'jsonwebtoken'));
+  } catch (err2) {
+    // Re-throw the original error for visibility if both attempts fail
+    throw err;
+  }
+}
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
 function authMiddleware(req, res, next) {
