@@ -17,34 +17,23 @@
     "test:unit": "jest --runInBand"
   },
   "dependencies": {
-    "axios": "^1.6.0",
-    "bcryptjs": "^2.4.3",
-    "cheerio": "^1.0.0-rc.12",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-<<<<<<< HEAD
-=======
-    "cookie-parser": "^1.4.6",
->>>>>>> b1ab5231ae50c4e600361e4e8234f417f06371bc
-    "dotenv": "^17.2.3",
-    "jsonwebtoken": "^8.5.1",
-    "express": "^4.18.2",
-    "express-rate-limit": "^7.5.1",
-<<<<<<< HEAD
-    "mongodb-memory-server": "^8.12.0",
-    "jest": "^29.0.0",
-    "supertest": "^6.3.3",
-=======
-    "jest": "^29.0.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongodb-memory-server": "^8.12.0",
->>>>>>> 575d878afd29500982e21b1da4cfa01769415bb9
-    "mongoose": "^8.0.0",
-    "node-cron": "^4.2.1",
-    "node-fetch": "^3.3.2",
-    "seedrandom": "^3.0.5",
-    "supertest": "^6.3.3",
-    "yahoo-finance2": "^2.13.3"
+  "axios": "^1.6.0",
+  "bcryptjs": "^2.4.3",
+  "cheerio": "^1.0.0-rc.12",
+  "cookie-parser": "^1.4.6",
+  "cors": "^2.8.5",
+  "dotenv": "^17.2.3",
+  "jsonwebtoken": "^8.5.1",
+  "express": "^4.18.2",
+  "express-rate-limit": "^7.5.1",
+  "mongodb-memory-server": "^8.12.0",
+  "jest": "^29.0.0",
+  "supertest": "^6.3.3",
+  "mongoose": "^8.0.0",
+  "node-cron": "^4.2.1",
+  "node-fetch": "^3.3.2",
+  "seedrandom": "^3.0.5",
+  "yahoo-finance2": "^2.13.3"
   },
   "engines": {
     "node": ">=18.0.0",
