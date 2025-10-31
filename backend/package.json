@@ -31,6 +31,7 @@
     "mongoose": "^8.19.2",
     "node-cron": "^4.2.1",
     "node-fetch": "^3.3.2",
+    "node-schedule": "^2.1.1",
     "seedrandom": "^3.0.5",
     "supertest": "^6.3.3",
     "yahoo-finance2": "^2.13.3"
