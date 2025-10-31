@@ -28,6 +28,11 @@
       sidebar.insertBefore(toggle, sidebar.firstChild);
     }
 
+    // Ensure ARIA pressed reflects current state
+    const isCollapsedNow = sidebar.classList.contains('collapsed');
+    toggle.setAttribute('aria-pressed', isCollapsedNow ? 'true' : 'false');
+    toggle.title = isCollapsedNow ? 'Expand sidebar' : 'Collapse sidebar';
+
     function setCollapsed(v){
       if (v) {
         sidebar.classList.add('collapsed');
@@ -45,6 +50,7 @@
       localStorage.setItem('inv101_sidebar_collapsed', isCollapsed);
       // For a11y announce
       toggle.setAttribute('aria-pressed', isCollapsed ? 'true' : 'false');
+      toggle.title = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
     });
 
     // Keyboard shortcut: press "b" to toggle sidebar (when not typing)

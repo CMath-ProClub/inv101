@@ -27,7 +27,8 @@ html, body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
 /* Shift legacy header to account for left sidebar presence */
 .app__header { transition: margin-left 160ms ease; }
 @media (min-width: 1024px) { .app__header { margin-left: 120px } }
-body.sidebar-collapsed .app__header { margin-left: 72px }
+/* When collapsed, let the legacy header span the full width (edge of page) */
+body.sidebar-collapsed .app__header { margin-left: 0 }
 .app__header .app__logo{
   height:40px;
   width:auto;
