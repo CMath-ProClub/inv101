@@ -56,6 +56,71 @@
     toggle.setAttribute('aria-pressed', isCollapsedNow ? 'true' : 'false');
     toggle.title = isCollapsedNow ? 'Expand sidebar' : 'Collapse sidebar';
 
+    // Theme switcher: create small button in header actions (cycles: light -> dark -> sepia)
+    function ensureThemeButton(){
+      const header = document.querySelector('.global-header') || document.querySelector('.app__header');
+      if (!header) return null;
+      let actions = header.querySelector('.actions') || header.querySelector('.app__header-actions');
+      if (!actions) {
+        actions = document.createElement('div');
+        actions.className = 'actions';
+        header.appendChild(actions);
+      }
+      let themeBtn = actions.querySelector('.theme-toggle');
+      if (!themeBtn) {
+        themeBtn = document.createElement('button');
+        themeBtn.type = 'button';
+        themeBtn.className = 'theme-toggle icon-button';
+        themeBtn.setAttribute('aria-label','Toggle theme');
+        themeBtn.title = 'Toggle theme';
+        themeBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle></svg>';
+        actions.appendChild(themeBtn);
+      }
+      return themeBtn;
+    }
+
+    const themeBtn = ensureThemeButton();
+    // initialize theme from localStorage or server preference
+    const localTheme = localStorage.getItem('inv101_theme');
+    if (localTheme) document.documentElement.classList.add(localTheme === 'dark' ? 'dark-mode' : (localTheme === 'sepia' ? 'theme-sepia' : ''));
+    
+    function cycleTheme(){
+      const hasDark = document.documentElement.classList.contains('dark-mode');
+      const hasSepia = document.documentElement.classList.contains('theme-sepia');
+      if (!hasDark && !hasSepia) {
+        // go dark
+        document.documentElement.classList.add('dark-mode');
+        document.documentElement.classList.remove('theme-sepia');
+        localStorage.setItem('inv101_theme','dark');
+        saveThemePreference('dark');
+      } else if (hasDark) {
+        // go sepia
+        document.documentElement.classList.remove('dark-mode');
+        document.documentElement.classList.add('theme-sepia');
+        localStorage.setItem('inv101_theme','sepia');
+        saveThemePreference('sepia');
+      } else {
+        // go light
+        document.documentElement.classList.remove('dark-mode');
+        document.documentElement.classList.remove('theme-sepia');
+        localStorage.setItem('inv101_theme','light');
+        saveThemePreference('light');
+      }
+    }
+
+    if (themeBtn) themeBtn.addEventListener('click', cycleTheme);
+
+    async function saveThemePreference(theme){
+      try {
+        await fetch('/api/preferences/theme', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ theme })
+        });
+      } catch (e) {}
+    }
+
     function setCollapsed(v){
       if (v) {
         sidebar.classList.add('collapsed');
