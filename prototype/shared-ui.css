@@ -64,7 +64,7 @@ body.sidebar-collapsed .app__header { margin-left: 0 }
 .tabbar .tabbar__btn span{font-size:11px}
 
 /* Sidebar for desktop */
-.sidebar.light{width:120px;background:#fff;border-right:1px solid rgba(31,42,55,0.04);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding-top:12px;z-index:45}
+.sidebar.light{width:var(--sidebar-width);background:#fff;border-right:1px solid rgba(31,42,55,0.04);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding-top:12px;z-index:45}
 .sidebar.light .sidebar__logo img{height:40px}
 .sidebar.light .sidebar__nav{margin-top:20px;display:flex;flex-direction:column;gap:8px}
 .sidebar.light .sidebar__btn{display:flex;flex-direction:column;align-items:center;padding:8px 6px;text-decoration:none;color:var(--text);font-size:12px}

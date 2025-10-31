@@ -1,20 +1,28 @@
 /* Profile tab: vertical buttons */
 /* GLOBAL SIDEBAR & HEADER OVERLAY */
 /* Real interactive sidebar on the left -- occupies full height and provides a soft gradient */
+:root{
+  --sidebar-expanded: 120px;
+  --sidebar-collapsed: 72px;
+  --sidebar-width: var(--sidebar-expanded);
+}
+
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 120px; /* slightly wider for icons - expanded width */
+  width: var(--sidebar-width);
   height: 100vh;
   background: linear-gradient(180deg, rgba(34,39,43,1) 0%, rgba(24,26,27,0.95) 60%);
   box-shadow: 2px 0 12px rgba(0,0,0,0.35);
-  z-index: 1000;
+  z-index: 1100; /* above header so it visually sits on top */
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 12px 6px;
   gap: 8px;
+  transition: width 280ms cubic-bezier(.2,.9,.2,1), transform 280ms cubic-bezier(.2,.9,.2,1);
+  will-change: width, transform;
 }
 
 .sidebar .sidebar__logo img { height: 40px; display:block }
@@ -23,16 +31,33 @@
 
 .sidebar__btn { display:flex; flex-direction:column; align-items:center; padding:10px 6px; text-decoration:none; color: #e6eef2; font-size:12px; width:100%; border-radius:10px; transition:background 160ms ease, transform 120ms ease }
 .sidebar__btn .icon { width:22px; height:22px; margin-bottom:6px }
-.sidebar__btn span { display:none; font-size:11px }
+.sidebar__btn .label { display:none; font-size:11px; color: #e6eef2 }
 .sidebar__btn--active { background: rgba(255,255,255,0.03); box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); transform: translateY(-1px) }
 .sidebar__btn:hover, .sidebar__btn:focus { background: rgba(255,255,255,0.04); transform: translateY(-2px) }
 
 .sidebar .sidebar__bottom { margin-top:auto; display:flex; flex-direction:column; gap:8px; width:100%; align-items:center }
 
 /* Collapsed state (icons only) */
-.sidebar.collapsed { width:72px }
-.sidebar.collapsed .sidebar__btn span { display:none }
-.sidebar:not(.collapsed) .sidebar__btn span { display:block }
+.sidebar.collapsed { width: var(--sidebar-collapsed) }
+.sidebar.collapsed .sidebar__btn .label { display: none }
+.sidebar:not(.collapsed) .sidebar__btn .label { display: block }
+
+/* Tooltip for collapsed icons */
+.sidebar.collapsed .sidebar__btn { position: relative }
+.sidebar.collapsed .sidebar__btn:hover::after,
+.sidebar.collapsed .sidebar__btn:focus::after {
+  content: attr(data-label);
+  position: fixed;
+  left: calc(var(--sidebar-width) + 8px);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.24);
+  z-index: 1200;
+}
 
 .sidebar-toggle { background:transparent;border:0;color:#e6eef2;padding:8px;border-radius:10px;cursor:pointer }
 .sidebar-toggle:focus { outline:2px solid rgba(29,209,161,0.14); outline-offset:2px }
@@ -40,7 +65,7 @@
 .global-header {
   position: fixed;
   top: 0;
-  left: 120px; /* align with sidebar width */
+  left: 0; /* header sits under the sidebar visually */
   right: 0;
   height: 64px;
   background: linear-gradient(90deg, rgba(34,39,43,0.96), rgba(24,26,27,0.9));
@@ -51,7 +76,8 @@
   box-sizing: border-box;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   backdrop-filter: blur(6px);
-  z-index: 1001;
+  z-index: 1000; /* lower than sidebar so sidebar visually overlays */
+  transition: box-shadow 260ms ease, background 260ms ease, transform 260ms cubic-bezier(.2,.9,.2,1);
 }
 
 /* header layout helpers */
@@ -105,9 +131,9 @@ body.dark-mode::before {
 
 /* Offset main content for sidebar and header */
 .app__content, main {
-  margin-left: 120px; /* account for updated sidebar width */
+  margin-left: var(--sidebar-width); /* account for updated sidebar width */
   margin-top: 64px;
-  transition: margin-left 160ms ease;
+  transition: margin-left 280ms cubic-bezier(.2,.9,.2,1);
 }
 
 /* If sidebar is collapsed, reduce left margin */
@@ -115,6 +141,7 @@ body.sidebar-collapsed .app__content, body.sidebar-collapsed main { margin-left:
 
 /* Shrink header offset when sidebar collapses */
 /* When collapsed, let header span the full width (edge of page) */
+/* when collapsed, keep header spanning to the edge (visible) */
 body.sidebar-collapsed .global-header { left: 0 }
 .feature-links--profile {
   display: grid;

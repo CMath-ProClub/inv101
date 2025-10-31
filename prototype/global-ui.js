@@ -9,11 +9,15 @@
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar) return;
 
-    // Apply persisted state
+    // Apply persisted state (default: not collapsed)
     const collapsed = localStorage.getItem('inv101_sidebar_collapsed') === 'true';
     if (collapsed) {
       sidebar.classList.add('collapsed');
       document.body.classList.add('sidebar-collapsed');
+      document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-collapsed') || '72px');
+    } else {
+      // ensure CSS variable reflects expanded width
+      document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-expanded') || '120px');
     }
 
     // Create toggle button if not present
@@ -37,9 +41,11 @@
       if (v) {
         sidebar.classList.add('collapsed');
         document.body.classList.add('sidebar-collapsed');
+        document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-collapsed') || '72px');
       } else {
         sidebar.classList.remove('collapsed');
         document.body.classList.remove('sidebar-collapsed');
+        document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-expanded') || '120px');
       }
       localStorage.setItem('inv101_sidebar_collapsed', !!v);
     }
@@ -51,6 +57,12 @@
       // For a11y announce
       toggle.setAttribute('aria-pressed', isCollapsed ? 'true' : 'false');
       toggle.title = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+      // update CSS variable to animate layout
+      if (isCollapsed) {
+        document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-collapsed') || '72px');
+      } else {
+        document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-expanded') || '120px');
+      }
     });
 
     // Keyboard shortcut: press "b" to toggle sidebar (when not typing)
