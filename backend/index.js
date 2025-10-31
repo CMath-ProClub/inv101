@@ -9,6 +9,7 @@ const scheduler = require('./scheduler');
 const stockCache = require('./stockCache');
 const stockMarketData = require('./stockMarketData');
 const authRouter = require('./routes/auth');
+const adminRouter = require('./routes/admin');
 const session = require('express-session');
 const passport = require('passport');
 
@@ -115,6 +116,7 @@ app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
 const staticDir = path.join(__dirname, '..', 'prototype');
 app.use(express.static(staticDir));
 app.use('/auth', authRouter);
+app.use('/api/admin', adminRouter);
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
@@ -132,11 +134,23 @@ process.on('exit', (code) => {
  * Comprehensive health check for monitoring services
  */
 app.get('/health', (req, res) => {
+  const envPresence = {
+    MONGODB_URI: !!process.env.MONGODB_URI,
+    JWT_SECRET: !!process.env.JWT_SECRET,
+    GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: !!process.env.GOOGLE_CLIENT_SECRET,
+    FACEBOOK_APP_ID: !!process.env.FACEBOOK_APP_ID,
+    FACEBOOK_APP_SECRET: !!process.env.FACEBOOK_APP_SECRET,
+    APP_URL: !!process.env.APP_URL,
+    ADMIN_TOKEN: !!process.env.ADMIN_TOKEN
+  };
+
   const health = {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
+    env: envPresence,
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     caches: {
       stocks: {
@@ -154,7 +168,7 @@ app.get('/health', (req, res) => {
       total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB'
     }
   };
-  
+
   res.json(health);
 });
 
