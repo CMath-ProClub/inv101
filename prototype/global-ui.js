@@ -5,13 +5,32 @@
     document.addEventListener('DOMContentLoaded', fn);
   }
 
-  ready(function(){
+  ready(async function(){
     const sidebar = document.querySelector('.sidebar');
     if (!sidebar) return;
 
-    // Apply persisted state (default: not collapsed)
-    const collapsed = localStorage.getItem('inv101_sidebar_collapsed') === 'true';
-    if (collapsed) {
+    // Apply persisted state (default: not collapsed). If no local preference, try server-side preference.
+    const localPref = localStorage.getItem('inv101_sidebar_collapsed');
+    let collapsed = localPref === 'true' ? true : (localPref === 'false' ? false : null);
+
+    async function applyServerPrefIfMissing() {
+      if (collapsed !== null) return; // local preference exists
+      try {
+        const resp = await fetch('/api/preferences/sidebar', { method: 'GET', credentials: 'include' });
+        if (resp && resp.ok) {
+          const body = await resp.json();
+          if (body && body.success && body.preference && typeof body.preference.collapsed === 'boolean') {
+            collapsed = !!body.preference.collapsed;
+          }
+        }
+      } catch (e) {
+        // ignore network/auth failures
+      }
+    }
+
+    await (async () => { await applyServerPrefIfMissing(); })();
+
+    if (collapsed === true) {
       sidebar.classList.add('collapsed');
       document.body.classList.add('sidebar-collapsed');
       document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-collapsed') || '72px');
@@ -63,6 +82,8 @@
       } else {
         document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-expanded') || '120px');
       }
+      // attempt to persist preference server-side for logged-in users
+      savePreference(isCollapsed);
     });
 
     // Keyboard shortcut: press "b" to toggle sidebar (when not typing)
@@ -76,9 +97,13 @@
       }
     });
 
-    // Make sidebar nav links focusable and improve hit target
+    // Make sidebar nav links focusable and improve hit target. Also set data-label for tooltips.
     const navBtns = sidebar.querySelectorAll('.sidebar__btn');
     navBtns.forEach(btn => {
+      // Prefer explicit .label element content
+      const lbl = btn.querySelector('.label') || btn.querySelector('span');
+      const labelText = lbl ? lbl.textContent.trim() : btn.textContent.trim();
+      if (labelText) btn.setAttribute('data-label', labelText);
       btn.setAttribute('tabindex','0');
       btn.addEventListener('keydown', function(e){
         if (e.key === 'Enter' || e.key === ' ') {
@@ -87,5 +112,19 @@
         }
       });
     });
+
+    // Save preference helper: tries to POST to server (will work if user has a session cookie or auth)
+    async function savePreference(collapsedState){
+      try {
+        await fetch('/api/preferences/sidebar', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ collapsed: !!collapsedState })
+        });
+      } catch (e) {
+        // ignore failures (unauthenticated clients will 401)
+      }
+    }
   });
 })();

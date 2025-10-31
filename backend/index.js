@@ -10,6 +10,7 @@ const stockCache = require('./stockCache');
 const stockMarketData = require('./stockMarketData');
 const authRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
+const preferencesRouter = require('./routes/preferences');
 const session = require('express-session');
 const passport = require('passport');
 
@@ -117,6 +118,7 @@ const staticDir = path.join(__dirname, '..', 'prototype');
 app.use(express.static(staticDir));
 app.use('/auth', authRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/preferences', preferencesRouter);
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
