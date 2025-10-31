@@ -177,93 +177,7 @@
 
       background: var(--bg-card);      }, 0);
 
-      border-radius: 16px;
-
-      padding: 24px;      portfolioTable.innerHTML = rows
-
-      margin-bottom: 24px;        ? `
-
-      box-shadow: 0 4px 12px rgba(31, 42, 55, 0.08);          <table class="comparison-table">
-
-    }            <thead>
-
-              <tr>
-
-    .overview-grid {                <th>Ticker</th>
-
-      display: grid;                <th>Name</th>
-
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));                <th>Sector</th>
-
-      gap: 16px;                <th>Shares</th>
-
-    }                <th>Price</th>
-
-                <th>Value</th>
-
-    .overview-stat {              </tr>
-
-      padding: 16px;            </thead>
-
-      background: var(--bg);            <tbody>${rows}</tbody>
-
-      border-radius: 12px;            <tfoot>
-
-      border: 2px solid var(--border);              <tr>
-
-    }                <td colspan="5">Total portfolio value</td>
-
-                <td>$${totalValue.toFixed(2)}</td>
-
-    .stat-label {              </tr>
-
-      font-size: 0.85rem;            </tfoot>
-
-      color: var(--text-muted);          </table>
-
-      margin-bottom: 8px;        `
-
-    }        : '<p>No positions yet. Use your virtual cash to build a strategy.</p>';
-
-
-
-    .stat-value {      cashBalance.textContent = `Cash remaining: $${cash.toFixed(2)}`;
-
-      font-size: 1.8rem;    }
-
-      font-weight: 700;
-
-      color: var(--text);    document.getElementById('orderForm').addEventListener('submit', (event) => {
-
-    }      event.preventDefault();
-
-      const ticker = assetSelect.value;
-
-    .stat-change {      const quantity = Number(quantityInput.value);
-
-      font-size: 0.9rem;      if (!ticker || quantity <= 0) return;
-
-      font-weight: 600;
-
-      margin-top: 4px;      const asset = ASSETS[ticker];
-
-    }      const cost = asset.price * quantity;
-
-      if (cost > cash) {
-
-    .stat-change.positive {        alert('Not enough virtual cash. Try lowering the quantity.');
-
-      color: #10b981;        return;
-
-    }      }
-
-
-
-    .stat-change.negative {      holdings[ticker] = (holdings[ticker] || 0) + quantity;
-
-      color: #ef4444;      cash -= cost;
-
-    }      renderPortfolio();
+      portfolioTable.innerHTML = rows
 
       quantityInput.value = '1';
 
@@ -373,7 +287,11 @@
 
       gap: 4px;</body>
 
-    }</html>
+    <div class="global-header">
+    <a href="index.html" class="site-logo">Investing101</a>
+    <!-- Add navigation, user actions, etc. here -->
+  </div>
+</html>
 
 
 
@@ -648,146 +566,11 @@
       <span class="chip">Live Market Data</span>
     </header>
 
+    <div class="global-header">
+    <a href="index.html" class="site-logo">Investing101</a>
+    <!-- Add navigation, user actions, etc. here -->
+  </div>
+
     <main class="app__content">
       <div class="simulator-container">
-        <!-- Search & Filter Sidebar -->
-        <aside class="search-panel">
-          <div class="search-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search stocks...">
-            <span class="search-icon">🔍</span>
-          </div>
-
-          <div class="filter-section">
-            <div class="filter-title">Market View</div>
-            <div class="filter-buttons">
-              <button class="filter-btn active" data-filter="all">All Stocks</button>
-              <button class="filter-btn" data-filter="gainers">Top Gainers</button>
-              <button class="filter-btn" data-filter="losers">Top Losers</button>
-            </div>
-          </div>
-
-          <div class="filter-section">
-            <div class="filter-title">Sector</div>
-            <div class="filter-buttons" id="sectorFilters">
-              <button class="filter-btn active" data-sector="all">All Sectors</button>
-              <button class="filter-btn" data-sector="Technology">Technology</button>
-              <button class="filter-btn" data-sector="Healthcare">Healthcare</button>
-              <button class="filter-btn" data-sector="Financial Services">Financial</button>
-              <button class="filter-btn" data-sector="Consumer Cyclical">Consumer</button>
-              <button class="filter-btn" data-sector="Energy">Energy</button>
-            </div>
-          </div>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="main-content">
-          <!-- Market Overview -->
-          <div class="market-overview">
-            <h2 style="margin-bottom: 20px;">📊 Live Market Data</h2>
-            <div class="overview-grid" id="marketOverview">
-              <div class="overview-stat">
-                <div class="stat-label">Total Stocks</div>
-                <div class="stat-value" id="totalStocks">-</div>
-              </div>
-              <div class="overview-stat">
-                <div class="stat-label">Gainers</div>
-                <div class="stat-value stat-change positive" id="gainersCount">-</div>
-              </div>
-              <div class="overview-stat">
-                <div class="stat-label">Losers</div>
-                <div class="stat-value stat-change negative" id="losersCount">-</div>
-              </div>
-              <div class="overview-stat">
-                <div class="stat-label">Last Updated</div>
-                <div class="stat-value" style="font-size: 1rem;" id="lastUpdated">-</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Stock List -->
-          <div class="stock-list-header">
-            <h2 id="listTitle">All Stocks (1,600)</h2>
-            <button class="action-btn refresh-btn" onclick="refreshData()" style="padding: 12px 24px;">
-              🔄 Refresh Prices
-            </button>
-          </div>
-
-          <div id="errorContainer"></div>
-          
-          <div class="stock-table">
-            <div class="stock-table-header">
-              <div>Symbol / Name</div>
-              <div>Price</div>
-              <div>Change</div>
-              <div>Volume</div>
-              <div>Action</div>
-            </div>
-            <div id="stockList">
-              <!-- Stocks will be loaded here -->
-            </div>
-          </div>
-
-          <div class="pagination" id="pagination"></div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Mobile Tabbar -->
-    <nav class="tabbar" aria-label="Primary navigation">
-      <a class="tabbar__btn" href="index.html">
-        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M3 10.5L12 3l9 7.5" />
-          <path d="M5 10.5V21h14V10.5" />
-          <path d="M9 21v-6h6v6" />
-        </svg>
-        <span>Main</span>
-      </a>
-      <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
-        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 3v3" />
-          <path d="M12 18v3" />
-          <path d="M3 12h3" />
-          <path d="M18 12h3" />
-        </svg>
-        <span>Sim/AI</span>
-      </a>
-      <a class="tabbar__btn" href="lessons.html">
-        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
-          <path d="M4 12l8 3 8-3" />
-          <path d="M12 5v10" />
-        </svg>
-        <span>Lessons</span>
-      </a>
-      <a class="tabbar__btn" href="calculators.html">
-        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M7 8h10" />
-          <path d="M7 12h10" />
-          <path d="M7 16h3" />
-          <path d="M14 16h3" />
-        </svg>
-        <span>Calc</span>
-      </a>
-      <a class="tabbar__btn" href="profile.html">
-        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-        </svg>
-        <span>Profile</span>
-      </a>
-    </nav>
-  </div>
-
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Loading live stock data...</div>
-  </div>
-
-  <script src="device-detection.js"></script>
-  <script src="stock-simulator.js"></script>
-</body>
-</html>
+        <!-- Search & Filter

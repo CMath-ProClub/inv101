@@ -8,6 +8,9 @@ const yahooFinance = require('yahoo-finance2').default;
 const scheduler = require('./scheduler');
 const stockCache = require('./stockCache');
 const stockMarketData = require('./stockMarketData');
+const authRouter = require('./routes/auth');
+const session = require('express-session');
+const passport = require('passport');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -111,6 +114,7 @@ app.use(express.json());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
 const staticDir = path.join(__dirname, '..', 'prototype');
 app.use(express.static(staticDir));
+app.use('/auth', authRouter);
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
@@ -763,5 +767,13 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+app.use(session({
+  secret: process.env.JWT_SECRET || 'keyboardcat',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 startServer();

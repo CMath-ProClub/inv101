@@ -10,8 +10,12 @@ const RefreshTokenSchema = new mongoose.Schema({
 }, { _id: false });
 
 const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true, lowercase: true },
-  passwordHash: { type: String, required: true },
+  username: { type: String, unique: true, sparse: true }, // For Investing101 and display
+  displayName: { type: String },
+  email: { type: String, unique: true, sparse: true, lowercase: true },
+  passwordHash: { type: String }, // Only for Investing101 accounts
+  provider: { type: String, enum: ['investing101', 'google', 'facebook', 'microsoft'], default: 'investing101' },
+  providerId: { type: String }, // For OAuth accounts
   createdAt: { type: Date, default: Date.now },
   // Refresh tokens stored as { id, tokenHash } for efficient lookup
   refreshTokens: [RefreshTokenSchema]

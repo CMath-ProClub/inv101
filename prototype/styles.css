@@ -1,4 +1,47 @@
 /* Profile tab: vertical buttons */
+/* GLOBAL SIDEBAR & HEADER OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 100vh;
+  background: var(--bg-sidebar, #22272b);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.global-header {
+  position: fixed;
+  top: 0;
+  left: 80px;
+  right: 0;
+  height: 64px;
+  background: var(--bg-header, #22272b);
+  color: var(--text, #fff);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--border, #22272b);
+  z-index: 1001;
+}
+
+body.dark-mode::before {
+  background: #181a1b;
+}
+.dark-mode .global-header {
+  background: #181a1b;
+  color: #e0e0e0;
+  border-bottom: 2px solid #22272b;
+}
+
+/* Offset main content for sidebar and header */
+.app__content, main {
+  margin-left: 80px;
+  margin-top: 64px;
+}
 .feature-links--profile {
   display: grid;
   grid-template-rows: repeat(5, 1fr);
@@ -415,10 +458,24 @@
   box-shadow: 0 0 15px rgba(0, 212, 255, 0.1);
 }
 
+
 .dark-mode .tabbar {
-  background: var(--bg-card);
+  background: #222 !important;
+  color: var(--text) !important;
   border-top: 2px solid var(--accent);
   box-shadow: 0 -4px 20px rgba(0, 212, 255, 0.2);
+}
+
+.dark-mode .app__header {
+  background: #222 !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--accent);
+}
+
+.dark-mode .sidebar {
+  background: #222 !important;
+  color: var(--text-muted) !important;
+  border-right: 1px solid var(--accent);
 }
 
 .dark-mode .btn--primary {
@@ -2376,6 +2433,7 @@ html, body {
   min-width: 200px;
 }
 
+
 .sidebar-btn {
   display: flex;
   align-items: center;
@@ -2575,6 +2633,7 @@ details[open] summary span {
 
 /* ============================================
    DEVICE-SPECIFIC ENHANCEMENTS
+
    Applied via JavaScript device detection
    ============================================ */
 

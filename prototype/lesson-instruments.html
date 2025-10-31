@@ -11,6 +11,10 @@
   <script src="device-detection.js"></script>
 </head>
 <body>
+  <div class="global-header">
+    <a href="index.html" class="site-logo">Investing101</a>
+    <!-- Add navigation, user actions, etc. here -->
+  </div>
   <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
     if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
   <div class="app">
@@ -19,12 +23,11 @@
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
         <img src="assets/Investing101.png" alt="Investing 101">
       </a>
-      <!-- sidebar removed — shared-ui provides navigation (keeps layout simpler). -->
-    <header class="app__header">
-      <a class="link-button" href="lessons.html"> Back to Lessons</a>
-      <span></span>
-      <span></span>
-    </header>
+      <header class="app__header">
+        <a class="link-button" href="lessons.html"> Back to Lessons</a>
+        <span></span>
+        <span></span>
+      </header>
     <main class="app__content">
       <div style="padding: 12px 0; border-bottom: 2px solid var(--border); margin-bottom: 16px;">
         <h2 style="margin-bottom: 4px;">Instruments & Accounts</h2>

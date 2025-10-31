@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In - Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="global-header">
+    <a href="index.html" class="site-logo">Investing101</a>
+  </div>
+  <main class="app__content">
+    <section class="card" style="max-width: 400px; margin: 40px auto;">
+      <h2>Sign In</h2>
+      <form id="signinForm">
+        <label class="field">
+          <span>Username</span>
+          <input type="text" name="username" required>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" required>
+        </label>
+        <button class="btn btn--primary" type="submit">Sign In</button>
+      </form>
+      <div style="margin: 24px 0; text-align: center;">
+        <span>Or sign in with:</span>
+        <div style="display: flex; gap: 12px; justify-content: center; margin-top: 12px;">
+          <button class="btn" id="googleSignin" type="button" onclick="window.location.href='/auth/google'">Google</button>
+          <button class="btn" id="facebookSignin" type="button" onclick="window.location.href='/auth/facebook'">Facebook</button>
+        </div>
+      </div>
+      <div style="text-align: center;">
+        <a href="signup.html">Don't have an account? Sign up</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    // TODO: Add JS to handle form submission and OAuth buttons
+  </script>
+</body>
+</html>

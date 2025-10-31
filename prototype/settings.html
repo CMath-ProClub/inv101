@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="global-header">
+    <a href="index.html" class="site-logo">Investing101</a>
+    <!-- Add navigation, user actions, etc. here -->
+  </div>
   <div class="app">
     <!-- Desktop Sidebar Navigation (visible on desktop only) -->
     <aside class="sidebar">
@@ -132,6 +136,16 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <strong>Colorblind Mode</strong>
+            <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">Enable colorblind-friendly theme for improved accessibility</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="colorblindModeToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div>
             <strong>Compact View</strong>
@@ -196,6 +210,7 @@
   <script>
     // Dark mode functionality
     const darkModeToggle = document.getElementById('darkModeToggle');
+    const colorblindModeToggle = document.getElementById('colorblindModeToggle');
     
     // Check for saved dark mode preference
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -203,6 +218,14 @@
       document.documentElement.classList.add('dark-mode');
       document.body.classList.add('dark-mode');
       darkModeToggle.checked = true;
+    }
+    
+    // Check for saved colorblind mode preference
+    const isColorblindMode = localStorage.getItem('colorblindMode') === 'true';
+    if (isColorblindMode) {
+      document.documentElement.classList.add('colorblind-mode');
+      document.body.classList.add('colorblind-mode');
+      colorblindModeToggle.checked = true;
     }
     
     // Toggle dark mode
@@ -215,6 +238,19 @@
         document.documentElement.classList.remove('dark-mode');
         document.body.classList.remove('dark-mode');
         localStorage.setItem('darkMode', 'false');
+      }
+    });
+
+    // Toggle colorblind mode
+    colorblindModeToggle.addEventListener('change', function() {
+      if (this.checked) {
+        document.documentElement.classList.add('colorblind-mode');
+        document.body.classList.add('colorblind-mode');
+        localStorage.setItem('colorblindMode', 'true');
+      } else {
+        document.documentElement.classList.remove('colorblind-mode');
+        document.body.classList.remove('colorblind-mode');
+        localStorage.setItem('colorblindMode', 'false');
       }
     });
 

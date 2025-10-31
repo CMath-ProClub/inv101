@@ -1,3 +1,21 @@
+// Automatically run API scrapers at midnight CST every day
+const schedule = require('node-schedule');
+const { exec } = require('child_process');
+
+// CST is UTC-6 (or UTC-5 during daylight saving)
+const midnightCST = '0 0 * * *'; // At 00:00 every day
+
+schedule.scheduleJob({ rule: midnightCST, tz: 'America/Chicago' }, () => {
+  console.log('⏰ Running API scrapers at midnight CST...');
+  exec('node run-all-scrapers.js', { cwd: __dirname }, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Scraper run failed:', error);
+    } else {
+      console.log('Scraper run output:', stdout);
+      if (stderr) console.error('Scraper run errors:', stderr);
+    }
+  });
+});
 const cron = require('node-cron');
 const articleCache = require('./articleCache');
 const stockCache = require('./stockCache');

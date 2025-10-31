@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign Up - Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="global-header">
+    <a href="index.html" class="site-logo">Investing101</a>
+  </div>
+  <main class="app__content">
+    <section class="card" style="max-width: 400px; margin: 40px auto;">
+      <h2>Sign Up</h2>
+      <form id="signupForm">
+        <label class="field">
+          <span>Username</span>
+          <input type="text" name="username" required>
+        </label>
+        <label class="field">
+          <span>Display Name</span>
+          <input type="text" name="displayName" required>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" required>
+        </label>
+        <button class="btn btn--primary" type="submit">Create Account</button>
+      </form>
+      <div style="margin: 24px 0; text-align: center;">
+        <span>Or sign up with:</span>
+        <div style="display: flex; gap: 12px; justify-content: center; margin-top: 12px;">
+          <button class="btn" id="googleSignup" type="button" onclick="window.location.href='/auth/google'">Google</button>
+          <button class="btn" id="facebookSignup" type="button" onclick="window.location.href='/auth/facebook'">Facebook</button>
+        </div>
+      </div>
+      <div style="text-align: center;">
+        <a href="signin.html">Already have an account? Sign in</a>
+      </div>
+    </section>
+  </main>
+  <script>
+    // TODO: Add JS to handle form submission and OAuth buttons
+  </script>
+</body>
+</html>

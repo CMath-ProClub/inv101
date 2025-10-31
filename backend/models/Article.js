@@ -157,52 +157,6 @@ articleSchema.statics.getDistributionStats = async function(filter = {}) {
 };
 
 // Static method to clean outdated articles
-articleSchema.statics.cleanOutdatedArticles = async function(keepMinimum = 750) {
-  const now = new Date();
-  const ninetyDaysAgo = new Date(now - 90 * 24 * 60 * 60 * 1000);
-  const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-
-  // Count current articles
-  const totalArticles = await this.countDocuments({ isActive: true });
-  const recentArticles = await this.countDocuments({ 
-    isActive: true, 
-    publishDate: { $gte: sevenDaysAgo } 
-  });
-
-  // Don't delete if we're below minimum or if it would break the 75% week requirement
-  if (totalArticles <= keepMinimum) {
-    console.log('⏸️ Skipping cleanup: At minimum article count');
-    return { deleted: 0, reason: 'minimum_not_met' };
-  }
-
-  // Calculate how many we can safely delete
-  const targetWeekPercent = 0.75;
-  const maxDeletable = totalArticles - keepMinimum;
-  const minWeekArticles = Math.ceil(keepMinimum * targetWeekPercent);
-
-  if (recentArticles <= minWeekArticles) {
-    console.log('⏸️ Skipping cleanup: Would break week percentage requirement');
-    return { deleted: 0, reason: 'week_requirement_not_met' };
-  }
-
-  // Find articles older than 90 days, prioritizing low relevance and access
-  const articlesToDelete = await this.find({
-    isActive: true,
-    publishDate: { $lt: ninetyDaysAgo }
-  })
-  .sort({ relevanceScore: 1, accessCount: 1, publishDate: 1 })
-  .limit(Math.min(maxDeletable, 100)); // Delete max 100 at a time
-
-  // Soft delete (mark as inactive rather than removing)
-  const deleteIds = articlesToDelete.map(a => a._id);
-  const result = await this.updateMany(
-    { _id: { $in: deleteIds } },
-    { $set: { isActive: false } }
-  );
-
-  console.log(`🗑️ Cleaned ${result.modifiedCount} outdated articles`);
-  return { deleted: result.modifiedCount, reason: 'success' };
-};
 
 // Static method to prune excess articles while maintaining distribution
 articleSchema.statics.pruneToDistribution = async function(targetTotal = 750, target3DayPercent = 40, targetWeekPercent = 75) {
