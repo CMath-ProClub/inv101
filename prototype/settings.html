@@ -8,8 +8,20 @@
 </head>
 <body>
   <div class="global-header">
-    <a href="index.html" class="site-logo">Investing101</a>
-    <!-- Add navigation, user actions, etc. here -->
+    <div class="brand">
+      <a href="index.html" class="site-logo">Investing101</a>
+    </div>
+    <div class="header-fill">
+      <div class="search">
+        <input type="search" placeholder="Search markets, tickers, articles..." aria-label="Search">
+      </div>
+    </div>
+    <div class="actions">
+      <a href="profile.html" class="link-button">Profile</a>
+      <div class="avatar" title="User">
+        <img src="assets/avatar.png" alt="User" onerror="this.style.display='none'">
+      </div>
+    </div>
   </div>
   <div class="app">
     <!-- Desktop Sidebar Navigation (visible on desktop only) -->
@@ -280,4 +292,5 @@
   </script>
 </body>
 </html>
+  <script src="global-ui.js"></script>
 

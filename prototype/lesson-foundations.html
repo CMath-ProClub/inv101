@@ -10,9 +10,22 @@
   </script>
 </head>
 <body>
+  <script src="global-ui.js"></script>
   <div class="global-header">
-    <a href="index.html" class="site-logo">Investing101</a>
-    <!-- Add navigation, user actions, etc. here -->
+    <div class="brand">
+      <a href="index.html" class="site-logo">Investing101</a>
+    </div>
+    <div class="header-fill">
+      <div class="search">
+        <input type="search" placeholder="Search markets, tickers, articles..." aria-label="Search">
+      </div>
+    </div>
+    <div class="actions">
+      <a href="profile.html" class="link-button">Profile</a>
+      <div class="avatar" title="User">
+        <img src="assets/avatar.png" alt="User" onerror="this.style.display='none'">
+      </div>
+    </div>
   </div>
   <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
     if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
