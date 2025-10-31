@@ -1,13 +1,15 @@
 /* Profile tab: vertical buttons */
 /* GLOBAL SIDEBAR & HEADER OVERLAY */
+/* Slim interactive sidebar on the left -- occupies full height and provides a soft gradient */
 body::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
-  width: 80px;
+  width: 96px; /* slightly wider for icons */
   height: 100vh;
-  background: var(--bg-sidebar, #22272b);
+  background: linear-gradient(180deg, rgba(34,39,43,1) 0%, rgba(24,26,27,0.95) 60%);
+  box-shadow: 2px 0 12px rgba(0,0,0,0.35);
   z-index: 1000;
   pointer-events: none;
 }
@@ -15,17 +17,58 @@ body::before {
 .global-header {
   position: fixed;
   top: 0;
-  left: 80px;
+  left: 96px; /* align with sidebar width */
   right: 0;
   height: 64px;
-  background: var(--bg-header, #22272b);
+  background: linear-gradient(90deg, rgba(34,39,43,0.96), rgba(24,26,27,0.9));
   color: var(--text, #fff);
   display: flex;
   align-items: center;
-  padding: 0 32px;
+  padding: 0 20px;
   box-sizing: border-box;
-  border-bottom: 2px solid var(--border, #22272b);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px);
   z-index: 1001;
+}
+
+/* header layout helpers */
+.global-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  min-width: 220px;
+}
+.global-header .header-fill {
+  flex: 1 1 auto; /* fill the remaining space */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.global-header .actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.global-header .search {
+  flex: 1 1 auto;
+  max-width: 720px;
+}
+.global-header input[type="search"] {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+}
+.global-header .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 body.dark-mode::before {
@@ -39,7 +82,7 @@ body.dark-mode::before {
 
 /* Offset main content for sidebar and header */
 .app__content, main {
-  margin-left: 80px;
+  margin-left: 96px; /* account for updated sidebar width */
   margin-top: 64px;
 }
 .feature-links--profile {
