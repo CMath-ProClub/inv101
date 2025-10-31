@@ -13,22 +13,32 @@
     const localPref = localStorage.getItem('inv101_sidebar_collapsed');
     let collapsed = localPref === 'true' ? true : (localPref === 'false' ? false : null);
 
-    async function applyServerPrefIfMissing() {
-      if (collapsed !== null) return; // local preference exists
+    async function fetchPreference(key){
       try {
-        const resp = await fetch('/api/preferences/sidebar', { method: 'GET', credentials: 'include' });
-        if (resp && resp.ok) {
-          const body = await resp.json();
-          if (body && body.success && body.preference && typeof body.preference.collapsed === 'boolean') {
-            collapsed = !!body.preference.collapsed;
-          }
-        }
+        const resp = await fetch('/api/preferences/' + encodeURIComponent(key), { method: 'GET', credentials: 'include' });
+        if (!resp.ok) return null;
+        const body = await resp.json();
+        // server returns { success: true, preference: <value> }
+        if (body && body.success) return body.preference || null;
       } catch (e) {
-        // ignore network/auth failures
+        return null;
       }
+      return null;
     }
 
-    await (async () => { await applyServerPrefIfMissing(); })();
+    // If no local pref, try server-provided preference (for logged-in users)
+    if (collapsed === null) {
+      try {
+        const serverPref = await fetchPreference('sidebar');
+        if (serverPref !== null) {
+          // server may store { collapsed: true } or just boolean
+          if (typeof serverPref === 'object' && typeof serverPref.collapsed === 'boolean') collapsed = !!serverPref.collapsed;
+          else if (typeof serverPref === 'boolean') collapsed = !!serverPref;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
 
     if (collapsed === true) {
       sidebar.classList.add('collapsed');
@@ -39,7 +49,7 @@
       document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-expanded') || '120px');
     }
 
-    // Create toggle button if not present
+  // Create toggle button if not present
     let toggle = sidebar.querySelector('.sidebar-toggle');
     if (!toggle) {
       toggle = document.createElement('button');
@@ -57,7 +67,7 @@
     toggle.title = isCollapsedNow ? 'Expand sidebar' : 'Collapse sidebar';
 
     // Theme switcher: create small button in header actions (cycles: light -> dark -> sepia)
-    function ensureThemeButton(){
+    function ensureHeaderActions(){
       const header = document.querySelector('.global-header') || document.querySelector('.app__header');
       if (!header) return null;
       let actions = header.querySelector('.actions') || header.querySelector('.app__header-actions');
@@ -66,6 +76,14 @@
         actions.className = 'actions';
         header.appendChild(actions);
       }
+      return actions;
+    }
+
+    function ensureThemeButton(){
+      const header = document.querySelector('.global-header') || document.querySelector('.app__header');
+      if (!header) return null;
+      let actions = ensureHeaderActions();
+      if (!actions) return null;
       let themeBtn = actions.querySelector('.theme-toggle');
       if (!themeBtn) {
         themeBtn = document.createElement('button');
@@ -82,46 +100,73 @@
     const themeBtn = ensureThemeButton();
     // initialize theme from localStorage or server preference
     const localTheme = localStorage.getItem('inv101_theme');
-    if (localTheme) document.documentElement.classList.add(localTheme === 'dark' ? 'dark-mode' : (localTheme === 'sepia' ? 'theme-sepia' : ''));
-    
-    function cycleTheme(){
-      const hasDark = document.documentElement.classList.contains('dark-mode');
-      const hasSepia = document.documentElement.classList.contains('theme-sepia');
-      if (!hasDark && !hasSepia) {
-        // go dark
-        document.documentElement.classList.add('dark-mode');
-        document.documentElement.classList.remove('theme-sepia');
-        localStorage.setItem('inv101_theme','dark');
-        saveThemePreference('dark');
-      } else if (hasDark) {
-        // go sepia
-        document.documentElement.classList.remove('dark-mode');
-        document.documentElement.classList.add('theme-sepia');
-        localStorage.setItem('inv101_theme','sepia');
-        saveThemePreference('sepia');
-      } else {
-        // go light
-        document.documentElement.classList.remove('dark-mode');
-        document.documentElement.classList.remove('theme-sepia');
-        localStorage.setItem('inv101_theme','light');
-        saveThemePreference('light');
-      }
-    }
-
-    if (themeBtn) themeBtn.addEventListener('click', cycleTheme);
-
-    async function saveThemePreference(theme){
+    if (localTheme) {
+      if (localTheme === 'dark') document.documentElement.classList.add('dark-mode');
+      else if (localTheme === 'sepia') document.documentElement.classList.add('theme-sepia');
+    } else {
       try {
-        await fetch('/api/preferences/theme', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ theme })
-        });
+        const serverTheme = await fetchPreference('theme');
+        if (serverTheme) {
+          // server may return { theme: 'dark' } or string
+          const t = (typeof serverTheme === 'object' && serverTheme.theme) ? serverTheme.theme : serverTheme;
+          if (t === 'dark') document.documentElement.classList.add('dark-mode');
+          else if (t === 'sepia') document.documentElement.classList.add('theme-sepia');
+          if (t) localStorage.setItem('inv101_theme', t);
+        }
       } catch (e) {}
     }
 
-    function setCollapsed(v){
+    // create theme menu (three explicit buttons) and hook it up to server/local persistence
+    function createThemeMenu(actionsEl){
+      if (!actionsEl) return null;
+      let existing = actionsEl.querySelector('.theme-menu');
+      if (existing) return existing;
+      const menu = document.createElement('div');
+      menu.className = 'theme-menu';
+      const makeBtn = (label, key) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.dataset.theme = key;
+        btn.addEventListener('click', async () => {
+          // apply theme
+          document.documentElement.classList.remove('dark-mode','theme-sepia');
+          if (key === 'dark') document.documentElement.classList.add('dark-mode');
+          if (key === 'sepia') document.documentElement.classList.add('theme-sepia');
+          localStorage.setItem('inv101_theme', key);
+          // persist to server
+          const ok = await savePreference('theme', { theme: key });
+          if (ok) showToast('Theme saved'); else showToast('Theme saved locally');
+          // mark active
+          Array.from(menu.querySelectorAll('button')).forEach(b => b.classList.toggle('active', b.dataset.theme === key));
+          // close menu after short delay
+          setTimeout(() => { menu.style.display = 'none' }, 300);
+        });
+        return btn;
+      };
+      menu.appendChild(makeBtn('Light','light'));
+      menu.appendChild(makeBtn('Dark','dark'));
+      menu.appendChild(makeBtn('Sepia','sepia'));
+      actionsEl.appendChild(menu);
+      return menu;
+    }
+
+    if (themeBtn) {
+      const actionsEl = ensureHeaderActions();
+      const menu = createThemeMenu(actionsEl);
+      themeBtn.addEventListener('click', function(e){
+        if (!menu) return;
+        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+      });
+      // set currently active in menu
+      if (menu) Array.from(menu.querySelectorAll('button')).forEach(b => {
+        const t = b.dataset.theme;
+        const cur = localStorage.getItem('inv101_theme') || null;
+        b.classList.toggle('active', cur === t);
+      });
+    }
+
+  function setCollapsed(v){
       if (v) {
         sidebar.classList.add('collapsed');
         document.body.classList.add('sidebar-collapsed');
@@ -148,7 +193,9 @@
         document.documentElement.style.setProperty('--sidebar-width', getComputedStyle(document.documentElement).getPropertyValue('--sidebar-expanded') || '120px');
       }
       // attempt to persist preference server-side for logged-in users
-      savePreference(isCollapsed);
+      savePreference('sidebar', { collapsed: !!isCollapsed }).then(ok => {
+        if (ok) showToast('Sidebar preference saved');
+      });
     });
 
     // Keyboard shortcut: press "b" to toggle sidebar (when not typing)
@@ -178,18 +225,67 @@
       });
     });
 
-    // Save preference helper: tries to POST to server (will work if user has a session cookie or auth)
-    async function savePreference(collapsedState){
+    // Generic preference save helper. Returns true if server save succeeded.
+    async function savePreference(key, value){
       try {
-        await fetch('/api/preferences/sidebar', {
+        const resp = await fetch('/api/preferences/' + encodeURIComponent(key), {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ collapsed: !!collapsedState })
+          body: JSON.stringify(value)
         });
+        return resp.ok;
       } catch (e) {
-        // ignore failures (unauthenticated clients will 401)
+        return false;
       }
+    }
+
+    // --- Compact mode toggle ---
+    const headerActions = ensureHeaderActions();
+    if (headerActions) {
+      let compactBtn = headerActions.querySelector('.compact-toggle');
+      if (!compactBtn) {
+        compactBtn = document.createElement('button');
+        compactBtn.type = 'button';
+        compactBtn.className = 'compact-toggle icon-button';
+        compactBtn.setAttribute('aria-label','Toggle compact mode');
+        compactBtn.title = 'Toggle compact mode';
+        compactBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1"></rect><rect x="3" y="14" width="10" height="6" rx="1"></rect></svg>';
+        headerActions.insertBefore(compactBtn, headerActions.firstChild);
+      }
+
+      // initialize compact from localStorage or server
+      let compactLocal = localStorage.getItem('inv101_compact');
+      let compactState = compactLocal === 'true' ? true : (compactLocal === 'false' ? false : null);
+      if (compactState === null) {
+        const serverCompact = await fetchPreference('compact');
+        if (serverCompact !== null) {
+          if (typeof serverCompact === 'object' && typeof serverCompact.compact === 'boolean') compactState = !!serverCompact.compact;
+          else if (typeof serverCompact === 'boolean') compactState = !!serverCompact;
+        }
+      }
+      if (compactState === true) {
+        document.documentElement.classList.add('compact-mode');
+      }
+
+      compactBtn.addEventListener('click', async () => {
+        const now = document.documentElement.classList.toggle('compact-mode');
+        localStorage.setItem('inv101_compact', now ? 'true' : 'false');
+        const ok = await savePreference('compact', { compact: !!now });
+        showToast(ok ? (now ? 'Compact mode enabled' : 'Compact mode disabled') : 'Saved locally');
+      });
+    }
+
+    // --- Toast helper ---
+    function showToast(msg, ttl = 2200){
+      try {
+        let container = document.querySelector('.toast-container');
+        if (!container) { container = document.createElement('div'); container.className = 'toast-container'; document.body.appendChild(container); }
+        const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; container.appendChild(t);
+        // force reflow then show
+        void t.offsetWidth; t.classList.add('show');
+        setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 220); }, ttl);
+      } catch (e) { /* silent */ }
     }
   });
 })();

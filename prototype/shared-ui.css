@@ -118,6 +118,27 @@ body.theme-sepia {
 
 .card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(31,42,55,0.03); transition: padding 0.2s, font-size 0.2s; }
 
+/* Compact mode: tighter spacing and slightly smaller type for power users */
+.compact-mode .sidebar { padding: 8px 6px; gap: 6px }
+.compact-mode .sidebar .sidebar__btn { padding: 6px 4px; font-size: 11px }
+.compact-mode .sidebar .sidebar__logo img { height: 34px }
+.compact-mode .global-header { height: 56px }
+.compact-mode .global-header .brand { font-size: 1rem }
+.compact-mode .global-header .actions { gap: 8px }
+.compact-mode .app__content { padding-top: 60px }
+.compact-mode .card { padding: 10px; font-size: 0.95rem }
+
+/* Simple transient toast notifications */
+.toast-container { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 2000; pointer-events: none; }
+.toast { display: inline-block; background: rgba(24,26,27,0.95); color: #fff; padding: 10px 14px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-top: 8px; opacity: 0; transform: translateY(6px); transition: opacity 200ms ease, transform 200ms ease; pointer-events: auto; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Theme menu anchored to header actions */
+.global-header .actions { position: relative }
+.theme-menu { position: absolute; right: 0; top: calc(100% + 8px); background: var(--bg-card); border: 1px solid var(--border); padding: 6px; border-radius: 8px; box-shadow: 0 6px 18px rgba(31,42,55,0.08); display: flex; gap: 8px; z-index: 1200 }
+.theme-menu button{ background: transparent; border: 0; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 600 }
+.theme-menu button.active{ background: var(--accent); color: #fff }
+
 .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 10px; border: 0; font-weight: 600; cursor: pointer; }
 .btn--primary { background: var(--accent); color: white; }
 .btn--secondary { background: var(--muted); color: var(--text); }

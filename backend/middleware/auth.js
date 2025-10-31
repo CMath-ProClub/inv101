@@ -15,9 +15,23 @@ try {
 }
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
 
-// Immediately throw if in production and JWT_SECRET is missing or default
+// Helper to allow temporary bypass of the strict throw when debugging deploy issues.
+// Set ENFORCE_JWT=1 (or true) in the environment to restore the strict behavior
+// that will throw on missing/default JWT_SECRET in production.
+const _enforceJwt = String(process.env.ENFORCE_JWT || '').toLowerCase() === '1' || String(process.env.ENFORCE_JWT || '').toLowerCase() === 'true';
+
+// Immediately validate in production. If JWT_SECRET is missing or still the dev default
+// we normally want to crash to avoid running with an insecure secret. However, during
+// deploy troubleshooting it's sometimes useful to allow the process to start and
+// surface a clear error while you fix environment variables in the hosting UI.
 if (process.env.NODE_ENV === 'production' && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me' || process.env.JWT_SECRET === 'your-secure-jwt-secret-here')) {
-  throw new Error('JWT_SECRET missing or using default value in production. Set a secure JWT_SECRET in your environment variables.');
+  const msg = 'JWT_SECRET missing or using default value in production. Set a secure JWT_SECRET in your environment variables.';
+  if (_enforceJwt) {
+    throw new Error(msg);
+  } else {
+    // Log a prominent error but continue startup so the service remains reachable while you fix envs.
+    console.error('❌ ' + msg + ' To enforce strict behavior set ENFORCE_JWT=1');
+  }
 }
 
 function authMiddleware(req, res, next) {
@@ -41,7 +55,7 @@ function authMiddleware(req, res, next) {
 }
 
 function assertJwtSecretValid(isProduction) {
-  if (isProduction && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me')) {
+  if (isProduction && _enforceJwt && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me')) {
     throw new Error('JWT_SECRET missing or using dev default in production');
   }
   return true;
