@@ -84,6 +84,17 @@ body.sidebar-collapsed .app__header { left: var(--sidebar-collapsed); width: cal
   .feature-link.card h3 { font-size: 1.1rem; }
 }
 
+/* Mobile/tablet: hide desktop sidebar, show tabbar, and make header full-width */
+@media (max-width: 1023px) {
+  .sidebar { display: none !important; }
+  /* ensure header spans full width on small screens */
+  .global-header, .app__header { left: 0 !important; width: 100% !important; }
+  /* content should not be offset on mobile */
+  .app__content, main { margin-left: 0 !important; }
+  /* mark tabbar visible on mobile (desktop hides it at >=1024px) */
+  .tabbar { display: flex !important; }
+}
+
 @media (max-width: 900px) {
   .app__content { padding: 8px 2px 80px 2px; }
   .card { padding: 12px; }

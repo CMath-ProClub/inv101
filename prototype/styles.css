@@ -2799,3 +2799,10 @@ details[open] summary span {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Ensure header spans full width on small screens (safety override) */
+@media (max-width: 1023px) {
+  .global-header, .app__header { left: 0 !important; width: 100% !important; }
+  .app__content, main { margin-left: 0 !important; }
+  .sidebar { display: none !important; }
+}
