@@ -4,6 +4,9 @@
   --accent-strong: #18b38f;
   --bg: #F6F8FB;
   --bg-card: #FFFFFF;
+  --bg-gradient: linear-gradient(180deg, #f6f8fb 0%, #e8eff7 100%);
+  --bg-dark-gradient: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  --accent-gradient: linear-gradient(90deg, #1DD1A1 0%, #18b38f 100%);
   --muted: #F1F5F9;
   --border: rgba(31,42,55,0.06);
   --text: #1F2A37;
@@ -94,6 +97,10 @@ body.sidebar-collapsed .app__header { left: var(--sidebar-collapsed); width: cal
   /* mark tabbar visible on mobile (desktop hides it at >=1024px) */
   .tabbar { display: flex !important; }
 }
+
+/* Smooth transitions for header and content when sidebar width changes */
+.global-header, .app__header { transition: left 220ms cubic-bezier(.2,.9,.2,1), width 220ms cubic-bezier(.2,.9,.2,1), background 200ms ease; }
+.app__content, main { transition: margin-left 220ms cubic-bezier(.2,.9,.2,1), padding 200ms ease; }
 
 @media (max-width: 900px) {
   .app__content { padding: 8px 2px 80px 2px; }

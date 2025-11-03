@@ -534,7 +534,7 @@ body.sidebar-collapsed .global-header { left: var(--sidebar-collapsed); width: c
 }
 
 .dark-mode {
-  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  background: var(--bg-dark-gradient);
 }
 
 .dark-mode .feature-link--split,
@@ -680,7 +680,7 @@ body.dark-mode {
 }
 
 body.dark-mode {
-  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  background: var(--bg-dark-gradient);
 }
 
 body.dark-mode .feature-link--split,
@@ -805,7 +805,7 @@ body {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  background: linear-gradient(180deg, #f6f8fb 0%, #e3ebf7 100%);
+  background: var(--bg-gradient);
   color: var(--text);
   margin: 0;
   padding: 0;
@@ -1568,7 +1568,7 @@ main.app__content {
 }
 
 .card--header {
-  background: linear-gradient(180deg, rgba(29, 209, 161, 0.1) 0%, rgba(29, 209, 161, 0.25) 100%);
+  background: var(--accent-gradient);
   border: 1px solid rgba(29, 209, 161, 0.4);
 }
 

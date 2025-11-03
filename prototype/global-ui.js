@@ -287,10 +287,11 @@
           const navBtns = sidebar.querySelectorAll('.sidebar__btn');
           if (isMobile) {
             sidebar.setAttribute('aria-hidden','true');
-            navBtns.forEach(b => b.setAttribute('tabindex','-1'));
+            // Use inert if available for stronger a11y; otherwise fallback to tabindex -1
+            if ('inert' in HTMLElement.prototype) sidebar.inert = true; else navBtns.forEach(b => b.setAttribute('tabindex','-1'));
           } else {
             sidebar.removeAttribute('aria-hidden');
-            navBtns.forEach(b => b.removeAttribute('tabindex'));
+            if ('inert' in HTMLElement.prototype) sidebar.inert = false; else navBtns.forEach(b => b.removeAttribute('tabindex'));
           }
         }
         const tabbar = document.querySelector('.tabbar');
@@ -313,5 +314,43 @@
       if (_resizeTimer) clearTimeout(_resizeTimer);
       _resizeTimer = setTimeout(updateResponsiveAccessibility, 120);
     });
+
+    // Load inert polyfill dynamically if needed (only when browser doesn't support inert)
+    (function maybeLoadInert(){
+      if (!('inert' in HTMLElement.prototype)) {
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/wicg-inert@3.1.1/dist/inert.min.js';
+        s.async = true;
+        s.onload = () => { console.log('Inert polyfill loaded'); };
+        s.onerror = () => { console.warn('Failed to load inert polyfill'); };
+        document.head.appendChild(s);
+      }
+    })();
+
+    // Dev overlay when ?dev=1 in URL — shows active theme and CSS var values
+    (function maybeShowDevOverlay(){
+      try {
+        if (!location.search.includes('dev=1')) return;
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.right = '12px';
+        overlay.style.top = '12px';
+        overlay.style.zIndex = 3000;
+        overlay.style.background = 'rgba(0,0,0,0.6)';
+        overlay.style.color = '#fff';
+        overlay.style.padding = '8px 10px';
+        overlay.style.borderRadius = '8px';
+        overlay.style.fontSize = '12px';
+        overlay.style.fontFamily = 'monospace';
+        function update(){
+          const sidebarWidth = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width').trim();
+          const theme = document.documentElement.classList.contains('dark-mode') ? 'dark' : (document.documentElement.classList.contains('theme-sepia') ? 'sepia' : 'light');
+          overlay.textContent = `theme:${theme} | --sidebar-width:${sidebarWidth}`;
+        }
+        update();
+        document.body.appendChild(overlay);
+        setInterval(update, 800);
+      } catch (e) {}
+    })();
   });
 })();
