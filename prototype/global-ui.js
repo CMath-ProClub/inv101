@@ -79,92 +79,83 @@
       return actions;
     }
 
-    function ensureThemeButton(){
-      const header = document.querySelector('.global-header') || document.querySelector('.app__header');
-      if (!header) return null;
-      let actions = ensureHeaderActions();
-      if (!actions) return null;
-      let themeBtn = actions.querySelector('.theme-toggle');
-      if (!themeBtn) {
-        themeBtn = document.createElement('button');
-        themeBtn.type = 'button';
-        themeBtn.className = 'theme-toggle icon-button';
-        themeBtn.setAttribute('aria-label','Toggle theme');
-        themeBtn.title = 'Toggle theme';
-        themeBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle></svg>';
-        actions.appendChild(themeBtn);
+    // Initialize theme from local storage or server and hook settings toggles (if present)
+    async function initThemeFromPrefs(){
+      const localTheme = localStorage.getItem('inv101_theme');
+      if (localTheme) {
+        if (localTheme === 'dark') document.documentElement.classList.add('dark-mode');
+        else if (localTheme === 'sepia') document.documentElement.classList.add('theme-sepia');
+      } else {
+        try {
+          const serverTheme = await fetchPreference('theme');
+          if (serverTheme) {
+            const t = (typeof serverTheme === 'object' && serverTheme.theme) ? serverTheme.theme : serverTheme;
+            if (t === 'dark') document.documentElement.classList.add('dark-mode');
+            else if (t === 'sepia') document.documentElement.classList.add('theme-sepia');
+            if (t) localStorage.setItem('inv101_theme', t);
+          }
+        } catch (e) {}
       }
-      return themeBtn;
-    }
 
-    const themeBtn = ensureThemeButton();
-    // initialize theme from localStorage or server preference
-    const localTheme = localStorage.getItem('inv101_theme');
-    if (localTheme) {
-      if (localTheme === 'dark') document.documentElement.classList.add('dark-mode');
-      else if (localTheme === 'sepia') document.documentElement.classList.add('theme-sepia');
-    } else {
-      try {
-        const serverTheme = await fetchPreference('theme');
-        if (serverTheme) {
-          // server may return { theme: 'dark' } or string
-          const t = (typeof serverTheme === 'object' && serverTheme.theme) ? serverTheme.theme : serverTheme;
-          if (t === 'dark') document.documentElement.classList.add('dark-mode');
-          else if (t === 'sepia') document.documentElement.classList.add('theme-sepia');
-          if (t) localStorage.setItem('inv101_theme', t);
-        }
-      } catch (e) {}
-    }
+      // If we're on the settings page, hook the toggles to control theme
+      const darkToggle = document.getElementById('darkModeToggle');
+      const colorblindToggle = document.getElementById('colorblindModeToggle');
+      const compactToggle = document.getElementById('compactModeToggle');
 
-    // create theme menu (three explicit buttons) and hook it up to server/local persistence
-    function createThemeMenu(actionsEl){
-      if (!actionsEl) return null;
-      let existing = actionsEl.querySelector('.theme-menu');
-      if (existing) return existing;
-      const menu = document.createElement('div');
-      menu.className = 'theme-menu';
-      const makeBtn = (label, key) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = label;
-        btn.dataset.theme = key;
-        btn.addEventListener('click', async () => {
-          // apply theme
-          document.documentElement.classList.remove('dark-mode','theme-sepia');
-          if (key === 'dark') document.documentElement.classList.add('dark-mode');
-          if (key === 'sepia') document.documentElement.classList.add('theme-sepia');
-          localStorage.setItem('inv101_theme', key);
-          // persist to server
-          const ok = await savePreference('theme', { theme: key });
-          if (ok) showToast('Theme saved'); else showToast('Theme saved locally');
-          // mark active
-          Array.from(menu.querySelectorAll('button')).forEach(b => b.classList.toggle('active', b.dataset.theme === key));
-          // close menu after short delay
-          setTimeout(() => { menu.style.display = 'none' }, 300);
+      if (darkToggle) {
+        // initialize checkbox state from active theme
+        darkToggle.checked = document.documentElement.classList.contains('dark-mode');
+        darkToggle.addEventListener('change', async function(){
+          if (this.checked) {
+            document.documentElement.classList.add('dark-mode');
+            document.documentElement.classList.remove('theme-sepia');
+            localStorage.setItem('inv101_theme','dark');
+            await savePreference('theme', { theme: 'dark' });
+            showToast('Theme saved');
+          } else {
+            document.documentElement.classList.remove('dark-mode');
+            localStorage.setItem('inv101_theme','light');
+            await savePreference('theme', { theme: 'light' });
+            showToast('Theme saved');
+          }
         });
-        return btn;
-      };
-      menu.appendChild(makeBtn('Light','light'));
-      menu.appendChild(makeBtn('Dark','dark'));
-      menu.appendChild(makeBtn('Sepia','sepia'));
-      actionsEl.appendChild(menu);
-      return menu;
+      }
+
+      if (colorblindToggle) {
+        // colorblind toggles an extra class; we keep it separate from theme
+        colorblindToggle.checked = document.documentElement.classList.contains('colorblind-mode');
+        colorblindToggle.addEventListener('change', function(){
+          if (this.checked) {
+            document.documentElement.classList.add('colorblind-mode');
+            localStorage.setItem('inv101_colorblind','true');
+            showToast('Colorblind mode enabled');
+          } else {
+            document.documentElement.classList.remove('colorblind-mode');
+            localStorage.setItem('inv101_colorblind','false');
+            showToast('Colorblind mode disabled');
+          }
+        });
+      }
+
+      if (compactToggle) {
+        compactToggle.checked = document.documentElement.classList.contains('compact-mode');
+        compactToggle.addEventListener('change', async function(){
+          if (this.checked) {
+            document.documentElement.classList.add('compact-mode');
+            localStorage.setItem('inv101_compact','true');
+            await savePreference('compact', { compact: true });
+            showToast('Compact mode enabled');
+          } else {
+            document.documentElement.classList.remove('compact-mode');
+            localStorage.setItem('inv101_compact','false');
+            await savePreference('compact', { compact: false });
+            showToast('Compact mode disabled');
+          }
+        });
+      }
     }
 
-    if (themeBtn) {
-      const actionsEl = ensureHeaderActions();
-      const menu = createThemeMenu(actionsEl);
-      themeBtn.addEventListener('click', function(e){
-        if (!menu) return;
-        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
-      });
-      // set currently active in menu
-      if (menu) Array.from(menu.querySelectorAll('button')).forEach(b => {
-        const t = b.dataset.theme;
-        const cur = localStorage.getItem('inv101_theme') || null;
-        b.classList.toggle('active', cur === t);
-      });
-    }
+    await initThemeFromPrefs();
 
   function setCollapsed(v){
       if (v) {
