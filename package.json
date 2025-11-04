@@ -1,4 +1,9 @@
 {
+  "name": "inv101",
+  "version": "1.0.0",
+  "scripts": {
+    "scan-secrets": "node scripts/scan_repo_for_secrets.js"
+  },
   "dependencies": {
     "express-session": "^1.18.2",
     "mongoose": "^8.19.2",

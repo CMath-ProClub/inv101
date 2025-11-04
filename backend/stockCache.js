@@ -5,7 +5,7 @@
  */
 
 const yahooFinance = require('yahoo-finance2').default;
-const mongoose = require('mongoose');
+const { recordQuoteBatch, recordHistoricalQuotes } = require('./stockQuoteStore');
 
 // Suppress Yahoo Finance validation errors and notices
 const queryOptions = { validateResult: false };
@@ -22,6 +22,29 @@ yahooFinance.setGlobalConfig({
 if (typeof yahooFinance.suppressNotices === 'function') {
   yahooFinance.suppressNotices(['ripHistorical', 'yahooSurvey']);
 }
+
+function parseTickerList(value, fallback) {
+  const input = typeof value === 'string' && value.trim().length > 0 ? value : fallback;
+  return input
+    .split(',')
+    .map((item) => item.trim().toUpperCase())
+    .filter(Boolean);
+}
+
+const DEFAULT_INTRADAY_TICKERS = parseTickerList(
+  process.env.STOCK_INTRADAY_TICKERS,
+  'SPY,QQQ,DIA,IWM,AAPL,MSFT,GOOGL,AMZN,NVDA,TSLA,META,AMD'
+);
+
+const DEFAULT_HISTORICAL_TICKERS = parseTickerList(
+  process.env.STOCK_HISTORICAL_TICKERS,
+  process.env.STOCK_INTRADAY_TICKERS || 'SPY,QQQ,DIA,IWM,AAPL,MSFT,GOOGL,AMZN,NVDA,TSLA,META,AMD'
+);
+
+const HISTORICAL_LOOKBACK_DAYS = parseInt(process.env.STOCK_HISTORICAL_LOOKBACK_DAYS || '365', 10);
+const HISTORICAL_INTERVAL = process.env.STOCK_HISTORICAL_INTERVAL || '1d';
+const HISTORICAL_BUCKET_MINUTES = parseInt(process.env.STOCK_HISTORICAL_BUCKET_MINUTES || '1440', 10);
+const HISTORICAL_BATCH_DELAY_MS = parseInt(process.env.STOCK_HISTORICAL_BATCH_DELAY_MS || '1000', 10);
 
 // Top 1500 stocks by market cap (S&P 500 + Russell 1000 + mid-caps)
 const TOP_1500_TICKERS = [
@@ -234,52 +257,69 @@ const ALL_TICKERS = [...new Set([...TOP_1500_TICKERS, ...INDEX_FUNDS])];
 
 class StockDataCache {
   constructor() {
-    this.cache = new Map();
-    this.lastRefresh = null;
-    this.refreshInterval = 6 * 60 * 60 * 1000; // 6 hours
-    this.sp500Data = null;
+  this.cache = new Map();
+  this.lastRefresh = null;
+  this.refreshInterval = 6 * 60 * 60 * 1000; // 6 hours
+  this.sp500Data = null;
+  this.intradayTickers = Array.from(DEFAULT_INTRADAY_TICKERS);
+  this.intradayBatchSize = parseInt(process.env.STOCK_INTRADAY_BATCH_SIZE || '12', 10);
+  this.persistQuotes = String(process.env.STOCK_QUOTE_PERSIST || 'true').toLowerCase() !== 'false';
+  this.historicalTickers = Array.from(DEFAULT_HISTORICAL_TICKERS);
+  this.historicalLookbackDays = HISTORICAL_LOOKBACK_DAYS;
+  this.historicalInterval = HISTORICAL_INTERVAL;
+  this.historicalBucketMinutes = HISTORICAL_BUCKET_MINUTES;
+  this.historicalBatchDelayMs = HISTORICAL_BATCH_DELAY_MS;
+  this.historicalBackfillRunning = false;
+  this.historicalBackfillStatus = { lastRun: null, lastSummary: null };
   }
 
   /**
    * Fetch and cache stock data for all tickers
    */
-  async refreshAll(batchSize = 10) {
-    console.log(`\n🔄 Starting stock data refresh for ${ALL_TICKERS.length} tickers...`);
+  async refreshTickers(tickers = ALL_TICKERS, batchSize = 10, options = {}) {
+    const { persist = this.persistQuotes } = options;
+    const totalTickers = tickers.length;
+    console.log(`\n🔄 Starting stock data refresh for ${totalTickers} tickers...`);
     const startTime = Date.now();
     let successCount = 0;
     let errorCount = 0;
+    const refreshed = [];
 
-    // Process in smaller batches to avoid rate limits
-    for (let i = 0; i < ALL_TICKERS.length; i += batchSize) {
-      const batch = ALL_TICKERS.slice(i, i + batchSize);
-      console.log(`📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(ALL_TICKERS.length / batchSize)}: ${batch.length} tickers`);
+    for (let i = 0; i < totalTickers; i += batchSize) {
+      const batch = tickers.slice(i, i + batchSize);
+      console.log(`📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(totalTickers / batchSize)}: ${batch.length} tickers`);
 
-      const promises = batch.map(ticker => this.fetchStockData(ticker));
+      const promises = batch.map((ticker) => this.fetchStockData(ticker));
       const results = await Promise.allSettled(promises);
 
       results.forEach((result, index) => {
         if (result.status === 'fulfilled') {
           successCount++;
+          refreshed.push(result.value);
         } else {
           errorCount++;
-          // Only log first few errors to avoid spam
           if (errorCount <= 10) {
             console.warn(`   ⚠️  Failed: ${batch[index]} - ${result.reason?.message || 'Unknown error'}`);
           }
         }
       });
 
-      // Rate limiting delay between batches
-      if (i + batchSize < ALL_TICKERS.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      if (i + batchSize < totalTickers) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
-    // Fetch S&P 500 benchmark data
     await this.refreshSP500Data();
 
     this.lastRefresh = new Date();
-    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+    const durationSeconds = (Date.now() - startTime) / 1000;
+
+    if (persist && refreshed.length > 0) {
+      const persistResult = await recordQuoteBatch(refreshed);
+      console.log(`💾 Persisted quotes: inserted ${persistResult.inserted}, matched ${persistResult.matched}`);
+    }
+
+    const duration = durationSeconds.toFixed(1);
 
     console.log(`\n✅ Stock data refresh complete!`);
     console.log(`   ✅ Success: ${successCount} stocks`);
@@ -295,6 +335,133 @@ class StockDataCache {
       cacheSize: this.cache.size,
       lastRefresh: this.lastRefresh
     };
+  }
+
+  async refreshAll(batchSize = 10) {
+    return this.refreshTickers(ALL_TICKERS, batchSize);
+  }
+
+  async refreshIntraday(batchSize = this.intradayBatchSize) {
+    const tickers = this.intradayTickers.length > 0 ? this.intradayTickers : DEFAULT_INTRADAY_TICKERS;
+    return this.refreshTickers(tickers, batchSize, { persist: this.persistQuotes });
+  }
+
+  async backfillHistoricalQuotes(options = {}) {
+    if (this.historicalBackfillRunning) {
+      console.log('⏭️  Historical backfill already in progress');
+      return { running: true, lastSummary: this.historicalBackfillStatus.lastSummary };
+    }
+
+    const {
+      tickers = this.historicalTickers,
+      lookbackDays = this.historicalLookbackDays,
+      interval = this.historicalInterval,
+      bucketMinutes = this.historicalBucketMinutes,
+      delayMs = this.historicalBatchDelayMs
+    } = options;
+
+    const targetTickers = Array.isArray(tickers)
+      ? tickers
+      : parseTickerList(String(tickers || ''), this.historicalTickers.join(','));
+
+    const uniqueTickers = [...new Set(targetTickers.map((symbol) => symbol.toUpperCase()).filter(Boolean))];
+
+    if (uniqueTickers.length === 0) {
+      return { success: false, error: 'No tickers configured for historical backfill' };
+    }
+
+    this.historicalBackfillRunning = true;
+    this.historicalBackfillStatus.lastRun = new Date();
+
+    const endDate = new Date();
+    const startDate = new Date(endDate.getTime() - lookbackDays * 24 * 60 * 60 * 1000);
+    let inserted = 0;
+    let matched = 0;
+    const failures = [];
+
+  console.log(`📚 Starting historical backfill for ${uniqueTickers.length} tickers (${lookbackDays} days @ ${interval})`);
+
+  for (const symbol of uniqueTickers) {
+      try {
+        console.log(`   🔄 Fetching historical candles for ${symbol}`);
+        const candles = await yahooFinance.historical(symbol, {
+          period1: startDate,
+          period2: endDate,
+          interval,
+          events: 'history'
+        }, queryOptions);
+
+        if (!Array.isArray(candles) || candles.length === 0) {
+          console.warn(`   ⚠️  No historical data returned for ${symbol}`);
+          continue;
+        }
+
+        const normalized = candles
+          .filter((candle) => candle && typeof candle.close === 'number')
+          .map((candle) => {
+            const bucket = new Date(candle.date);
+            const open = typeof candle.open === 'number' ? candle.open : undefined;
+            const close = candle.close;
+            const change = typeof open === 'number' ? close - open : undefined;
+            const changePercent = typeof open === 'number' && open !== 0 ? ((close - open) / open) * 100 : undefined;
+
+            return {
+              symbol,
+              price: close,
+              change,
+              changePercent,
+              volume: candle.volume,
+              previousClose: candle.adjClose ?? close,
+              open,
+              dayHigh: candle.high,
+              dayLow: candle.low,
+              currency: candle.currency || 'USD',
+              exchange: candle.exchange,
+              bucket,
+              fetchedAt: new Date(bucket)
+            };
+          });
+
+        if (normalized.length === 0) {
+          console.warn(`   ⚠️  Unable to normalize historical data for ${symbol}`);
+          continue;
+        }
+
+        const result = await recordHistoricalQuotes(symbol, normalized, {
+          source: 'yahoo-finance-historical',
+          intervalMinutes: bucketMinutes
+        });
+
+        inserted += result.inserted || 0;
+        matched += (result.matched || 0) + (result.modified || 0);
+      } catch (error) {
+        console.error(`   ❌ Historical backfill failed for ${symbol}:`, error.message);
+        failures.push({ symbol, error: error.message });
+      }
+
+      if (delayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+
+    const summary = {
+      success: failures.length === 0,
+  tickersProcessed: uniqueTickers.length,
+      lookbackDays,
+      interval,
+      bucketMinutes,
+      inserted,
+      matched,
+      failures
+    };
+
+    this.historicalBackfillRunning = false;
+    this.historicalBackfillStatus.lastSummary = summary;
+    this.historicalBackfillStatus.lastRun = new Date();
+
+    console.log('📚 Historical backfill summary:', summary);
+
+    return summary;
   }
 
   /**
@@ -322,6 +489,9 @@ class StockDataCache {
         name: quote.longName || quote.shortName || ticker,
         price: quote.regularMarketPrice,
         previousClose: quote.regularMarketPreviousClose,
+        open: quote.regularMarketOpen,
+        dayHigh: quote.regularMarketDayHigh,
+        dayLow: quote.regularMarketDayLow,
         change: quote.regularMarketChange,
         changePercent: quote.regularMarketChangePercent,
         volume: quote.regularMarketVolume,
@@ -336,7 +506,8 @@ class StockDataCache {
         industry: quote.industry,
         currency: quote.currency || 'USD',
         exchange: quote.fullExchangeName,
-        lastUpdated: new Date()
+        lastUpdated: new Date(),
+        raw: quote
       };
 
       this.cache.set(ticker, stockData);

@@ -11,6 +11,7 @@ const stockMarketData = require('./stockMarketData');
 const authRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
 const preferencesRouter = require('./routes/preferences');
+const metricsRouter = require('./routes/metrics');
 const session = require('express-session');
 const passport = require('passport');
 
@@ -119,6 +120,7 @@ app.use(express.static(staticDir));
 app.use('/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/preferences', preferencesRouter);
+app.use('/api/metrics', metricsRouter);
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
@@ -757,9 +759,11 @@ async function startServer() {
       console.log(`💾 Article cache system initialized`);
       
       // Start scheduled tasks
-      scheduler.startScheduledRefresh('0 */6 * * *');    // Every 6 hours
-      scheduler.startMidnightScraper('0 0 * * *');       // Daily at midnight
-      scheduler.startStockCacheRefresh('0 3,9,15,21 * * *'); // Every 6 hours (offset)
+    scheduler.startScheduledRefresh('0 */6 * * *');        // Every 6 hours
+    scheduler.startMidnightScraper('0 0 * * *');           // Daily at midnight
+    scheduler.startIntradayStockUpdates();                 // Every 5 minutes
+    scheduler.startHistoricalBackfill('30 1 * * *');       // Daily historical backfill
+    scheduler.startStockCacheRefresh('0 3,9,15,21 * * *'); // Every 6 hours (offset)
       scheduler.startDailyCleanup('0 2 * * *');         // Daily at 2 AM
       
       // Start self-ping to keep Render instance awake (only in production)
@@ -775,6 +779,16 @@ async function startServer() {
       }).catch(err => {
         console.warn('⚠️  Stock cache initialization failed:', err.message);
       });
+
+      const autoHistoricalBackfill = String(process.env.STOCK_HISTORICAL_AUTO_BACKFILL || 'true').toLowerCase() !== 'false';
+      if (autoHistoricalBackfill) {
+        console.log('Historical backfill queued shortly after startup');
+        setTimeout(() => {
+          stockCache.backfillHistoricalQuotes().catch((err) => {
+            console.warn('⚠️  Historical backfill (startup) failed:', err.message);
+          });
+        }, 5000);
+      }
       
       console.log('\n✅ Server ready for requests\n');
     });

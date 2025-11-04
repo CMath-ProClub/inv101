@@ -1,0 +1,34 @@
+name: Scheduled data migration (dry-run)
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # daily at 03:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  scheduled_migrate:
+    name: Scheduled migration (dry-run)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci --silent
+
+      - name: Run migration dry-run
+        working-directory: backend
+        env:
+          MONGODB_URI: ${{ secrets.MIGRATION_DB_URI }}
+          MIGRATION_FILE: 'SPY_daily.json'
+          MIGRATION_SYMBOL: 'SPY'
+          DRY_RUN: 'true'
+        run: |
+          echo "Scheduled dry-run migration"
+          node migrate-articles-to-atlas.js

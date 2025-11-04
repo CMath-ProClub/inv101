@@ -1,0 +1,54 @@
+name: Run data migration (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      migration_file:
+        description: 'Filename under backend/data to import (optional)'
+        required: false
+        default: 'SPY_daily.json'
+      migration_symbol:
+        description: 'Symbol to attach to price docs (optional)'
+        required: false
+        default: 'SPY'
+      dry_run:
+        description: 'If true, do a dry-run (no writes) - not implemented by script unless you add it'
+        required: false
+        default: 'false'
+
+jobs:
+  migrate:
+    name: Run migration and verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          npm ci --silent
+
+      - name: Run migration (upsert)
+        working-directory: backend
+        env:
+          MONGODB_URI: ${{ secrets.MIGRATION_DB_URI }}
+          MIGRATION_FILE: ${{ github.event.inputs.migration_file }}
+          MIGRATION_SYMBOL: ${{ github.event.inputs.migration_symbol }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          echo "Starting migration for file $MIGRATION_FILE (symbol: $MIGRATION_SYMBOL) (dry_run=$DRY_RUN)"
+          node migrate-articles-to-atlas.js
+
+      - name: Run verification (check_stockprices)
+        working-directory: backend
+        env:
+          MONGODB_URI: ${{ secrets.MIGRATION_DB_URI }}
+        run: |
+          echo "Running verification script"
+          node scripts/check_stockprices.js || true

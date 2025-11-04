@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# Simple pre-commit hook: run secret scanner and block commit if it finds matches
+node ./scripts/scan_repo_for_secrets.js
+if [ $? -ne 0 ]; then
+  echo "Pre-commit: secret scanner detected possible secrets. Commit aborted." >&2
+  exit 1
+fi
+exit 0

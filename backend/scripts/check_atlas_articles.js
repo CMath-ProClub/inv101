@@ -12,7 +12,7 @@ async function main(){
     process.exit(2);
   }
 
-  await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect(uri);
   console.log('Connected to MongoDB');
 
   try {
