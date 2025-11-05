@@ -43,4 +43,5 @@ mongodb-binaries/
 .secrets
 
 # Local data/backups - avoid committing exported DB snapshots
-backend/data/
+backend/data/*
+!backend/data/tickerUniverse.js
