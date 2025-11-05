@@ -3,17 +3,152 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  --header-height: 4.5rem;
+  --surface-base: 10 14 24;
+  --surface-elevated: 16 23 38;
+  --surface-card: 20 30 46;
+  --surface-muted: 29 40 57;
+  --outline-color: 82 101 133;
+  --text-primary: 229 236 255;
+  --text-secondary: 184 198 230;
+  --text-muted: 136 150 182;
+  --accent-primary: 66 158 247;
+  --accent-secondary: 26 130 230;
+  --accent-tertiary: 122 210 255;
+  --color-scheme: dark;
+}
+
+[data-theme="dark"] {
+  --surface-base: 10 14 24;
+  --surface-elevated: 16 23 38;
+  --surface-card: 20 30 46;
+  --surface-muted: 29 40 57;
+  --outline-color: 82 101 133;
+  --text-primary: 229 236 255;
+  --text-secondary: 184 198 230;
+  --text-muted: 136 150 182;
+  --accent-primary: 66 158 247;
+  --accent-secondary: 26 130 230;
+  --accent-tertiary: 122 210 255;
+  --color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --surface-base: 244 247 251;
+  --surface-elevated: 232 237 244;
+  --surface-card: 255 255 255;
+  --surface-muted: 224 230 240;
+  --outline-color: 195 207 221;
+  --text-primary: 26 31 45;
+  --text-secondary: 60 71 93;
+  --text-muted: 108 115 134;
+  --accent-primary: 28 130 230;
+  --accent-secondary: 66 158 247;
+  --accent-tertiary: 180 216 255;
+  --color-scheme: light;
+}
+
+[data-theme="ultradark"] {
+  --surface-base: 0 0 0;
+  --surface-elevated: 12 12 12;
+  --surface-card: 20 20 20;
+  --surface-muted: 32 32 32;
+  --outline-color: 0 255 255;
+  --text-primary: 224 224 224;
+  --text-secondary: 160 255 240;
+  --text-muted: 120 190 190;
+  --accent-primary: 0 255 255;
+  --accent-secondary: 25 255 20;
+  --accent-tertiary: 0 200 200;
+  --color-scheme: dark;
+}
+
+[data-theme="emerald-trust"] {
+  --surface-base: 249 251 247;
+  --surface-elevated: 240 244 236;
+  --surface-card: 255 255 255;
+  --surface-muted: 228 237 224;
+  --outline-color: 184 203 176;
+  --text-primary: 43 43 43;
+  --text-secondary: 74 89 75;
+  --text-muted: 111 127 112;
+  --accent-primary: 4 99 7;
+  --accent-secondary: 216 199 161;
+  --accent-tertiary: 46 166 71;
+  --color-scheme: light;
+}
+
+[data-theme="quantum-violet"] {
+  --surface-base: 14 14 16;
+  --surface-elevated: 21 21 33;
+  --surface-card: 31 31 47;
+  --surface-muted: 44 44 66;
+  --outline-color: 76 76 114;
+  --text-primary: 229 229 229;
+  --text-secondary: 195 195 221;
+  --text-muted: 154 154 184;
+  --accent-primary: 124 58 237;
+  --accent-secondary: 0 191 166;
+  --accent-tertiary: 168 85 247;
+  --color-scheme: dark;
+}
+
+[data-theme="copper-balance"] {
+  --surface-base: 250 244 236;
+  --surface-elevated: 243 232 217;
+  --surface-card: 255 255 255;
+  --surface-muted: 232 216 195;
+  --outline-color: 200 168 136;
+  --text-primary: 45 45 45;
+  --text-secondary: 92 71 53;
+  --text-muted: 128 107 88;
+  --accent-primary: 184 115 51;
+  --accent-secondary: 78 59 44;
+  --accent-tertiary: 212 165 116;
+  --color-scheme: light;
+}
+
+[data-theme="regal-portfolio"] {
+  --surface-base: 253 249 243;
+  --surface-elevated: 242 232 214;
+  --surface-card: 255 255 255;
+  --surface-muted: 231 217 196;
+  --outline-color: 201 176 140;
+  --text-primary: 26 26 26;
+  --text-secondary: 63 51 105;
+  --text-muted: 110 97 141;
+  --accent-primary: 43 0 130;
+  --accent-secondary: 212 175 55;
+  --accent-tertiary: 132 94 194;
+  --color-scheme: light;
+}
+
+[data-theme="carbon-edge"] {
+  --surface-base: 10 10 10;
+  --surface-elevated: 20 20 20;
+  --surface-card: 30 30 30;
+  --surface-muted: 39 39 39;
+  --outline-color: 58 58 58;
+  --text-primary: 255 255 255;
+  --text-secondary: 200 255 230;
+  --text-muted: 142 217 179;
+  --accent-primary: 0 255 127;
+  --accent-secondary: 58 58 58;
+  --accent-tertiary: 25 255 20;
+  --color-scheme: dark;
+}
+
+html {
+  color-scheme: var(--color-scheme);
 }
 
 body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+  background-color: rgb(var(--surface-base) / 1);
+  color: rgb(var(--text-primary) / 1);
+  font-feature-settings: "lnum" 1, "tnum" 1;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 * {
-  @apply border-border;
-}
-
-:root.light body {
-  @apply bg-slate-50 text-slate-900;
+  border-color: rgb(var(--outline-color) / 0.2);
 }

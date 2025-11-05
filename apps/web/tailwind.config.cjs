@@ -1,5 +1,12 @@
 const { fontFamily } = require("tailwindcss/defaultTheme");
 
+const withOpacityValue = (variable) => ({ opacityValue }) => {
+  if (opacityValue !== undefined) {
+    return `rgb(var(${variable}) / ${opacityValue})`;
+  }
+  return `rgb(var(${variable}) / 1)`;
+};
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -22,6 +29,23 @@ module.exports = {
           700: "#0a4a96",
           800: "#06306a",
           900: "#031e48",
+        },
+        surface: {
+          base: withOpacityValue("--surface-base"),
+          elevated: withOpacityValue("--surface-elevated"),
+          card: withOpacityValue("--surface-card"),
+          muted: withOpacityValue("--surface-muted"),
+        },
+        outline: withOpacityValue("--outline-color"),
+        text: {
+          primary: withOpacityValue("--text-primary"),
+          secondary: withOpacityValue("--text-secondary"),
+          muted: withOpacityValue("--text-muted"),
+        },
+        accent: {
+          primary: withOpacityValue("--accent-primary"),
+          secondary: withOpacityValue("--accent-secondary"),
+          tertiary: withOpacityValue("--accent-tertiary"),
         },
       },
       fontFamily: {

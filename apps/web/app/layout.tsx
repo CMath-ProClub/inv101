@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "../lib/utils";
-import { ThemeToggle } from "../components/ui/theme-toggle";
+import { Header } from "../components/layout/header";
+import { MobileNav } from "../components/layout/mobile-nav";
+import { Sidebar } from "../components/layout/sidebar";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,31 +23,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-slate-950 text-slate-100",
+          "min-h-screen bg-surface-base text-text-primary antialiased",
           inter.className,
         )}
       >
         <Providers>
-          <div className="flex min-h-screen flex-col">
-            <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
-              <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold uppercase tracking-[0.4em] text-brand-300">
-                    Invest101
-                  </p>
-                  <h1 className="text-xl font-semibold text-white">
-                    Investor Intelligence Platform
-                  </h1>
-                </div>
-                <ThemeToggle />
+          <div className="relative min-h-screen bg-surface-base">
+            <Header />
+            <div className="flex min-h-screen pt-[var(--header-height)]">
+              <Sidebar />
+              <div className="flex min-h-[calc(100vh-var(--header-height))] flex-1 flex-col">
+                <main className="relative flex-1 px-4 pb-32 pt-8 sm:px-6 lg:px-10 xl:px-16">
+                  {children}
+                </main>
+                <footer className="border-t border-outline/30 bg-surface-elevated/80 py-6 text-center text-sm text-text-muted">
+                  &copy; {new Date().getFullYear()} Invest101. All rights reserved.
+                </footer>
               </div>
-            </header>
-            <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
-              {children}
-            </main>
-            <footer className="border-t border-white/10 bg-slate-950/80 py-6 text-center text-sm text-slate-400">
-              &copy; {new Date().getFullYear()} Invest101. All rights reserved.
-            </footer>
+            </div>
+            <MobileNav />
           </div>
         </Providers>
       </body>
