@@ -136,32 +136,54 @@
         </div>
       </section>
 
-      <section class="card">
+      <section class="card settings-card">
         <h3>Display</h3>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <div>
-            <strong>Dark Mode</strong>
-            <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">Switch to dark theme for better viewing at night</p>
+        <div class="settings-card__row settings-card__row--stack">
+          <div class="settings-card__text" id="themePickerLabel">
+            <strong>Theme</strong>
+            <p>Swap across the curated palettes to match your workspace vibe.</p>
           </div>
-          <label class="toggle">
-            <input type="checkbox" id="darkModeToggle">
-            <span class="toggle-slider"></span>
-          </label>
+          <div class="settings-theme-grid" role="radiogroup" aria-labelledby="themePickerLabel">
+            <label class="theme-option" data-theme="light">
+              <input type="radio" name="theme-option" value="light" data-theme-option="light">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Light</strong>
+                <span>Bright and neutral</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="dark">
+              <input type="radio" name="theme-option" value="dark" data-theme-option="dark">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Dark</strong>
+                <span>Low-light friendly</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="sepia">
+              <input type="radio" name="theme-option" value="sepia" data-theme-option="sepia">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Sepia</strong>
+                <span>Paper-inspired warmth</span>
+              </span>
+            </label>
+          </div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <div>
+        <div class="settings-card__row">
+          <div class="settings-card__text">
             <strong>Colorblind Mode</strong>
-            <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">Enable colorblind-friendly theme for improved accessibility</p>
+            <p>Boost contrast and clarity for common color vision types.</p>
           </div>
           <label class="toggle">
             <input type="checkbox" id="colorblindModeToggle">
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
+        <div class="settings-card__row">
+          <div class="settings-card__text">
             <strong>Compact View</strong>
-            <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">Show more content in less space</p>
+            <p>Show more information on screen at once.</p>
           </div>
           <label class="toggle">
             <input type="checkbox" id="compactModeToggle">
@@ -219,78 +241,7 @@
     </nav>
   </div>
 
-  <script>
-    // Dark mode functionality
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const colorblindModeToggle = document.getElementById('colorblindModeToggle');
-    
-    // Check for saved dark mode preference
-    const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark-mode');
-      document.body.classList.add('dark-mode');
-      darkModeToggle.checked = true;
-    }
-    
-    // Check for saved colorblind mode preference
-    const isColorblindMode = localStorage.getItem('colorblindMode') === 'true';
-    if (isColorblindMode) {
-      document.documentElement.classList.add('colorblind-mode');
-      document.body.classList.add('colorblind-mode');
-      colorblindModeToggle.checked = true;
-    }
-    
-    // Toggle dark mode
-    darkModeToggle.addEventListener('change', function() {
-      if (this.checked) {
-        document.documentElement.classList.add('dark-mode');
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('darkMode', 'true');
-      } else {
-        document.documentElement.classList.remove('dark-mode');
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('darkMode', 'false');
-      }
-    });
-
-    // Toggle colorblind mode
-    colorblindModeToggle.addEventListener('change', function() {
-      if (this.checked) {
-        document.documentElement.classList.add('colorblind-mode');
-        document.body.classList.add('colorblind-mode');
-        localStorage.setItem('colorblindMode', 'true');
-      } else {
-        document.documentElement.classList.remove('colorblind-mode');
-        document.body.classList.remove('colorblind-mode');
-        localStorage.setItem('colorblindMode', 'false');
-      }
-    });
-
-    // Compact mode functionality
-    const compactModeToggle = document.getElementById('compactModeToggle');
-    
-    // Check for saved compact mode preference
-    const isCompactMode = localStorage.getItem('compactMode') === 'true';
-    if (isCompactMode) {
-      document.documentElement.classList.add('compact-mode');
-      document.body.classList.add('compact-mode');
-      compactModeToggle.checked = true;
-    }
-    
-    // Toggle compact mode
-    compactModeToggle.addEventListener('change', function() {
-      if (this.checked) {
-        document.documentElement.classList.add('compact-mode');
-        document.body.classList.add('compact-mode');
-        localStorage.setItem('compactMode', 'true');
-      } else {
-        document.documentElement.classList.remove('compact-mode');
-        document.body.classList.remove('compact-mode');
-        localStorage.setItem('compactMode', 'false');
-      }
-    });
-  </script>
+  <script src="global-ui.js"></script>
 </body>
 </html>
-  <script src="global-ui.js"></script>
 

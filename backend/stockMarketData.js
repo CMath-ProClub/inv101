@@ -1,7 +1,10 @@
 const yahooFinance = require('yahoo-finance2').default;
+const StockQuote = require('./models/StockQuote');
+const { recordQuoteBatch } = require('./stockQuoteStore');
+const stockCache = require('./stockCache');
 
 // Top 1600 US stocks by market cap - includes S&P 500, Russell 2000, and major exchanges
-const STOCK_SYMBOLS = [
+const FALLBACK_STOCK_SYMBOLS = [
   // Mega Cap (Top 50)
   'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK.B', 'LLY', 'V',
   'UNH', 'XOM', 'WMT', 'JPM', 'JNJ', 'MA', 'PG', 'AVGO', 'HD', 'COST',
@@ -94,8 +97,12 @@ const STOCK_SYMBOLS = [
   'LCII', 'CBNK', 'FCF', 'SFNC', 'NYCB', 'SBCF', 'BFST', 'WAFD', 'FFIN', 'CVBF'
 ];
 
+const STOCK_SYMBOLS = Array.isArray(stockCache.ALL_TICKERS) && stockCache.ALL_TICKERS.length > 0
+  ? Array.from(new Set(stockCache.ALL_TICKERS))
+  : FALLBACK_STOCK_SYMBOLS;
+
 // Cache for stock data (expires every 5 minutes in production)
-let stockCache = {
+let stockDataCache = {
   data: {},
   lastUpdate: null,
   updateInterval: 5 * 60 * 1000 // 5 minutes
@@ -106,35 +113,63 @@ let stockCache = {
  * @param {Array} symbols - Array of stock symbols
  * @returns {Promise<Object>} Stock data by symbol
  */
-async function fetchStockQuotes(symbols) {
+async function fetchStockQuotes(symbols, options = {}) {
+  const {
+    maxAgeMinutes = parseInt(process.env.STOCK_INTRADAY_MAX_AGE_MINUTES || '10', 10),
+    useAtlasCache = true,
+    persistNewQuotes = true
+  } = options;
+
   try {
-    const quotes = await yahooFinance.quote(symbols);
+    const upperSymbols = symbols.map((symbol) => symbol.toUpperCase());
     const processedData = {};
-    
-    for (const symbol of symbols) {
-      const quote = quotes[symbol] || quotes;
-      if (quote && quote.regularMarketPrice) {
-        processedData[symbol] = {
-          symbol: symbol,
-          name: quote.shortName || quote.longName || symbol,
-          price: quote.regularMarketPrice,
-          change: quote.regularMarketChange || 0,
-          changePercent: quote.regularMarketChangePercent || 0,
-          volume: quote.regularMarketVolume || 0,
-          marketCap: quote.marketCap || 0,
-          dayHigh: quote.regularMarketDayHigh || quote.regularMarketPrice,
-          dayLow: quote.regularMarketDayLow || quote.regularMarketPrice,
-          open: quote.regularMarketOpen || quote.regularMarketPrice,
-          previousClose: quote.regularMarketPreviousClose || quote.regularMarketPrice,
-          fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh || quote.regularMarketPrice,
-          fiftyTwoWeekLow: quote.fiftyTwoWeekLow || quote.regularMarketPrice,
-          sector: quote.sector || 'N/A',
-          industry: quote.industry || 'N/A',
-          exchange: quote.fullExchangeName || quote.exchange || 'N/A'
-        };
+    const missingSymbols = new Set(upperSymbols);
+
+    if (useAtlasCache && upperSymbols.length > 0) {
+      const lookback = new Date(Date.now() - maxAgeMinutes * 60 * 1000);
+      const cachedDocs = await StockQuote.aggregate([
+        { $match: { symbol: { $in: upperSymbols }, fetchedAt: { $gte: lookback } } },
+        { $sort: { symbol: 1, bucket: -1 } },
+        { $group: { _id: '$symbol', doc: { $first: '$$ROOT' } } }
+      ]);
+
+      for (const entry of cachedDocs) {
+        const doc = entry.doc;
+        missingSymbols.delete(doc.symbol);
+        processedData[doc.symbol] = normalizeQuoteDocument(doc);
       }
     }
-    
+
+    if (missingSymbols.size > 0) {
+      const liveSymbols = Array.from(missingSymbols);
+      const quotes = await yahooFinance.quote(liveSymbols);
+      const batch = [];
+
+      for (const symbol of liveSymbols) {
+        const quote = Array.isArray(quotes) ? quotes.find(q => q.symbol === symbol) : quotes[symbol] || quotes;
+        if (quote && typeof quote.regularMarketPrice === 'number') {
+          const normalized = normalizeLiveQuote(symbol, quote);
+          processedData[symbol] = normalized;
+          batch.push(normalized);
+          missingSymbols.delete(symbol);
+        }
+      }
+
+      if (persistNewQuotes && batch.length > 0) {
+        await recordQuoteBatch(batch, { source: 'yahoo-finance-live' });
+      }
+    }
+
+    if (missingSymbols.size > 0 && typeof stockCache.getStock === 'function') {
+      for (const symbol of Array.from(missingSymbols)) {
+        const fallback = stockCache.getStock(symbol);
+        if (fallback && typeof fallback.price === 'number') {
+          processedData[symbol] = normalizeCacheStock(fallback);
+          missingSymbols.delete(symbol);
+        }
+      }
+    }
+
     return processedData;
   } catch (error) {
     console.error('Error fetching stock quotes:', error.message);
@@ -186,19 +221,19 @@ async function fetchAllStocks() {
  */
 async function getStockData(forceRefresh = false) {
   const now = Date.now();
-  const cacheValid = stockCache.lastUpdate && 
-                    (now - stockCache.lastUpdate) < stockCache.updateInterval;
+    const cacheValid = stockDataCache.lastUpdate && 
+                      (now - stockDataCache.lastUpdate) < stockDataCache.updateInterval;
   
-  if (!forceRefresh && cacheValid && Object.keys(stockCache.data).length > 0) {
-    console.log('📦 Returning cached stock data');
-    return stockCache.data;
+    if (!forceRefresh && cacheValid && Object.keys(stockDataCache.data).length > 0) {
+      console.log('📦 Returning cached stock data');
+      return stockDataCache.data;
   }
   
   console.log('🔄 Fetching fresh stock data...');
   const freshData = await fetchAllStocks();
   
-  stockCache.data = freshData;
-  stockCache.lastUpdate = now;
+    stockDataCache.data = freshData;
+    stockDataCache.lastUpdate = now;
   
   return freshData;
 }
@@ -258,11 +293,149 @@ function getStocksBySector(stockData, sector) {
   );
 }
 
+function buildSectorSummary(stockData) {
+  const sectors = new Map();
+
+  for (const stock of Object.values(stockData)) {
+    if (!stock || typeof stock !== 'object') continue;
+    const sectorName = (stock.sector && typeof stock.sector === 'string' && stock.sector.trim()) || 'Unclassified';
+    const existing = sectors.get(sectorName) || {
+      sector: sectorName,
+      count: 0,
+      advancers: 0,
+      decliners: 0,
+      unchanged: 0,
+      totalMarketCap: 0,
+      totalChangePercent: 0,
+      topGainer: null,
+      topLoser: null
+    };
+
+    existing.count += 1;
+
+    const changePercent = Number(stock.changePercent);
+    if (Number.isFinite(changePercent)) {
+      existing.totalChangePercent += changePercent;
+      if (changePercent > 0) existing.advancers += 1;
+      else if (changePercent < 0) existing.decliners += 1;
+      else existing.unchanged += 1;
+
+      if (!existing.topGainer || changePercent > existing.topGainer.changePercent) {
+        existing.topGainer = {
+          symbol: stock.symbol,
+          name: stock.name,
+          changePercent
+        };
+      }
+
+      if (!existing.topLoser || changePercent < existing.topLoser.changePercent) {
+        existing.topLoser = {
+          symbol: stock.symbol,
+          name: stock.name,
+          changePercent
+        };
+      }
+    } else {
+      existing.unchanged += 1;
+    }
+
+    const marketCap = Number(stock.marketCap);
+    if (Number.isFinite(marketCap) && marketCap > 0) {
+      existing.totalMarketCap += marketCap;
+    }
+
+    sectors.set(sectorName, existing);
+  }
+
+  return Array.from(sectors.values())
+    .map((entry) => ({
+      sector: entry.sector,
+      count: entry.count,
+      advancers: entry.advancers,
+      decliners: entry.decliners,
+      unchanged: entry.unchanged,
+      avgChangePercent: entry.count ? Number((entry.totalChangePercent / entry.count).toFixed(2)) : 0,
+      totalMarketCap: entry.totalMarketCap,
+      topGainer: entry.topGainer,
+      topLoser: entry.topLoser
+    }))
+    .sort((a, b) => Number(b.totalMarketCap || 0) - Number(a.totalMarketCap || 0));
+}
+
 module.exports = {
   STOCK_SYMBOLS,
   getStockData,
   searchStocks,
   getTopMovers,
   getStocksBySector,
-  fetchStockQuotes
+  fetchStockQuotes,
+  buildSectorSummary
 };
+
+function normalizeQuoteDocument(doc) {
+  return {
+    symbol: doc.symbol,
+    name: doc.raw?.longName || doc.raw?.shortName || doc.symbol,
+    price: doc.price,
+    change: doc.change,
+    changePercent: doc.changePercent,
+    volume: doc.volume,
+    marketCap: doc.marketCap,
+    dayHigh: doc.dayHigh || doc.raw?.regularMarketDayHigh || doc.price,
+    dayLow: doc.dayLow || doc.raw?.regularMarketDayLow || doc.price,
+    open: doc.open || doc.raw?.regularMarketOpen || doc.price,
+    previousClose: doc.previousClose || doc.raw?.regularMarketPreviousClose || doc.price,
+    fiftyTwoWeekHigh: doc.raw?.fiftyTwoWeekHigh,
+    fiftyTwoWeekLow: doc.raw?.fiftyTwoWeekLow,
+    sector: doc.raw?.sector || 'N/A',
+    industry: doc.raw?.industry || 'N/A',
+    exchange: doc.exchange || doc.raw?.fullExchangeName || 'N/A',
+    fetchedAt: doc.fetchedAt
+  };
+}
+
+function normalizeLiveQuote(symbol, quote) {
+  return {
+    symbol,
+    name: quote.shortName || quote.longName || symbol,
+    price: quote.regularMarketPrice,
+    change: quote.regularMarketChange || 0,
+    changePercent: quote.regularMarketChangePercent || 0,
+    volume: quote.regularMarketVolume || 0,
+    marketCap: quote.marketCap || 0,
+    dayHigh: quote.regularMarketDayHigh || quote.regularMarketPrice,
+    dayLow: quote.regularMarketDayLow || quote.regularMarketPrice,
+    open: quote.regularMarketOpen || quote.regularMarketPrice,
+    previousClose: quote.regularMarketPreviousClose || quote.regularMarketPrice,
+    fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh || quote.regularMarketPrice,
+    fiftyTwoWeekLow: quote.fiftyTwoWeekLow || quote.regularMarketPrice,
+    sector: quote.sector || 'N/A',
+    industry: quote.industry || 'N/A',
+    exchange: quote.fullExchangeName || quote.exchange || 'N/A',
+    fetchedAt: new Date(),
+    raw: quote
+  };
+}
+
+function normalizeCacheStock(stock) {
+  return {
+    symbol: stock.ticker || stock.symbol,
+    name: stock.name || stock.longName || stock.shortName || stock.ticker,
+    price: stock.price,
+    change: stock.change,
+    changePercent: stock.changePercent,
+    volume: stock.volume,
+    marketCap: stock.marketCap,
+    dayHigh: stock.dayHigh,
+    dayLow: stock.dayLow,
+    open: stock.open,
+    previousClose: stock.previousClose,
+    fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
+    fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
+    sector: stock.sector || 'N/A',
+    industry: stock.industry || 'N/A',
+    exchange: stock.exchange || 'N/A',
+    fetchedAt: stock.lastUpdated || new Date(),
+    raw: stock.raw || stock
+  };
+}

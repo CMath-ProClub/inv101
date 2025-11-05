@@ -1,3 +1,49 @@
+// Prime theme, colorblind, and compact classes as early as possible so pages load without a flash.
+(function seedInitialDisplayState(){
+  function withBody(apply){
+    if (document.body) {
+      apply(document.body);
+    } else {
+      document.addEventListener('DOMContentLoaded', function handle(){
+        document.removeEventListener('DOMContentLoaded', handle);
+        if (document.body) apply(document.body);
+      });
+    }
+  }
+
+  try {
+    const root = document.documentElement;
+    const localTheme = localStorage.getItem('inv101_theme');
+    const legacyDark = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+    const themeToApply = localTheme || legacyDark || 'light';
+    if (themeToApply === 'dark') {
+      root.classList.add('dark-mode');
+      withBody(body => body.classList.add('dark-mode'));
+    } else if (themeToApply === 'sepia') {
+      root.classList.add('theme-sepia');
+      withBody(body => body.classList.add('theme-sepia'));
+    }
+
+    const storedColorblind = localStorage.getItem('inv101_colorblind');
+    const legacyColorblind = localStorage.getItem('colorblindMode');
+    const enableColorblind = storedColorblind !== null ? storedColorblind === 'true' : legacyColorblind === 'true';
+    if (enableColorblind) {
+      root.classList.add('colorblind-mode');
+      withBody(body => body.classList.add('colorblind-mode'));
+    }
+
+    const storedCompact = localStorage.getItem('inv101_compact');
+    const legacyCompact = localStorage.getItem('compactMode');
+    const enableCompact = storedCompact !== null ? storedCompact === 'true' : legacyCompact === 'true';
+    if (enableCompact) {
+      root.classList.add('compact-mode');
+      withBody(body => body.classList.add('compact-mode'));
+    }
+  } catch (e) {
+    // ignore storage access failures
+  }
+})();
+
 // Small global UI helpers for the prototype: sidebar toggle + persistence + keyboard shortcut
 (function(){
   function ready(fn){
@@ -79,78 +125,168 @@
       return actions;
     }
 
+    const themeOptions = Array.from(document.querySelectorAll('[data-theme-option]'));
+    let themeButton = null;
+
+    function detectTheme(){
+      if (document.documentElement.classList.contains('dark-mode') || (document.body && document.body.classList.contains('dark-mode'))) return 'dark';
+      if (document.documentElement.classList.contains('theme-sepia') || (document.body && document.body.classList.contains('theme-sepia'))) return 'sepia';
+      return 'light';
+    }
+
+    function setThemeClasses(theme){
+      const root = document.documentElement;
+      const bodyEl = document.body;
+      const themeClasses = ['dark-mode', 'theme-sepia'];
+      themeClasses.forEach(cls => {
+        root.classList.remove(cls);
+        if (bodyEl) bodyEl.classList.remove(cls);
+      });
+      if (theme === 'dark') {
+        root.classList.add('dark-mode');
+        if (bodyEl) bodyEl.classList.add('dark-mode');
+      } else if (theme === 'sepia') {
+        root.classList.add('theme-sepia');
+        if (bodyEl) bodyEl.classList.add('theme-sepia');
+      }
+    }
+
+    function updateThemeButton(theme){
+      if (!themeButton) return;
+      const label = theme.charAt(0).toUpperCase() + theme.slice(1);
+      themeButton.setAttribute('aria-label', 'Cycle theme (current: ' + label + ')');
+      themeButton.title = 'Cycle theme (current: ' + label + ')';
+      themeButton.dataset.currentTheme = theme;
+    }
+
+    function syncThemeControls(theme){
+      if (!themeOptions.length) return;
+      themeOptions.forEach(input => {
+        const val = input.dataset.themeOption || input.value;
+        const isActive = val === theme;
+        if (input.type === 'radio') input.checked = isActive;
+        const wrapper = input.closest('.theme-option');
+        if (wrapper) wrapper.classList.toggle('theme-option--active', isActive);
+      });
+    }
+
+    async function selectTheme(theme, options = {}){
+      const resolved = theme === 'dark' || theme === 'sepia' ? theme : 'light';
+      setThemeClasses(resolved);
+      try {
+        localStorage.setItem('inv101_theme', resolved);
+        localStorage.setItem('darkMode', resolved === 'dark' ? 'true' : 'false');
+      } catch (e) {}
+      syncThemeControls(resolved);
+      updateThemeButton(resolved);
+      if (options.persist) {
+        const ok = await savePreference('theme', { theme: resolved });
+        showToast(ok ? 'Theme saved' : 'Theme stored locally');
+      }
+      return resolved;
+    }
+
     // Initialize theme from local storage or server and hook settings toggles (if present)
     async function initThemeFromPrefs(){
-      const localTheme = localStorage.getItem('inv101_theme');
-      if (localTheme) {
-        if (localTheme === 'dark') document.documentElement.classList.add('dark-mode');
-        else if (localTheme === 'sepia') document.documentElement.classList.add('theme-sepia');
-      } else {
+      const root = document.documentElement;
+      const bodyEl = document.body || root;
+      let themePref = null;
+      try {
+        themePref = localStorage.getItem('inv101_theme');
+      } catch (e) {}
+      if (!themePref) {
+        try {
+          const legacyDark = localStorage.getItem('darkMode');
+          if (legacyDark === 'true') themePref = 'dark';
+        } catch (e) {}
+      }
+      if (!themePref) {
         try {
           const serverTheme = await fetchPreference('theme');
           if (serverTheme) {
             const t = (typeof serverTheme === 'object' && serverTheme.theme) ? serverTheme.theme : serverTheme;
-            if (t === 'dark') document.documentElement.classList.add('dark-mode');
-            else if (t === 'sepia') document.documentElement.classList.add('theme-sepia');
-            if (t) localStorage.setItem('inv101_theme', t);
+            if (t) {
+              themePref = t;
+              try { localStorage.setItem('inv101_theme', t); } catch (e) {}
+            }
           }
         } catch (e) {}
       }
+      await selectTheme(themePref || 'light');
 
-      // If we're on the settings page, hook the toggles to control theme
+      let colorblindPref = null;
+      try {
+        const stored = localStorage.getItem('inv101_colorblind');
+        const legacy = localStorage.getItem('colorblindMode');
+        if (stored !== null) colorblindPref = stored === 'true';
+        else if (legacy !== null) colorblindPref = legacy === 'true';
+      } catch (e) {}
+      if (colorblindPref) {
+        root.classList.add('colorblind-mode');
+        if (bodyEl) bodyEl.classList.add('colorblind-mode');
+      }
+
+      let compactPref = null;
+      try {
+        const stored = localStorage.getItem('inv101_compact');
+        const legacy = localStorage.getItem('compactMode');
+        if (stored !== null) compactPref = stored === 'true';
+        else if (legacy !== null) compactPref = legacy === 'true';
+      } catch (e) {}
+      if (compactPref) {
+        root.classList.add('compact-mode');
+        if (bodyEl) bodyEl.classList.add('compact-mode');
+      }
+
+      // Hook settings controls when present
       const darkToggle = document.getElementById('darkModeToggle');
       const colorblindToggle = document.getElementById('colorblindModeToggle');
       const compactToggle = document.getElementById('compactModeToggle');
 
       if (darkToggle) {
-        // initialize checkbox state from active theme
-        darkToggle.checked = document.documentElement.classList.contains('dark-mode');
+        darkToggle.checked = detectTheme() === 'dark';
         darkToggle.addEventListener('change', async function(){
-          if (this.checked) {
-            document.documentElement.classList.add('dark-mode');
-            document.documentElement.classList.remove('theme-sepia');
-            localStorage.setItem('inv101_theme','dark');
-            await savePreference('theme', { theme: 'dark' });
-            showToast('Theme saved');
-          } else {
-            document.documentElement.classList.remove('dark-mode');
-            localStorage.setItem('inv101_theme','light');
-            await savePreference('theme', { theme: 'light' });
-            showToast('Theme saved');
-          }
+          await selectTheme(this.checked ? 'dark' : 'light', { persist: true });
         });
       }
 
+      if (themeOptions.length) {
+        themeOptions.forEach(input => {
+          input.addEventListener('change', async function(){
+            if (this.type === 'radio' && !this.checked) return;
+            const target = this.dataset.themeOption || this.value;
+            if (target === detectTheme()) return;
+            await selectTheme(target, { persist: true });
+          });
+        });
+        syncThemeControls(detectTheme());
+      }
+
       if (colorblindToggle) {
-        // colorblind toggles an extra class; we keep it separate from theme
-        colorblindToggle.checked = document.documentElement.classList.contains('colorblind-mode');
+        const isColorblind = root.classList.contains('colorblind-mode') || (bodyEl && bodyEl.classList.contains('colorblind-mode'));
+        colorblindToggle.checked = isColorblind;
         colorblindToggle.addEventListener('change', function(){
-          if (this.checked) {
-            document.documentElement.classList.add('colorblind-mode');
-            localStorage.setItem('inv101_colorblind','true');
-            showToast('Colorblind mode enabled');
-          } else {
-            document.documentElement.classList.remove('colorblind-mode');
-            localStorage.setItem('inv101_colorblind','false');
-            showToast('Colorblind mode disabled');
-          }
+          const enabled = !!this.checked;
+          [root, bodyEl].forEach(el => { if (el) el.classList.toggle('colorblind-mode', enabled); });
+          try {
+            localStorage.setItem('inv101_colorblind', enabled ? 'true' : 'false');
+            localStorage.setItem('colorblindMode', enabled ? 'true' : 'false');
+          } catch (e) {}
+          showToast(enabled ? 'Colorblind mode enabled' : 'Colorblind mode disabled');
         });
       }
 
       if (compactToggle) {
-        compactToggle.checked = document.documentElement.classList.contains('compact-mode');
+        compactToggle.checked = root.classList.contains('compact-mode');
         compactToggle.addEventListener('change', async function(){
-          if (this.checked) {
-            document.documentElement.classList.add('compact-mode');
-            localStorage.setItem('inv101_compact','true');
-            await savePreference('compact', { compact: true });
-            showToast('Compact mode enabled');
-          } else {
-            document.documentElement.classList.remove('compact-mode');
-            localStorage.setItem('inv101_compact','false');
-            await savePreference('compact', { compact: false });
-            showToast('Compact mode disabled');
-          }
+          const enabled = !!this.checked;
+          [root, bodyEl].forEach(el => { if (el) el.classList.toggle('compact-mode', enabled); });
+          try {
+            localStorage.setItem('inv101_compact', enabled ? 'true' : 'false');
+            localStorage.setItem('compactMode', enabled ? 'true' : 'false');
+          } catch (e) {}
+          const ok = await savePreference('compact', { compact: enabled });
+          showToast(ok ? (enabled ? 'Compact mode enabled' : 'Compact mode disabled') : 'Saved locally');
         });
       }
     }
@@ -234,6 +370,23 @@
     // --- Compact mode toggle ---
     const headerActions = ensureHeaderActions();
     if (headerActions) {
+      themeButton = headerActions.querySelector('.theme-toggle');
+      if (!themeButton) {
+        themeButton = document.createElement('button');
+        themeButton.type = 'button';
+        themeButton.className = 'theme-toggle icon-button';
+        themeButton.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="M4.93 4.93l1.41 1.41"></path><path d="M17.66 17.66l1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="M4.93 19.07l1.41-1.41"></path><path d="M17.66 6.34l1.41-1.41"></path></svg>';
+        headerActions.insertBefore(themeButton, headerActions.firstChild);
+      }
+
+      themeButton.addEventListener('click', async () => {
+        const order = ['light', 'dark', 'sepia'];
+        const current = detectTheme();
+        const next = order[(order.indexOf(current) + 1) % order.length];
+        await selectTheme(next, { persist: true });
+      });
+      updateThemeButton(detectTheme());
+
       let compactBtn = headerActions.querySelector('.compact-toggle');
       if (!compactBtn) {
         compactBtn = document.createElement('button');
@@ -242,11 +395,14 @@
         compactBtn.setAttribute('aria-label','Toggle compact mode');
         compactBtn.title = 'Toggle compact mode';
         compactBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="1"></rect><rect x="3" y="14" width="10" height="6" rx="1"></rect></svg>';
-        headerActions.insertBefore(compactBtn, headerActions.firstChild);
+        const anchor = themeButton ? themeButton.nextSibling : headerActions.firstChild;
+        headerActions.insertBefore(compactBtn, anchor);
       }
 
-      // initialize compact from localStorage or server
-      let compactLocal = localStorage.getItem('inv101_compact');
+      let compactLocal = null;
+      try {
+        compactLocal = localStorage.getItem('inv101_compact');
+      } catch (e) {}
       let compactState = compactLocal === 'true' ? true : (compactLocal === 'false' ? false : null);
       if (compactState === null) {
         const serverCompact = await fetchPreference('compact');
@@ -257,13 +413,20 @@
       }
       if (compactState === true) {
         document.documentElement.classList.add('compact-mode');
+        if (document.body) document.body.classList.add('compact-mode');
       }
 
       compactBtn.addEventListener('click', async () => {
-        const now = document.documentElement.classList.toggle('compact-mode');
-        localStorage.setItem('inv101_compact', now ? 'true' : 'false');
+        const now = !document.documentElement.classList.contains('compact-mode');
+        [document.documentElement, document.body].forEach(el => { if (el) el.classList.toggle('compact-mode', now); });
+        try {
+          localStorage.setItem('inv101_compact', now ? 'true' : 'false');
+          localStorage.setItem('compactMode', now ? 'true' : 'false');
+        } catch (e) {}
         const ok = await savePreference('compact', { compact: !!now });
         showToast(ok ? (now ? 'Compact mode enabled' : 'Compact mode disabled') : 'Saved locally');
+        const compactToggle = document.getElementById('compactModeToggle');
+        if (compactToggle) compactToggle.checked = now;
       });
     }
 
@@ -351,6 +514,44 @@
         document.body.appendChild(overlay);
         setInterval(update, 800);
       } catch (e) {}
+    })();
+
+    // Welcome banner persistence (rehydrates after one week)
+    (function initWelcomeBanner(){
+      const banner = document.getElementById('welcomeBanner');
+      if (!banner) return;
+      const storageKey = 'inv101_welcome_dismissed_at';
+      const reopenAfterMs = 7 * 24 * 60 * 60 * 1000;
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) {
+          const timestamp = Number(stored);
+          if (Number.isFinite(timestamp)) {
+            const elapsed = Date.now() - timestamp;
+            if (elapsed < reopenAfterMs) {
+              banner.classList.add('is-hidden');
+            } else {
+              localStorage.removeItem(storageKey);
+              banner.classList.remove('is-hidden');
+            }
+          }
+        } else {
+          banner.classList.remove('is-hidden');
+        }
+      } catch (e) {
+        banner.classList.remove('is-hidden');
+      }
+
+      const closeBtn = banner.querySelector('.welcome-banner__close');
+      if (!closeBtn) return;
+      closeBtn.addEventListener('click', function(){
+        banner.classList.add('is-hidden');
+        try {
+          localStorage.setItem(storageKey, String(Date.now()));
+        } catch (e) {
+          // ignore storage failures
+        }
+      });
     })();
   });
 })();

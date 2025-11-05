@@ -3,34 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Market Understanding Lesson</title>
+  <title>Market Mechanics Lesson</title>
   <link rel="stylesheet" href="styles.css">
   <script>
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark-mode-loading');
+    }
   </script>
+  <script src="device-detection.js"></script>
 </head>
 <body>
   <script src="global-ui.js"></script>
-  <div class="global-header">
-    <div class="brand">
-      <a href="index.html" class="site-logo">Investing101</a>
-    </div>
-    <div class="header-fill">
-      <div class="search">
-        <input type="search" placeholder="Search markets, tickers, articles..." aria-label="Search">
-      </div>
-    </div>
-    <div class="actions">
-      <a href="profile.html" class="link-button">Profile</a>
-      <div class="avatar" title="User">
-        <img src="assets/avatar.png" alt="User" onerror="this.style.display='none'">
-      </div>
-    </div>
-  </div>
-  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
-    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+    if (localStorage.getItem('compactMode') === 'true') {
+      document.body.classList.add('compact-mode');
+    }
+  </script>
   <div class="app">
-    <!-- Desktop Sidebar Navigation (visible on desktop only) -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
         <img src="assets/Investing101.png" alt="Investing 101">
@@ -82,47 +74,149 @@
         </a>
       </nav>
     </aside>
-      <header class="app__header">
-        <a class="link-button" href="lessons.html">Back to Lessons</a>
-        <span>Market</span>
-      </header>
-      <main class="app__content">
-      <div style="padding: 12px 0; border-bottom: 2px solid var(--border); margin-bottom: 16px;">
-        <h2 style="margin-bottom: 4px;">Market Understanding</h2>
-        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Macro trends, psychology, and advanced topics</p>
-      </div>
-
-      <section class="feature-links feature-links--rows">
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">📊</span>
-          Market Trends
-        </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">🐂</span>
-          Bulls & Bears
-        </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">🧠</span>
-          Behavioral Finance
-        </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">💰</span>
-          Tax Implications
-        </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">⚠️</span>
-          Catastrophic Events
-        </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">🏠</span>
-          Real Estate Investing
-        </a>
+    <header class="app__header">
+      <a class="link-button" href="lessons.html">Back to Lessons</a>
+      <span>Market Mechanics</span>
+    </header>
+    <main class="app__content lesson-detail">
+      <section class="lesson-detail__hero">
+        <span class="lesson-detail__tag">Market Pulse Track</span>
+        <h1>See the rhythms behind the tape.</h1>
+        <p>
+          Market Mechanics demystifies how prices move, who participates, and which signals deserve your attention. Learn to read the room so you can react with intention rather than noise.
+        </p>
+        <div class="lesson-detail__meta">
+          <div>
+            <strong>4 modules</strong>
+            <span>Approx. 60 minutes</span>
+          </div>
+          <div>
+            <strong>Daily briefing</strong>
+            <span>Morning market audio in your inbox</span>
+          </div>
+          <div>
+            <strong>Practice sims</strong>
+            <span>Live order ticket walkthroughs</span>
+          </div>
+        </div>
       </section>
 
-      </main>
-    </div>
-  </body>
-  </html>
+      <section class="lesson-detail__content">
+        <article class="lesson-module">
+          <header>
+            <span>Module 01</span>
+            <h2>Microstructure tour</h2>
+          </header>
+          <p>
+            Follow an order from your keyboard to the exchange. Explore market makers, dark pools, and auction opens with digestible visuals and a guided simulation.
+          </p>
+          <ul>
+            <li>Interactive order book with live replay controls.</li>
+            <li>Terminology flash pack to cement new concepts.</li>
+            <li>Progressive quiz that adapts to your answers.</li>
+          </ul>
+        </article>
+
+        <article class="lesson-module">
+          <header>
+            <span>Module 02</span>
+            <h2>Signals that matter</h2>
+          </header>
+          <p>
+            Cut through indicator overload with our tiered signal framework. Learn how macro calendars, sentiment gauges, and technical levels work together.
+          </p>
+          <ul>
+            <li>Signal dashboard with toggleable overlays.</li>
+            <li>Case study: interpreting a CPI surprise in real time.</li>
+            <li>Printable signal checklist for your playbook.</li>
+          </ul>
+        </article>
+
+        <article class="lesson-module">
+          <header>
+            <span>Module 03</span>
+            <h2>Behavior &amp; bias</h2>
+          </header>
+          <p>
+            Identify cognitive traps that influence both retail and institutional decisions. Use our reflection prompts to build a “pause before trade” ritual.
+          </p>
+          <ul>
+            <li>Emotion tracker template to log decisions.</li>
+            <li>Guided journaling exercise with nudges.</li>
+            <li>Community thread: how peers reset after losses.</li>
+          </ul>
+        </article>
+      </section>
+
+      <aside class="lesson-detail__sidebar">
+        <div class="lesson-sidecard">
+          <h3>Market toolbox</h3>
+          <ul>
+            <li>📰 Daily macro briefing</li>
+            <li>📅 Economic calendar (auto updates)</li>
+            <li>🎧 Weekly tape breakdown podcast</li>
+          </ul>
+        </div>
+        <div class="lesson-sidecard">
+          <h3>Recommended pairing</h3>
+          <p>Test your timing in the <a href="simulator.html">Simulator Experience</a> once you finish this track.</p>
+        </div>
+        <div class="lesson-sidecard lesson-sidecard--cta">
+          <h3>Stay in rhythm</h3>
+          <p>Enable push nudges whenever the VIX spikes or economic surprises exceed forecasts.</p>
+          <button type="button">Set alerts</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+  <nav class="tabbar" aria-label="Primary navigation">
+    <a class="tabbar__btn" href="index.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5L12 3l9 7.5" />
+        <path d="M5 10.5V21h14V10.5" />
+        <path d="M9 21v-6h6v6" />
+      </svg>
+      <span>Main</span>
+    </a>
+    <a class="tabbar__btn" href="simulator.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 3v3" />
+        <path d="M12 18v3" />
+        <path d="M3 12h3" />
+        <path d="M18 12h3" />
+      </svg>
+      <span>Sim/AI</span>
+    </a>
+    <a class="tabbar__btn tabbar__btn--active" href="lessons.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+        <path d="M4 12l8 3 8-3" />
+        <path d="M12 5v10" />
+      </svg>
+      <span>Lessons</span>
+    </a>
+    <a class="tabbar__btn" href="calculators.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h10" />
+        <path d="M7 16h3" />
+        <path d="M14 16h3" />
+      </svg>
+      <span>Calc</span>
+    </a>
+    <a class="tabbar__btn" href="profile.html">
+      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+      </svg>
+      <span>Profile</span>
+    </a>
+  </nav>
+</body>
+</html>
 
 
 

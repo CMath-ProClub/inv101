@@ -3,72 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Instruments & Accounts Lesson</title>
+  <title>Instruments &amp; Accounts Lesson</title>
   <link rel="stylesheet" href="styles.css">
   <script>
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.documentElement.classList.add('dark-mode-loading');
+    }
   </script>
   <script src="device-detection.js"></script>
 </head>
-  <script src="global-ui.js"></script>
 <body>
-  <div class="global-header">
-    <div class="brand">
-      <a href="index.html" class="site-logo">Investing101</a>
-    </div>
-    <div class="header-fill">
-      <div class="search">
-        <input type="search" placeholder="Search markets, tickers, articles..." aria-label="Search">
-      </div>
-    </div>
-    <div class="actions">
-      <a href="profile.html" class="link-button">Profile</a>
-      <div class="avatar" title="User">
-        <img src="assets/avatar.png" alt="User" onerror="this.style.display='none'">
-      </div>
-    </div>
-  </div>
-  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
-    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <script src="global-ui.js"></script>
+  <script>
+    if (localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+    if (localStorage.getItem('compactMode') === 'true') {
+      document.body.classList.add('compact-mode');
+    }
+  </script>
   <div class="app">
-    <!-- Desktop Sidebar Navigation (visible on desktop only) -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
         <img src="assets/Investing101.png" alt="Investing 101">
       </a>
-      <header class="app__header">
-        <a class="link-button" href="lessons.html"> Back to Lessons</a>
-        <span></span>
-        <span></span>
-      </header>
-    <main class="app__content">
-      <div style="padding: 12px 0; border-bottom: 2px solid var(--border); margin-bottom: 16px;">
-        <h2 style="margin-bottom: 4px;">Instruments & Accounts</h2>
-        <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Investment vehicles and account types</p>
-      </div>
-
-      <section class="feature-links feature-links--rows">
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">📊</span>
-          Stocks vs. Bonds
+      <nav class="sidebar__nav" aria-label="Main navigation">
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+          <span>Main</span>
         </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">📈</span>
-          Index Funds
+        <a href="simulator.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 3v3" />
+            <path d="M12 18v3" />
+            <path d="M3 12h3" />
+            <path d="M18 12h3" />
+          </svg>
+          <span>Simulator / AI</span>
         </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">🔄</span>
-          ETFs vs. Mutual Funds
+        <a href="lessons.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+            <path d="M4 12l8 3 8-3" />
+            <path d="M12 5v10" />
+          </svg>
+          <span>Lessons</span>
         </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">🏦</span>
-          Retirement Accounts
+        <a href="calculators.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 8h10" />
+            <path d="M7 12h10" />
+            <path d="M7 16h3" />
+            <path d="M14 16h3" />
+          </svg>
+          <span>Calculators</span>
         </a>
-        <a href="#" class="feature-link--row">
-          <span style="font-size: 1.5rem;">₿</span>
-          Cryptocurrency
+        <a href="profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <span>Profile</span>
         </a>
+      </nav>
+    </aside>
+    <header class="app__header">
+      <a class="link-button" href="lessons.html">Back to Lessons</a>
+      <span>Instruments &amp; Accounts</span>
+    </header>
+    <main class="app__content lesson-detail">
+      <section class="lesson-detail__hero">
+        <span class="lesson-detail__tag">Tools &amp; Access Track</span>
+        <h1>Learn the menu of vehicles before you order.</h1>
+        <p>
+          Decode the lineup of accounts and investment products so you can match vehicles to your timeline, taxes, and risk appetite. Each module pairs a guided tour with a choose-your-own adventure scenario.
+        </p>
+        <div class="lesson-detail__meta">
+          <div>
+            <strong>5 modules</strong>
+            <span>Approx. 75 minutes</span>
+          </div>
+          <div>
+            <strong>Toolkit downloads</strong>
+            <span>Account comparison &amp; fee translator</span>
+          </div>
+          <div>
+            <strong>Live office hours</strong>
+            <span>Thursdays 8 PM ET</span>
+          </div>
+        </div>
       </section>
+
+      <section class="lesson-detail__content">
+        <article class="lesson-module">
+          <header>
+            <span>Module 01</span>
+            <h2>Account architectures</h2>
+          </header>
+          <p>
+            Map out brokerage, retirement, and custodial account types side-by-side. See how contribution limits and withdrawal rules shape real planning milestones.
+          </p>
+          <ul>
+            <li>Interactive decision tree for choosing your next account.</li>
+            <li>Tax advantage cheat sheet with quick definitions.</li>
+            <li>Mini quiz to solidify vocabulary.</li>
+          </ul>
+        </article>
+
+        <article class="lesson-module">
+          <header>
+            <span>Module 02</span>
+            <h2>Stock &amp; fund matchup</h2>
+          </header>
+          <p>
+            Compare individual equities with index funds and thematic ETFs using our scoring matrix. Learn when concentration is powerful and when diversification wins.
+          </p>
+          <ul>
+            <li>Hands-on screening exercise using real tickers.</li>
+            <li>Case study walkthrough with analyst commentary.</li>
+            <li>Downloadable evaluation worksheet.</li>
+          </ul>
+        </article>
+
+        <article class="lesson-module">
+          <header>
+            <span>Module 03</span>
+            <h2>Beyond the basics</h2>
+          </header>
+          <p>
+            Navigate options, fixed income, and alternative instruments with clarity. We focus on practical use cases and guardrails rather than jargon.
+          </p>
+          <ul>
+            <li>Sensitivity explorer for yield curves and option Greeks.</li>
+            <li>Red flag checklist to spot inappropriate complexity.</li>
+            <li>Optional bonus lab on hedging scenarios.</li>
+          </ul>
+        </article>
+      </section>
+
+      <aside class="lesson-detail__sidebar">
+        <div class="lesson-sidecard">
+          <h3>Account quickstart</h3>
+          <ul>
+            <li>🗂️ Account comparison matrix (PDF)</li>
+            <li>💵 Fee decoder worksheet</li>
+            <li>✅ Pre-invest checklist</li>
+          </ul>
+        </div>
+        <div class="lesson-sidecard">
+          <h3>Pair with</h3>
+          <p>Try the <a href="calc-asset-allocation.html">Asset Allocation Lab</a> after this track to cement your knowledge.</p>
+        </div>
+        <div class="lesson-sidecard lesson-sidecard--cta">
+          <h3>Ask an expert</h3>
+          <p>Submit account questions for the next live office hours. We pick the top five each week.</p>
+          <button type="button">Share a question</button>
+        </div>
+      </aside>
     </main>
   </div>
   <nav class="tabbar" aria-label="Primary navigation">
@@ -91,7 +189,7 @@
       </svg>
       <span>Sim/AI</span>
     </a>
-    <a class="tabbar__btn" href="lessons.html">
+    <a class="tabbar__btn tabbar__btn--active" href="lessons.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
         <path d="M4 12l8 3 8-3" />

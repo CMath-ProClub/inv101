@@ -55,7 +55,8 @@ function authMiddleware(req, res, next) {
 }
 
 function assertJwtSecretValid(isProduction) {
-  if (isProduction && _enforceJwt && (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me')) {
+  const missingSecret = !process.env.JWT_SECRET || process.env.JWT_SECRET === 'dev-secret-change-me' || process.env.JWT_SECRET === 'your-secure-jwt-secret-here';
+  if (isProduction && missingSecret) {
     throw new Error('JWT_SECRET missing or using dev default in production');
   }
   return true;

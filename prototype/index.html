@@ -105,28 +105,48 @@
     <main class="app__content">
       <section id="home" class="screen screen--active" aria-label="Main dashboard">
         <!-- Welcome Message -->
-        <div style="background: linear-gradient(135deg, var(--accent) 0%, #0099cc 100%); padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);">
-          <h2 style="color: white; margin: 0 0 8px 0; font-size: 1.5rem;">Welcome to Investing101! 👋</h2>
-          <p style="color: rgba(255, 255, 255, 0.95); margin: 0; font-size: 0.95rem; line-height: 1.5;">
-            Your journey to financial literacy starts here. Explore market analysis, learn investing fundamentals, use powerful calculators, and test your skills.
-          </p>
+        <div id="welcomeBanner" class="welcome-banner" role="region" aria-label="Welcome to Investing101">
+          <div class="welcome-banner__text">
+            <h2>Welcome to Investing101 <span aria-hidden="true">👋</span></h2>
+            <p>
+              Your journey to confident investing starts here. Explore market analysis, learn fundamentals, test ideas, and see what the community is tracking.
+            </p>
+          </div>
+          <button type="button" class="welcome-banner__close" aria-label="Dismiss welcome message">
+            <span aria-hidden="true">×</span>
+          </button>
         </div>
 
-        <section class="feature-links" aria-label="Main feature links">
-          <a class="feature-link card" href="market-analyzer.html">
+        <section class="home-feature-grid" aria-label="Main feature links">
+          <a class="feature-card feature-card--market" href="market-analyzer.html">
+            <span class="feature-card__tag">Market</span>
             <h3>Market Analyzer</h3>
+            <p>Live market breadth, sector momentum, and macro status banners sized for your main cockpit.</p>
+            <span class="feature-card__cta">Launch analyzer →</span>
           </a>
-          <a class="feature-link card" href="stock-analysis.html">
-            <h3>Specific Stock Analysis</h3>
-          </a>
-          <a class="feature-link card" href="stock-recommendations.html">
+          <a class="feature-card feature-card--recommendations" href="stock-recommendations.html">
+            <span class="feature-card__tag">Signals</span>
             <h3>Stock Recommendations</h3>
+            <p>Daily AI screeners that spotlight opportunity zones and conviction scores across the Invest101 universe.</p>
+            <span class="feature-card__cta">View signals →</span>
           </a>
-          <a class="feature-link card" href="comparison.html">
-            <h3>Comparison to Indexes</h3>
+          <a class="feature-card feature-card--analysis" href="stock-analysis.html">
+            <span class="feature-card__tag">Deep Dive</span>
+            <h3>Specific Stock Analysis</h3>
+            <p>Go ticker-first with valuation breakdowns, fundamentals, and risk overlays tailored to your strategy.</p>
+            <span class="feature-card__cta">Analyze a ticker →</span>
           </a>
-          <a class="feature-link card" href="politician-portfolio.html">
+          <a class="feature-card feature-card--indexes" href="comparison.html">
+            <span class="feature-card__tag">Perspective</span>
+            <h3>Compare to Indexes</h3>
+            <p>Frame performance versus the S&amp;P, Nasdaq, and global benchmarks with adaptive chart layouts.</p>
+            <span class="feature-card__cta">Compare indexes →</span>
+          </a>
+          <a class="feature-card feature-card--politics" href="politician-portfolio.html">
+            <span class="feature-card__tag">Watchlist</span>
             <h3>Politician Portfolio</h3>
+            <p>Track headline moves from public disclosures without overwhelming the primary analysis surface.</p>
+            <span class="feature-card__cta">Open tracker →</span>
           </a>
         </section>
       </section>

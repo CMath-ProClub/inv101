@@ -2,18 +2,26 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/database');
 const articleCache = require('./articleCache');
 const yahooFinance = require('yahoo-finance2').default;
 const scheduler = require('./scheduler');
 const stockCache = require('./stockCache');
 const stockMarketData = require('./stockMarketData');
-const authRouter = require('./routes/auth');
+const {
+  getTickerUniverse,
+  buildStockInsight,
+  buildStockRecommendations
+} = require('./lib/stockInsights');
+const oauthRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
 const preferencesRouter = require('./routes/preferences');
 const metricsRouter = require('./routes/metrics');
 const session = require('express-session');
 const passport = require('passport');
+const apiAuthRouter = require('./routes/apiAuth');
+const portfolioRouter = require('./routes/portfolio');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -114,10 +122,20 @@ const apiLimiter = rateLimit({
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
 const staticDir = path.join(__dirname, '..', 'prototype');
+app.use(session({
+  secret: process.env.JWT_SECRET || 'keyboardcat',
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.static(staticDir));
-app.use('/auth', authRouter);
+app.use('/api/auth', apiAuthRouter);
+app.use('/api/portfolio', portfolioRouter);
+app.use('/auth', oauthRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/preferences', preferencesRouter);
 app.use('/api/metrics', metricsRouter);
@@ -194,6 +212,10 @@ app.get('/api/health', (req, res) => {
         'GET /api/stocks/search',
         'GET /api/stocks/sector/:sector',
         'GET /api/stocks/cache-stats',
+        'GET /api/stocks/all',
+        'GET /api/stocks/tickers',
+        'GET /api/stocks/analysis/:symbol',
+        'GET /api/stocks/recommendations',
         'POST /api/stocks/refresh-cache'
       ],
       articles: [
@@ -654,6 +676,95 @@ app.get('/api/stocks/all', async (req, res) => {
   }
 });
 
+app.get('/api/stocks/tickers', async (req, res) => {
+  try {
+    const tickers = await getTickerUniverse();
+    res.json({
+      success: true,
+      count: tickers.length,
+      tickers
+    });
+  } catch (error) {
+    console.error('Error fetching ticker universe:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Unable to load ticker universe'
+    });
+  }
+});
+
+app.get('/api/stocks/analysis/:symbol', async (req, res) => {
+  try {
+    const includeArticles = req.query.includeArticles !== 'false';
+    const lookbackOverride = req.query.articleLookbackDays ? parseInt(req.query.articleLookbackDays, 10) : undefined;
+    const articleLimitOverride = req.query.articleLimit ? parseInt(req.query.articleLimit, 10) : undefined;
+
+    const options = {
+      includeArticles
+    };
+
+    if (!Number.isNaN(lookbackOverride) && lookbackOverride > 0) {
+      options.articleLookbackDays = lookbackOverride;
+    }
+
+    if (!Number.isNaN(articleLimitOverride) && articleLimitOverride > 0) {
+      options.articleLimit = articleLimitOverride;
+    }
+
+    const insight = await buildStockInsight(req.params.symbol, options);
+
+    if (!insight.success) {
+      return res.status(404).json({
+        success: false,
+        error: insight.error || 'Ticker not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: insight
+    });
+  } catch (error) {
+    console.error('Error building stock analysis:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Unable to build stock analysis'
+    });
+  }
+});
+
+app.get('/api/stocks/recommendations', async (req, res) => {
+  try {
+    const limitOverride = req.query.limit ? parseInt(req.query.limit, 10) : undefined;
+    const lookbackOverride = req.query.lookbackDays ? parseInt(req.query.lookbackDays, 10) : undefined;
+
+    const recOptions = {};
+
+    if (!Number.isNaN(limitOverride) && limitOverride > 0) {
+      recOptions.limit = Math.min(limitOverride, 50);
+    }
+
+    if (!Number.isNaN(lookbackOverride) && lookbackOverride > 0) {
+      recOptions.lookbackDays = lookbackOverride;
+    }
+
+    const recommendations = await buildStockRecommendations(recOptions);
+
+    res.json({
+      success: true,
+      generatedAt: new Date().toISOString(),
+      count: recommendations.length,
+      recommendations
+    });
+  } catch (error) {
+    console.error('Error building stock recommendations:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Unable to build stock recommendations'
+    });
+  }
+});
+
 // Search stocks
 app.get('/api/stocks/search', async (req, res) => {
   try {
@@ -717,6 +828,26 @@ app.get('/api/stocks/sector/:sector', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+app.get('/api/stocks/sectors/summary', async (req, res) => {
+  try {
+    const stockData = await stockMarketData.getStockData();
+    const summary = stockMarketData.buildSectorSummary(stockData);
+
+    res.json({
+      success: true,
+      generatedAt: new Date().toISOString(),
+      count: summary.length,
+      sectors: summary
+    });
+  } catch (error) {
+    console.error('Error building sector summary:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Unable to build sector summary'
     });
   }
 });
@@ -798,12 +929,8 @@ async function startServer() {
   }
 }
 
-app.use(session({
-  secret: process.env.JWT_SECRET || 'keyboardcat',
-  resave: false,
-  saveUninitialized: false
-}));
-app.use(passport.initialize());
-app.use(passport.session());
+if (require.main === module) {
+  startServer();
+}
 
-startServer();
+module.exports = { app, startServer };

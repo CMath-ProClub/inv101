@@ -67,16 +67,93 @@
       </nav>
     </aside>
 
-    <main class="app__content">
-      <section class="feature-links--split">
-        <a href="simulation.html" class="feature-link--split">
-          <span style="font-size: 2.5rem;">🎯</span>
-          Market Simulation
+    <main class="app__content simulator-layout">
+      <section class="simulator-hero" aria-label="Simulator introduction">
+        <div class="simulator-hero__copy">
+          <span class="simulator-chip">Playground</span>
+          <h1>Test strategies without risking capital.</h1>
+          <p>
+            The Invest101 simulator lane is where big ideas get stress-tested. Run live market sessions, challenge the AI under pressure, and unlock badges that track your evolution from newcomer to disciplined operator.
+          </p>
+        </div>
+        <ul class="simulator-hero__stats" aria-label="Current simulator stats">
+          <li>
+            <strong>03</strong>
+            <span>active challenges</span>
+          </li>
+          <li>
+            <strong>24k</strong>
+            <span>trades rehearsed</span>
+          </li>
+          <li>
+            <strong>92%</strong>
+            <span>players report better confidence</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="simulator-panels" aria-label="Simulation modes">
+        <a href="simulation.html" class="simulator-panel simulator-panel--market">
+          <div class="simulator-panel__header">
+            <h2>Market Simulation</h2>
+            <span class="panel-tag">Practice mode</span>
+          </div>
+          <p>Replay real market rhythms with synthetic news drops, tightening spreads, and volatility events that accelerate learning.</p>
+          <ul>
+            <li>Dynamic watchlists and sector heatmaps to guide positioning.</li>
+            <li>Risk dashboards track drawdown, win rate, and conviction bias.</li>
+            <li>Weekly wraps summarize habits to keep or dial back.</li>
+          </ul>
+          <span class="simulator-panel__cta">Enter the arena →</span>
         </a>
-        <a href="play-ai.html" class="feature-link--split">
-          <span style="font-size: 2.5rem;">🤖</span>
-          Play the AI
+
+        <a href="play-ai.html" class="simulator-panel simulator-panel--ai">
+          <div class="simulator-panel__header">
+            <h2>Play the AI</h2>
+            <span class="panel-tag">Versus mode</span>
+          </div>
+          <p>Draft moves against our adaptive AI coach. It mirrors alternative data, sentiment shifts, and human psychology so you can sharpen discipline.</p>
+          <ul>
+            <li>Scenario builder mixes macro backdrops, asset classes, and constraints.</li>
+            <li>AI commentary surfaces blind spots in positioning and timing.</li>
+            <li>Earn flair cards for creative strategies that outpace the bot.</li>
+          </ul>
+          <span class="simulator-panel__cta">Challenge the AI →</span>
         </a>
+      </section>
+
+      <section class="simulator-extras" aria-label="Simulator extras">
+        <article class="simulator-card">
+          <h3>Daily challenge lineup</h3>
+          <ul>
+            <li><span>📈</span> Momentum Sprint — manage three momentum trades with capital at risk capped at 15%.</li>
+            <li><span>🛡️</span> Drawdown Guard — keep portfolio drawdown under 3% while news sentiment flips.</li>
+            <li><span>🧠</span> Mindset Reset — complete five trades using only fundamental catalysts.</li>
+          </ul>
+        </article>
+        <article class="simulator-card">
+          <h3>Badge tracker</h3>
+          <div class="simulator-badges">
+            <div class="badge-pill">
+              <span>Streak</span>
+              <strong>12 days</strong>
+            </div>
+            <div class="badge-pill">
+              <span>Risk score</span>
+              <strong>Low</strong>
+            </div>
+            <div class="badge-pill">
+              <span>Creativity</span>
+              <strong>Unlocked</strong>
+            </div>
+          </div>
+          <p>Badges sync to your profile so mentors and friends can see where you excel. Great for accountability pods and community leagues.</p>
+        </article>
+        <article class="simulator-card simulator-card--cta">
+          <h3>Invite a friend</h3>
+          <p>Pair up with teammates for cooperative missions. Share your link, run the same playbook, and compare scorecards side-by-side.</p>
+          <button type="button">Generate share link</button>
+        </article>
       </section>
     </main>
   </div>

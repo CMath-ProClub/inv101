@@ -255,6 +255,14 @@ class ArticleScheduler {
       const startedAt = Date.now();
       try {
         const result = await stockCache.refreshIntraday();
+        if (result.skipped) {
+          console.log('⏭️  Intraday refresh skipped: market closed');
+          await finalizeJobLog(logContext, 'skipped', {
+            durationMs: Date.now() - startedAt,
+            reason: result.reason
+          });
+          return;
+        }
         console.log('✅ Intraday refresh completed:', {
           success: result.successCount,
           failed: result.errorCount,

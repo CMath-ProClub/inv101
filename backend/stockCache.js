@@ -6,6 +6,14 @@
 
 const yahooFinance = require('yahoo-finance2').default;
 const { recordQuoteBatch, recordHistoricalQuotes } = require('./stockQuoteStore');
+const {
+  ALL_TICKERS,
+  INDEX_FUNDS,
+  SP500_TICKERS,
+  RUSSELL_1000_TICKERS,
+  RUSSELL_2000_TICKERS,
+  TICKER_GROUPS
+} = require('./data/tickerUniverse');
 
 // Suppress Yahoo Finance validation errors and notices
 const queryOptions = { validateResult: false };
@@ -31,6 +39,11 @@ function parseTickerList(value, fallback) {
     .filter(Boolean);
 }
 
+const MARKET_TIMEZONE = 'America/New_York';
+const MARKET_OPEN_MINUTES = 9 * 60 + 30; // 9:30 AM ET
+const MARKET_CLOSE_MINUTES = 16 * 60; // 4:00 PM ET
+const MARKET_WEEKEND = new Set(['Sat', 'Sun']);
+
 const DEFAULT_INTRADAY_TICKERS = parseTickerList(
   process.env.STOCK_INTRADAY_TICKERS,
   'SPY,QQQ,DIA,IWM,AAPL,MSFT,GOOGL,AMZN,NVDA,TSLA,META,AMD'
@@ -46,214 +59,7 @@ const HISTORICAL_INTERVAL = process.env.STOCK_HISTORICAL_INTERVAL || '1d';
 const HISTORICAL_BUCKET_MINUTES = parseInt(process.env.STOCK_HISTORICAL_BUCKET_MINUTES || '1440', 10);
 const HISTORICAL_BATCH_DELAY_MS = parseInt(process.env.STOCK_HISTORICAL_BATCH_DELAY_MS || '1000', 10);
 
-// Top 1500 stocks by market cap (S&P 500 + Russell 1000 + mid-caps)
-const TOP_1500_TICKERS = [
-  // S&P 500 - Top 500
-  'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'LLY', 'V', 'BRK-B',
-  'UNH', 'JPM', 'XOM', 'JNJ', 'WMT', 'MA', 'PG', 'AVGO', 'HD', 'ORCL',
-  'CVX', 'ABBV', 'MRK', 'KO', 'COST', 'PEP', 'BAC', 'ADBE', 'CRM', 'TMO',
-  'NFLX', 'MCD', 'ACN', 'CSCO', 'LIN', 'AMD', 'CMCSA', 'ABT', 'NKE', 'DHR',
-  'WFC', 'TXN', 'INTC', 'DIS', 'VZ', 'PM', 'NEE', 'INTU', 'UPS', 'RTX',
-  'QCOM', 'HON', 'IBM', 'T', 'SPGI', 'COP', 'AMGN', 'LOW', 'GE', 'CAT',
-  'UNP', 'SBUX', 'AXP', 'BLK', 'BA', 'DE', 'ELV', 'BKNG', 'LMT', 'MDT',
-  'GS', 'AMAT', 'PLD', 'ADI', 'GILD', 'MMC', 'SYK', 'VRTX', 'TJX', 'ADP',
-  'MDLZ', 'CVS', 'ISRG', 'C', 'CI', 'BDX', 'PGR', 'REGN', 'SO', 'CB',
-  'ZTS', 'MO', 'MMM', 'DUK', 'EOG', 'BSX', 'SCHW', 'TGT', 'ETN', 'LRCX',
-  'MS', 'USB', 'PNC', 'FI', 'MU', 'NSC', 'ITW', 'CL', 'AON', 'HCA',
-  'BMY', 'SLB', 'ICE', 'GM', 'APD', 'SHW', 'PYPL', 'MCO', 'NOC', 'EQIX',
-  'WM', 'ECL', 'MAR', 'GD', 'CME', 'EMR', 'PH', 'PSA', 'KLAC', 'CSX',
-  'TT', 'TFC', 'AJG', 'APH', 'SNPS', 'MSI', 'NXPI', 'HUM', 'CDNS', 'AIG',
-  'AFL', 'MCK', 'ORLY', 'ADSK', 'ROP', 'CCI', 'PCAR', 'SPG', 'WELL', 'MET',
-  'D', 'SRE', 'KMB', 'EW', 'AZO', 'TRV', 'FTNT', 'CARR', 'O', 'CMG',
-  'MSCI', 'PSX', 'PAYX', 'HLT', 'AMP', 'ALL', 'JCI', 'GIS', 'TEL', 'KMI',
-  'DXCM', 'ROST', 'PRU', 'DLR', 'F', 'NEM', 'MCHP', 'MNST', 'AEP', 'HSY',
-  'KHC', 'SYY', 'FDX', 'OKE', 'YUM', 'PCG', 'RSG', 'CTVA', 'AMT', 'CHTR',
-  'IDXX', 'KR', 'IQV', 'BK', 'EA', 'FAST', 'EXC', 'BIIB', 'DHI', 'CTAS',
-  'A', 'OTIS', 'GPN', 'CPRT', 'VLO', 'DD', 'VRSK', 'TROW', 'XEL', 'GLW',
-  'FANG', 'WMB', 'PPG', 'ACGL', 'URI', 'ROK', 'HPQ', 'IR', 'ANSS', 'DOV',
-  'STZ', 'EXR', 'VICI', 'EIX', 'WAB', 'ED', 'LYB', 'VMC', 'MTB', 'ALGN',
-  'AWK', 'FITB', 'TSN', 'WY', 'MLM', 'KEYS', 'CHD', 'RMD', 'DVN', 'CBRE',
-  'MTD', 'DFS', 'ETR', 'HBAN', 'APTV', 'EBAY', 'IT', 'SBAC', 'FTV', 'NDAQ',
-  'PPL', 'IFF', 'MPWR', 'WST', 'EFX', 'ADM', 'HAL', 'LH', 'LVS', 'DTE',
-  'CLX', 'STT', 'WEC', 'HUBB', 'FE', 'ZBH', 'CBOE', 'AVB', 'CAH', 'TDY',
-  'PEG', 'AEE', 'LDOS', 'BR', 'BAX', 'EQR', 'TER', 'TSCO', 'CDW', 'STE',
-  'INVH', 'VTR', 'DPZ', 'CNP', 'TTWO', 'PWR', 'CMS', 'DAL', 'CINF', 'TYL',
-  'HOLX', 'MOH', 'ARE', 'DLTR', 'ZBRA', 'HPE', 'COF', 'ULTA', 'NVR', 'MKC',
-  'GWW', 'BLDR', 'FRC', 'WBD', 'UAL', 'SWKS', 'EXPD', 'CAG', 'WBA', 'MAA',
-  'EXPE', 'NTRS', 'DRI', 'LUV', 'POOL', 'DOW', 'SYF', 'SWK', 'BALL', 'K',
-  'OMC', 'BBY', 'JBHT', 'IP', 'RF', 'LKQ', 'AMCR', 'JKHY', 'CFG', 'IEX',
-  'TRMB', 'KIM', 'DGX', 'PKI', 'ALB', 'LNT', 'UDR', 'KEY', 'PEAK', 'AKAM',
-  'EVRG', 'ESS', 'VTRS', 'RJF', 'CPT', 'BXP', 'CDAY', 'J', 'PAYC', 'ATO',
-  'CE', 'WAT', 'CRL', 'TECH', 'BRO', 'EMN', 'CHRW', 'TXT', 'HIG', 'BF-B',
-  'LYV', 'MKTX', 'AAL', 'REG', 'MAS', 'INCY', 'HWM', 'PFG', 'NI', 'HRL',
-  'NDSN', 'AIZ', 'IPG', 'PNW', 'CMA', 'MTCH', 'AOS', 'BBWI', 'FFIV', 'GL',
-  'SNA', 'HST', 'GNRC', 'CCL', 'TPR', 'HSIC', 'IVZ', 'TAP', 'ALLE', 'LW',
-  'FMC', 'PNR', 'WHR', 'NCLH', 'SEE', 'UHS', 'ZION', 'NRG', 'BEN', 'JNPR',
-  'REV', 'BWA', 'AAP', 'CPB', 'ALK', 'NLSN', 'DVA', 'RL', 'VNO', 'WYNN',
-  'AIV', 'HII', 'MHK', 'PARA', 'MGM', 'HAS', 'IRM', 'FRT', 'NWL', 'OGN',
-  'DISCA', 'UAA', 'UA', 'APA', 'KMX', 'LEG', 'NWSA', 'NWS', 'FOX', 'FOXA',
-  'DISH', 'MOS', 'SLG', 'VFC', 'XRAY', 'NOV', 'DXC', 'PENN', 'LNC', 'RHI',
-  
-  // Russell 1000 extension - 501-1000
-  'PANW', 'NOW', 'TEAM', 'WDAY', 'VEEV', 'HUBS', 'ZM', 'BILL', 'DOCU', 'CRWD',
-  'NET', 'DDOG', 'SNOW', 'PLTR', 'RBLX', 'U', 'DASH', 'COIN', 'HOOD', 'SOFI',
-  'UPST', 'AFRM', 'ZS', 'MDB', 'OKTA', 'TWLO', 'DKNG', 'FSLR', 'ENPH', 'SEDG',
-  'RUN', 'PINS', 'SNAP', 'LYFT', 'UBER', 'ROKU', 'SPOT', 'ZI', 'PATH', 'S',
-  'RIVN', 'LCID', 'ABNB', 'SQ', 'SHOP', 'ETSY', 'XYL', 'JAZZ', 'NBIX', 'ALKS',
-  'EXEL', 'UTHR', 'RARE', 'BMRN', 'FOLD', 'SRPT', 'IONS', 'ARWR', 'RGNX', 'ALNY',
-  'BLUE', 'CRSP', 'NTLA', 'EDIT', 'BEAM', 'VCYT', 'PACB', 'ILMN', 'QGEN', 'BIO',
-  'HOLX', 'WAT', 'TFX', 'PODD', 'TNDM', 'NVST', 'OMCL', 'GMED', 'LMAT', 'ATRC',
-  'ATEC', 'NARI', 'IRTC', 'OFIX', 'UFPT', 'STRL', 'ITRI', 'AXON', 'GWRE', 'APPF',
-  'SMAR', 'PD', 'NCNO', 'CWAN', 'COUP', 'NEWR', 'DOMO', 'EVBG', 'INST', 'ESTC',
-  'AI', 'FROG', 'BIGC', 'BLKB', 'QLYS', 'TENB', 'RPD', 'VRNS', 'RAMP', 'DOCN',
-  'FSLY', 'CFLT', 'GTLB', 'DBX', 'BOX', 'RNG', 'PCOR', 'SLAB', 'MRVL', 'QRVO',
-  'CRUS', 'LITE', 'AMBA', 'POWI', 'AOSL', 'OLED', 'KLIC', 'LSCC', 'MTSI', 'SITM',
-  'FORM', 'COHU', 'ACLS', 'UCTT', 'AEIS', 'UEIC', 'BRKS', 'PLXS', 'PLAB', 'RMBS',
-  'MKSI', 'ENTG', 'ICHR', 'ONTO', 'ACMR', 'CAMT', 'OUST', 'INVZ', 'LAZR', 'LIDR',
-  'VLDR', 'MVIS', 'KOPN', 'VUZX', 'EMAN', 'WKHS', 'FSR', 'GOEV', 'ARVL', 'RIDE',
-  'BLNK', 'CHPT', 'EVGO', 'WBX', 'STEM', 'BE', 'PLUG', 'FCEL', 'BLDP', 'NEL',
-  'HYLN', 'NKLA', 'GP', 'TM', 'HMC', 'NSANY', 'BMWYY', 'VLKAF', 'DDAIF', 'FUJHY',
-  'HYMTF', 'POAHY', 'RACE', 'GELYF', 'LI', 'NIO', 'XPEV', 'BYDDY', 'KNDI', 'SOLO',
-  'AYRO', 'GEV', 'MULN', 'ELMS', 'XOS', 'PSNY', 'NU', 'PAGS', 'STNE', 'LC',
-  'OPFI', 'TPGY', 'PL', 'EEFT', 'FIS', 'FISV', 'ACI', 'AUB', 'BANR', 'BBSI',
-  'BCBP', 'BFC', 'BFST', 'BHLB', 'BKU', 'BMRC', 'BOH', 'BOKF', 'BPOP', 'BPRN',
-  'BRKL', 'BSRR', 'BSVN', 'BWB', 'BY', 'CADE', 'CASH', 'CASS', 'CATY', 'CBSH',
-  'CFFN', 'CFR', 'CHCO', 'CIT', 'CNOB', 'COLB', 'COWN', 'CSTR', 'CTBI', 'CVBF',
-  'CWBC', 'DCOM', 'EBSB', 'EGBN', 'ESXB', 'EWBC', 'FBNC', 'FBIZ', 'FCBC', 'FCCO',
-  'FCNCA', 'FIBK', 'FNB', 'FRAF', 'FRBK', 'FRME', 'FULT', 'FUNC', 'GABC', 'GBCI',
-  'GLBZ', 'GSHD', 'HAFC', 'HBT', 'HFWA', 'HMST', 'HOMB', 'HOPE', 'HTBI', 'HTBK',
-  'HTLF', 'HWBK', 'IBCP', 'IBOC', 'IBTX', 'INDB', 'ISTR', 'LARK', 'LKFN', 'MBFI',
-  'MBWM', 'MCB', 'MCBC', 'MFNC', 'MSBF', 'MSBI', 'MYFW', 'NBTB', 'NBN', 'NFBK',
-  'NRIM', 'NWBI', 'NYCB', 'OBK', 'OCFC', 'ONB', 'OPBK', 'OPHC', 'ORRF', 'OSBC',
-  'OVLY', 'OZRK', 'PBCT', 'PBHC', 'PBIP', 'PEBO', 'PFS', 'PNFP', 'PPBI', 'PRK',
-  'PROV', 'PVBC', 'QCRH', 'RBNC', 'RNST', 'SASR', 'SBCF', 'SBNY', 'SBSI', 'SEBC',
-  'SI', 'SIVB', 'SMBC', 'SMBK', 'SRCE', 'SSB', 'SSNC', 'STBA', 'STL', 'SYBT',
-  'SYPR', 'TCBI', 'TCBK', 'THFF', 'TRCB', 'TRMK', 'TRST', 'TSBK', 'UBCP', 'UBSI',
-  'UCBA', 'UCBI', 'UFCS', 'UFPI', 'UMBF', 'UNB', 'UNTY', 'UVSP', 'VBTX', 'VLY',
-  'WABC', 'WAFD', 'WAL', 'WASH', 'WBK', 'WBST', 'WBS', 'WTFC', 'WVFC', 'AAN',
-  'AAON', 'AAWW', 'ABCB', 'ABCM', 'ABG', 'ABM', 'ABR', 'ACIW', 'ACM', 'ACRE',
-  'ADNT', 'AEL', 'AEO', 'AFG', 'AFIN', 'AG', 'AGCO', 'AGM', 'AGO', 'AGR',
-  'AGNC', 'AGS', 'AIOT', 'AIR', 'AIT', 'AJRD', 'AKR', 'AL', 'ALE', 'ALEX',
-  'ALG', 'ALGM', 'ALSN', 'ALT', 'ALTG', 'ALTO', 'ALX', 'AM', 'AMAL', 'AMBC',
-  'AMC', 'AMCX', 'AME', 'AMED', 'AMG', 'AMH', 'AMK', 'AMKR', 'AMN', 'AMNB',
-  'AMPH', 'AMRC', 'AMRK', 'AMRN', 'AMRS', 'AMRX', 'AMTB', 'AMTD', 'AMTI', 'AMTX',
-  'AMWD', 'AMWL', 'AN', 'ANAT', 'ANCN', 'ANDE', 'ANEB', 'ANF', 'ANGI', 'ANGO',
-  'ANIK', 'ANIP', 'ANIX', 'ANTE', 'APAM', 'APEI', 'APG', 'APLE', 'APLS', 'APLT',
-  'APO', 'APOG', 'APP', 'APPN', 'APPS', 'APRE', 'APT', 'APTM', 'APTO', 'APVO',
-  'APWC', 'APYX', 'AQB', 'AQMS', 'AQN', 'AQST', 'AQUA', 'AR', 'ARAY', 'ARC',
-  
-  // Russell 2000 mid-caps - 1001-1500
-  'ARCB', 'ARCH', 'ARCO', 'ARCT', 'ARD', 'ARDC', 'ARDS', 'AREC', 'ARES', 'ARGX',
-  'ARI', 'ARKR', 'ARL', 'ARLP', 'ARMN', 'AROC', 'AROW', 'ARR', 'ARRY', 'ARTL',
-  'ARTNA', 'ARTW', 'ARVN', 'ARW', 'ASB', 'ASC', 'ASGI', 'ASGN', 'ASH', 'ASIX',
-  'ASLE', 'ASM', 'ASMB', 'ASND', 'ASPS', 'ASPN', 'ASPU', 'ASR', 'ASRT', 'ASRV',
-  'ASTC', 'ASTE', 'ASTS', 'ASUR', 'ASX', 'ASXC', 'ATAI', 'ATAX', 'ATCX', 'ATEK',
-  'ATEN', 'ATER', 'ATEX', 'ATHA', 'ATHE', 'ATHM', 'ATHX', 'ATI', 'ATIF', 'ATIP',
-  'ATKR', 'ATLC', 'ATLO', 'ATMP', 'ATMU', 'ATNF', 'ATNI', 'ATNM', 'ATNX', 'ATOM',
-  'ATOS', 'ATR', 'ATRA', 'ATRI', 'ATRO', 'ATRS', 'ATSG', 'ATTO', 'ATUS', 'ATV',
-  'ATVI', 'ATXI', 'ATXS', 'ATY', 'AU', 'AUBN', 'AUDC', 'AUG', 'AUID', 'AULT',
-  'AUPH', 'AUR', 'AURA', 'AURC', 'AUSF', 'AUTL', 'AUTO', 'AUUD', 'AUVI', 'AVA',
-  'AVAC', 'AVAH', 'AVAL', 'AVAN', 'AVAV', 'AVCO', 'AVCT', 'AVD', 'AVDL', 'AVDX',
-  'AVEO', 'AVGR', 'AVID', 'AVIR', 'AVK', 'AVLR', 'AVNS', 'AVNT', 'AVNW', 'AVO',
-  'AVPT', 'AVRO', 'AVT', 'AVTE', 'AVTR', 'AVXL', 'AVY', 'AVYA', 'AWH', 'AWI',
-  'AWR', 'AWRE', 'AWX', 'AX', 'AXDX', 'AXE', 'AXGN', 'AXL', 'AXLA', 'AXNX',
-  'AXR', 'AXS', 'AXSM', 'AXTA', 'AXTI', 'AY', 'AYI', 'AYTU', 'AYX', 'AZN',
-  'AZPN', 'AZRE', 'AZRX', 'AZZ', 'B', 'BABA', 'BACK', 'BAER', 'BAFN', 'BAH',
-  'BAK', 'BALY', 'BAM', 'BANC', 'BAND', 'BANF', 'BANX', 'BAOS', 'BAP', 'BARK',
-  'BASE', 'BATL', 'BATRA', 'BATRK', 'BB', 'BBAI', 'BBAR', 'BBBY', 'BBCP', 'BBD',
-  'BBDC', 'BBDO', 'BBGI', 'BBI', 'BBIO', 'BBL', 'BBLG', 'BBLN', 'BBN', 'BBQ',
-  'BBU', 'BBUC', 'BBVA', 'BBW', 'BC', 'BCAB', 'BCAL', 'BCAN', 'BCAT', 'BCC',
-  'BCDA', 'BCE', 'BCEL', 'BCH', 'BCLI', 'BCML', 'BCO', 'BCOR', 'BCOV', 'BCOW',
-  'BCPC', 'BCRX', 'BCS', 'BCSA', 'BCSF', 'BCTX', 'BCV', 'BCX', 'BCYC', 'BDC',
-  'BDGE', 'BDJ', 'BDL', 'BDN', 'BDSX', 'BDTX', 'BDXB', 'BEAT', 'BECN', 'BEDU',
-  'BEEM', 'BEEP', 'BEKE', 'BELFA', 'BELFB', 'BENF', 'BEP', 'BEPC', 'BERY', 'BEST',
-  'BETZ', 'BF-A', 'BFAC', 'BFAM', 'BFEB', 'BFH', 'BFI', 'BFIN', 'BFIT', 'BFLY',
-  'BFRA', 'BFRI', 'BFS', 'BGB', 'BGCP', 'BGFV', 'BGG', 'BGH', 'BGI', 'BGLC',
-  'BGNE', 'BGR', 'BGRY', 'BGS', 'BGSF', 'BGT', 'BGX', 'BGXX', 'BGY', 'BH',
-  'BHAC', 'BHAT', 'BHB', 'BHC', 'BHE', 'BHF', 'BHFAL', 'BHFAP', 'BHG', 'BHIL',
-  'BHK', 'BHM', 'BHP', 'BHRB', 'BHV', 'BHVN', 'BIAF', 'BIDU', 'BIG', 'BIGZ',
-  'BILI', 'BIMI', 'BIOC', 'BIOL', 'BIOR', 'BIOS', 'BIOX', 'BIPC', 'BIRD', 'BIRK',
-  'BIT', 'BITF', 'BIVI', 'BJ', 'BJDX', 'BJRI', 'BKCC', 'BKD', 'BKE', 'BKEP',
-  'BKEPP', 'BKH', 'BKI', 'BKKT', 'BKSC', 'BKSY', 'BKT', 'BKTI', 'BKYI', 'BL',
-  'BLAC', 'BLBD', 'BLBX', 'BLCM', 'BLCO', 'BLD', 'BLDE', 'BLEU', 'BLFS', 'BLFY',
-  'BLGG', 'BLGO', 'BLI', 'BLIN', 'BLMN', 'BLNG', 'BLPH', 'BLRX', 'BLSA', 'BLTE',
-  'BLTS', 'BLU', 'BLW', 'BLX', 'BLZE', 'BMA', 'BMBL', 'BME', 'BMEA', 'BMEZ',
-  'BMI', 'BMO', 'BMR', 'BMRA', 'BMTX', 'BMYMP', 'BNAI', 'BNED', 'BNGO', 'BNIX',
-  'BNRE', 'BNSO', 'BNTC', 'BNTX', 'BOCN', 'BODY', 'BODI', 'BOLT', 'BOOM', 'BOOT',
-  'BORR', 'BOSC', 'BOTJ', 'BOWX', 'BPMC', 'BPRN', 'BPTH', 'BPTS', 'BPYPM', 'BPYPN',
-  'BPYPO', 'BPYPP', 'BRAC', 'BRBR', 'BRFS', 'BRID', 'BRKH', 'BRKR', 'BRLI', 'BRMK',
-  'BRN', 'BRNS', 'BROG', 'BRON', 'BRTX', 'BRX', 'BRY', 'BRZE', 'BSAC', 'BSAQ',
-  'BSBK', 'BSBR', 'BSCK', 'BSET', 'BSGM', 'BSIG', 'BSL', 'BSM', 'BSMX', 'BSPE',
-  'BSY', 'BTAI', 'BTAQ', 'BTBT', 'BTCM', 'BTCS', 'BTCT', 'BTCY', 'BTE', 'BTEC',
-  'BTMD', 'BTO', 'BTOG', 'BTRS', 'BTSG', 'BTTX', 'BTU', 'BTWN', 'BUSE', 'BV',
-  'BVH', 'BVN', 'BVS', 'BWAC', 'BWAY', 'BWEN', 'BWFG', 'BWIN', 'BWLP', 'BWMX',
-  'BWXT', 'BXC', 'BXMT', 'BXMX', 'BXRX', 'BXS', 'BYFC', 'BYND', 'BYNO', 'BYSI',
-  'BYU', 'BZ', 'BZFD', 'BZH', 'BZUN', 'CAAP', 'CAAS', 'CABA', 'CABO', 'CAC',
-  'CACC', 'CACI', 'CACO', 'CADL', 'CAKE', 'CAL', 'CALA', 'CALB', 'CALC', 'CALM',
-  'CALT', 'CALX', 'CAMP', 'CAN', 'CANC', 'CANG', 'CAPL', 'CAPR', 'CARA', 'CARE',
-  'CARR', 'CARS', 'CARV', 'CASY', 'CATC', 'CATO', 'CATX', 'CATY', 'CAVA', 'CAVL',
-  'CBAN', 'CBAY', 'CBFV', 'CBIO', 'CBNK', 'CBRL', 'CBSH', 'CBST', 'CBTX', 'CCAP',
-  'CCBG', 'CCCC', 'CCCS', 'CCEL', 'CCEP', 'CCLP', 'CCMP', 'CCNE', 'CCOI', 'CCOR',
-  'CCRD', 'CCSI', 'CCTS', 'CCU', 'CCXI', 'CDC', 'CDLX', 'CDMO', 'CDNA', 'CDNS',
-  'CDRE', 'CDTX', 'CDXC', 'CDXS', 'CDZI', 'CECO', 'CEG', 'CEIX', 'CELC', 'CELH',
-  'CELU', 'CELZ', 'CENT', 'CENTA', 'CENX', 'CEPU', 'CERE', 'CERN', 'CERT', 'CERS',
-  'CETX', 'CETY', 'CEVA', 'CFFN', 'CFFS', 'CFLT', 'CFR', 'CFSB', 'CG', 'CGA',
-  'CGAU', 'CGBD', 'CGBS', 'CGC', 'CGEM', 'CGEN', 'CGNT', 'CGNX', 'CGRO', 'CGTX',
-  'CHCI', 'CHCT', 'CHD', 'CHDN', 'CHE', 'CHEF', 'CHEK', 'CHGG', 'CHH', 'CHK',
-  'CHKP', 'CHMI', 'CHMG', 'CHNG', 'CHNR', 'CHPT', 'CHR', 'CHRD', 'CHRS', 'CHRW',
-  'CHS', 'CHSN', 'CHT', 'CHTR', 'CHUY', 'CHW', 'CHWY', 'CHX', 'CI', 'CIA',
-  'CIB', 'CIEN', 'CIG', 'CIGI', 'CIM', 'CINF', 'CING', 'CINT', 'CIO', 'CIR',
-  'CISO', 'CISS', 'CITE', 'CIVB', 'CIX', 'CIZN', 'CJJD', 'CKPT', 'CKX', 'CL',
-  'CLAR', 'CLAY', 'CLB', 'CLBK', 'CLBT', 'CLCO', 'CLCT', 'CLDT', 'CLDX', 'CLEU',
-  'CLF', 'CLFD', 'CLGN', 'CLH', 'CLIR', 'CLLS', 'CLM', 'CLMT', 'CLNE', 'CLNN',
-  'CLOE', 'CLOV', 'CLPT', 'CLPS', 'CLRB', 'CLRC', 'CLRO', 'CLS', 'CLSD', 'CLSK',
-  'CLSN', 'CLST', 'CLTL', 'CLUB', 'CLVR', 'CLVS', 'CLVT', 'CLW', 'CLWT', 'CLX',
-  'CLYM', 'CM', 'CMA', 'CMAX', 'CMBM', 'CMBN', 'CMC', 'CMCA', 'CMCL', 'CMCM',
-  'CMCO', 'CMCSA', 'CMCT', 'CME', 'CMG', 'CMI', 'CMMB', 'CMND', 'CMNR', 'CMPO',
-  'CMPR', 'CMPS', 'CMRA', 'CMRE', 'CMRX', 'CMS', 'CMSA', 'CMSC', 'CMSD', 'CMSS'
-];
-
-// Major Index Funds & ETFs
-const INDEX_FUNDS = [
-  // S&P 500 Trackers
-  'SPY', 'VOO', 'IVV', 'SPLG',
-  
-  // Total Market
-  'VTI', 'ITOT', 'SPTM',
-  
-  // NASDAQ/Tech
-  'QQQ', 'QQQM', 'VGT', 'XLK',
-  
-  // Dow Jones
-  'DIA', 'DJIA',
-  
-  // International
-  'VXUS', 'IXUS', 'VEA', 'IEMG', 'VWO', 'EFA', 'EEM',
-  
-  // Sector ETFs
-  'XLE', 'XLF', 'XLV', 'XLI', 'XLP', 'XLY', 'XLB', 'XLRE', 'XLU',
-  
-  // Bond ETFs
-  'BND', 'AGG', 'TLT', 'IEF', 'SHY', 'LQD', 'HYG',
-  
-  // Growth/Value
-  'VUG', 'VTV', 'IWF', 'IWD',
-  
-  // Small/Mid Cap
-  'VB', 'IJR', 'IWM', 'VO', 'IJH', 'MDY',
-  
-  // Dividend
-  'VYM', 'SDY', 'DVY', 'SCHD', 'VIG',
-  
-  // Real Estate
-  'VNQ', 'XLRE', 'IYR',
-  
-  // Commodities
-  'GLD', 'SLV', 'DBC', 'GSG', 'USO'
-];
-
-// Combine all tickers
-const ALL_TICKERS = [...new Set([...TOP_1500_TICKERS, ...INDEX_FUNDS])];
+const TOP_1500_TICKERS = [...SP500_TICKERS, ...RUSSELL_1000_TICKERS, ...RUSSELL_2000_TICKERS];
 
 class StockDataCache {
   constructor() {
@@ -271,6 +77,8 @@ class StockDataCache {
   this.historicalBatchDelayMs = HISTORICAL_BATCH_DELAY_MS;
   this.historicalBackfillRunning = false;
   this.historicalBackfillStatus = { lastRun: null, lastSummary: null };
+    this.lastIntradayRun = null;
+    this.lastIntradayStatus = null;
   }
 
   /**
@@ -342,8 +150,25 @@ class StockDataCache {
   }
 
   async refreshIntraday(batchSize = this.intradayBatchSize) {
+    if (!this.isMarketOpen()) {
+      const status = {
+        success: false,
+        successCount: 0,
+        errorCount: 0,
+        duration: '0.0',
+        cacheSize: this.cache.size,
+        lastRefresh: this.lastRefresh,
+        skipped: true,
+        reason: 'market-closed'
+      };
+      this.lastIntradayStatus = status;
+      return status;
+    }
     const tickers = this.intradayTickers.length > 0 ? this.intradayTickers : DEFAULT_INTRADAY_TICKERS;
-    return this.refreshTickers(tickers, batchSize, { persist: this.persistQuotes });
+    const result = await this.refreshTickers(tickers, batchSize, { persist: this.persistQuotes });
+    this.lastIntradayRun = new Date();
+    this.lastIntradayStatus = { ...result, skipped: false };
+    return result;
   }
 
   async backfillHistoricalQuotes(options = {}) {
@@ -657,8 +482,81 @@ class StockDataCache {
     if (!this.lastRefresh) return true;
     return (Date.now() - this.lastRefresh.getTime()) > this.refreshInterval;
   }
+
+  getMarketClock(date = new Date()) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: MARKET_TIMEZONE,
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      weekday: 'short'
+    });
+
+    const parts = formatter.formatToParts(date);
+    const map = {};
+    for (const part of parts) {
+      if (part.type !== 'literal') {
+        map[part.type] = part.value;
+      }
+    }
+
+    const hour = parseInt(map.hour || '0', 10);
+    const minute = parseInt(map.minute || '0', 10);
+    const totalMinutes = hour * 60 + minute;
+
+    return {
+      year: parseInt(map.year || '0', 10),
+      month: parseInt(map.month || '0', 10),
+      day: parseInt(map.day || '0', 10),
+      weekday: map.weekday,
+      hour,
+      minute,
+      second: parseInt(map.second || '0', 10),
+      totalMinutes
+    };
+  }
+
+  isMarketOpen(date = new Date()) {
+    const clock = this.getMarketClock(date);
+    if (!clock.weekday || MARKET_WEEKEND.has(clock.weekday)) {
+      return false;
+    }
+
+    const isAfterOpen = clock.totalMinutes >= MARKET_OPEN_MINUTES;
+    const isBeforeClose = clock.totalMinutes < MARKET_CLOSE_MINUTES;
+    return isAfterOpen && isBeforeClose;
+  }
 }
 
 // Export singleton instance
 const stockCache = new StockDataCache();
+stockCache.ALL_TICKERS = ALL_TICKERS;
+stockCache.DEFAULT_INTRADAY_TICKERS = DEFAULT_INTRADAY_TICKERS;
+stockCache.DEFAULT_HISTORICAL_TICKERS = DEFAULT_HISTORICAL_TICKERS;
+stockCache.MARKET_TIMEZONE = MARKET_TIMEZONE;
+stockCache.MARKET_OPEN_MINUTES = MARKET_OPEN_MINUTES;
+stockCache.MARKET_CLOSE_MINUTES = MARKET_CLOSE_MINUTES;
+stockCache.TICKER_GROUPS = TICKER_GROUPS;
+stockCache.TOP_1500_TICKERS = TOP_1500_TICKERS;
+stockCache.INDEX_FUNDS = INDEX_FUNDS;
+stockCache.SP500_TICKERS = SP500_TICKERS;
+stockCache.RUSSELL_1000_TICKERS = RUSSELL_1000_TICKERS;
+stockCache.RUSSELL_2000_TICKERS = RUSSELL_2000_TICKERS;
+
 module.exports = stockCache;
+module.exports.ALL_TICKERS = ALL_TICKERS;
+module.exports.DEFAULT_INTRADAY_TICKERS = DEFAULT_INTRADAY_TICKERS;
+module.exports.DEFAULT_HISTORICAL_TICKERS = DEFAULT_HISTORICAL_TICKERS;
+module.exports.MARKET_TIMEZONE = MARKET_TIMEZONE;
+module.exports.MARKET_OPEN_MINUTES = MARKET_OPEN_MINUTES;
+module.exports.MARKET_CLOSE_MINUTES = MARKET_CLOSE_MINUTES;
+module.exports.TICKER_GROUPS = TICKER_GROUPS;
+module.exports.TOP_1500_TICKERS = TOP_1500_TICKERS;
+module.exports.INDEX_FUNDS = INDEX_FUNDS;
+module.exports.SP500_TICKERS = SP500_TICKERS;
+module.exports.RUSSELL_1000_TICKERS = RUSSELL_1000_TICKERS;
+module.exports.RUSSELL_2000_TICKERS = RUSSELL_2000_TICKERS;
