@@ -1,5 +1,15 @@
 const express = require('express');
 const path = require('path');
+let jwt;
+try {
+  jwt = require('jsonwebtoken');
+} catch (err) {
+  try {
+    jwt = require(path.join(__dirname, 'node_modules', 'jsonwebtoken'));
+  } catch (fallbackErr) {
+    throw err;
+  }
+}
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
@@ -22,6 +32,9 @@ const session = require('express-session');
 const passport = require('passport');
 const apiAuthRouter = require('./routes/apiAuth');
 const portfolioRouter = require('./routes/portfolio');
+const User = require('./models/User');
+const { JWT_SECRET } = require('./middleware/auth');
+const { issueTokens, clearAuthCookies } = require('./services/authTokens');
 
 const app = express();
 const mongoose = require('mongoose');
@@ -125,6 +138,50 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
 const staticDir = path.join(__dirname, '..', 'prototype');
+async function ensureAuthenticatedSession(req, res) {
+  const token = req.cookies?.inv101_token;
+
+  if (token) {
+    try {
+      const payload = jwt.verify(token, JWT_SECRET);
+      if (payload?.sub) {
+        const user = await User.findById(payload.sub).lean();
+        if (user) {
+          return { id: user._id.toString(), email: user.email, displayName: user.displayName || user.username || user.email };
+        }
+        clearAuthCookies(res);
+      }
+    } catch (error) {
+      if (error?.name !== 'TokenExpiredError') {
+        console.warn('Access token verification failed:', error.message);
+      }
+    }
+  }
+
+  const refreshCookie = req.cookies?.inv101_refresh;
+  if (!refreshCookie) {
+    return null;
+  }
+
+  try {
+    const lookup = await User.findByRefreshTokenCookie(refreshCookie);
+    if (!lookup) {
+      clearAuthCookies(res);
+      return null;
+    }
+
+    const { user, tokenId } = lookup;
+    await user.removeRefreshTokenById(tokenId);
+    await issueTokens(res, user, { rememberMe: true });
+
+    return { id: user._id.toString(), email: user.email, displayName: user.displayName || user.username || user.email };
+  } catch (err) {
+    console.error('Refresh via cookie failed:', err);
+    clearAuthCookies(res);
+    return null;
+  }
+}
+
 app.use(session({
   secret: process.env.JWT_SECRET || 'keyboardcat',
   resave: false,
@@ -132,6 +189,48 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.get('/', async (req, res) => {
+  try {
+    const sessionUser = await ensureAuthenticatedSession(req, res);
+    if (!sessionUser) {
+      return res.redirect('/signin.html');
+    }
+    return res.sendFile(path.join(staticDir, 'index.html'));
+  } catch (error) {
+    console.error('Root route auth enforcement error:', error);
+    clearAuthCookies(res);
+    return res.redirect('/signin.html');
+  }
+});
+
+app.get('/index.html', async (req, res) => {
+  try {
+    const sessionUser = await ensureAuthenticatedSession(req, res);
+    if (!sessionUser) {
+      return res.redirect('/signin.html');
+    }
+    return res.sendFile(path.join(staticDir, 'index.html'));
+  } catch (error) {
+    console.error('Index route auth enforcement error:', error);
+    clearAuthCookies(res);
+    return res.redirect('/signin.html');
+  }
+});
+
+app.get('/signin.html', async (req, res) => {
+  try {
+    const sessionUser = await ensureAuthenticatedSession(req, res);
+    if (sessionUser) {
+      return res.redirect('/');
+    }
+  } catch (error) {
+    console.error('Signin route session check failed:', error);
+    clearAuthCookies(res);
+  }
+  return res.sendFile(path.join(staticDir, 'signin.html'));
+});
+
 app.use(express.static(staticDir));
 app.use('/api/auth', apiAuthRouter);
 app.use('/api/portfolio', portfolioRouter);
@@ -896,6 +995,7 @@ async function startServer() {
     scheduler.startHistoricalBackfill('30 1 * * *');       // Daily historical backfill
     scheduler.startStockCacheRefresh('0 3,9,15,21 * * *'); // Every 6 hours (offset)
       scheduler.startDailyCleanup('0 2 * * *');         // Daily at 2 AM
+  scheduler.startNewsletterDigest(process.env.NEWSLETTER_DAILY_CRON);
       
       // Start self-ping to keep Render instance awake (only in production)
       const appUrl = process.env.RENDER_EXTERNAL_URL || process.env.APP_URL;

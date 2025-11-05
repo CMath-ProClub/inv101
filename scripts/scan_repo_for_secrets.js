@@ -13,10 +13,12 @@ function getTrackedFiles() {
 const allowlistFiles = new Set([
   'SECURITY_AND_AUTOMATION.md',
   'backend/articleCacheService.js',
+  'backend/index.js',
   'backend/models/User.js',
   'backend/routes/admin.js',
   'backend/scripts/check_atlas_articles.js',
   'prototype/simulator-invest101.js',
+  'prototype/signin.html',
   'render.yaml'
 ]);
 

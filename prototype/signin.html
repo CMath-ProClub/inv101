@@ -4,8 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sign In - Investing101</title>
+  <title>Sign In - Investing101</title>
   <link rel="stylesheet" href="styles.css">
-</head>
+  <style>
+    .signin-status {
+      margin-top: 16px;
+      font-size: 0.95rem;
+      color: #555;
+      min-height: 1.2em;
+    }
+
+    .signin-status[data-state="error"] {
+      color: #c0392b;
+    }
+
+    .signin-status[data-state="success"] {
+      color: #1e8449;
+    }
+
+    .signin-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .signin-remember {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+  </style>
 <body>
   <div class="global-header">
     <a href="index.html" class="site-logo">Investing101</a>
@@ -16,13 +46,21 @@
       <form id="signinForm">
         <label class="field">
           <span>Username</span>
-          <input type="text" name="username" required>
-        </label>
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" required>
         <label class="field">
           <span>Password</span>
           <input type="password" name="password" required>
-        </label>
+          <input type="password" name="password" autocomplete="current-password" required>
         <button class="btn btn--primary" type="submit">Sign In</button>
+        <div class="signin-actions">
+          <label class="signin-remember">
+            <input type="checkbox" name="remember" value="1">
+            <span>Keep me logged in</span>
+          </label>
+          <button class="btn btn--primary" type="submit">Sign In</button>
+        </div>
+        <p class="signin-status" id="signinStatus" aria-live="polite"></p>
       </form>
       <div style="margin: 24px 0; text-align: center;">
         <span>Or sign in with:</span>
@@ -37,7 +75,75 @@
     </section>
   </main>
   <script>
-    // TODO: Add JS to handle form submission and OAuth buttons
+    (function() {
+      const form = document.getElementById('signinForm');
+      const statusEl = document.getElementById('signinStatus');
+
+      function setStatus(message, state) {
+        if (!statusEl) return;
+        statusEl.textContent = message || '';
+        if (state) {
+          statusEl.setAttribute('data-state', state);
+        } else {
+          statusEl.removeAttribute('data-state');
+        }
+      }
+
+      async function checkExistingSession() {
+        try {
+          const response = await fetch('/api/auth/me', {
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const payload = await response.json();
+            if (payload?.success) {
+              window.location.href = '/';
+            }
+          }
+        } catch (error) {
+          console.warn('Session check failed:', error);
+        }
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const email = String(formData.get('email') || '').trim();
+        const password = String(formData.get('password') || '');
+        const rememberMe = formData.get('remember') === '1';
+
+        if (!email || !password) {
+          setStatus('Email and password are required.', 'error');
+          return;
+        }
+
+        setStatus('Signing in...', 'info');
+
+        try {
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email, password, rememberMe })
+          });
+
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload?.success) {
+            throw new Error(payload?.error || 'Unable to sign in. Check your credentials and try again.');
+          }
+
+          setStatus('Signed in! Redirecting...', 'success');
+          window.location.href = '/';
+        } catch (error) {
+          console.error('Sign in failed:', error);
+          setStatus(error.message || 'Unable to sign in right now.', 'error');
+        }
+      });
+
+      checkExistingSession();
+    })();
   </script>
 </body>
 </html>

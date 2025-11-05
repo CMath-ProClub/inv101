@@ -1,74 +1,9 @@
 const express = require('express');
-const path = require('path');
-let jwt;
-try {
-  jwt = require('jsonwebtoken');
-} catch (err) {
-  try {
-    jwt = require(path.join(__dirname, '..', 'node_modules', 'jsonwebtoken'));
-  } catch (err2) {
-    throw err;
-  }
-}
-const crypto = require('crypto');
 const User = require('../models/User');
-const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
+const { issueTokens, clearAuthCookies } = require('../services/authTokens');
 
 const router = express.Router();
-
-const isProduction = process.env.NODE_ENV === 'production';
-const ACCESS_TOKEN_SECONDS = parseInt(process.env.JWT_ACCESS_TTL || '900', 10); // 15 minutes
-const REFRESH_TOKEN_DAYS = parseInt(process.env.JWT_REFRESH_TTL_DAYS || '30', 10);
-
-function buildAccessToken(user) {
-  return jwt.sign({ sub: user._id.toString(), email: user.email }, JWT_SECRET, {
-    expiresIn: ACCESS_TOKEN_SECONDS
-  });
-}
-
-function buildRefreshTokenPlain() {
-  return crypto.randomBytes(24).toString('hex');
-}
-
-function setAuthCookies(res, accessToken, refreshCookieValue) {
-  res.cookie('inv101_token', accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    maxAge: ACCESS_TOKEN_SECONDS * 1000
-  });
-
-  res.cookie('inv101_refresh', refreshCookieValue, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    maxAge: REFRESH_TOKEN_DAYS * 24 * 60 * 60 * 1000
-  });
-}
-
-function clearAuthCookies(res) {
-  res.cookie('inv101_token', '', {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    maxAge: 0
-  });
-  res.cookie('inv101_refresh', '', {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: 'lax',
-    maxAge: 0
-  });
-}
-
-async function issueTokens(res, user) {
-  const accessToken = buildAccessToken(user);
-  const refreshPlain = buildRefreshTokenPlain();
-  const refreshId = await user.addRefreshToken(refreshPlain);
-  const refreshCookieValue = `${refreshId}.${refreshPlain}`;
-  setAuthCookies(res, accessToken, refreshCookieValue);
-  return { accessToken, refreshCookieValue };
-}
 
 function sanitizeUser(user) {
   if (!user) return null;
@@ -110,7 +45,7 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body || {};
+    const { email, password, rememberMe } = req.body || {};
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Email and password are required.' });
     }
@@ -126,7 +61,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid credentials.' });
     }
 
-    await issueTokens(res, user);
+    await issueTokens(res, user, { rememberMe: Boolean(rememberMe) });
     return res.json({ success: true, user: sanitizeUser(user) });
   } catch (error) {
     console.error('Login error:', error);
@@ -171,7 +106,7 @@ router.post('/refresh', async (req, res) => {
 
     const { user, tokenId } = lookup;
     await user.removeRefreshTokenById(tokenId);
-    await issueTokens(res, user);
+    await issueTokens(res, user, { rememberMe: true });
 
     return res.json({ success: true, user: sanitizeUser(user) });
   } catch (error) {
