@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends - Investment Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="profile-styles.css">
+    <script>
+      // Theme initialization
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.className = theme;
+      })();
+    </script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar__header">
+            <a href="index.html" class="sidebar__brand">
+                <div class="sidebar__logo">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="var(--accent)" opacity="0.1"/>
+                        <path d="M30,60 L45,40 L55,50 L70,30" stroke="var(--accent)" stroke-width="4" fill="none"/>
+                        <circle cx="30" cy="60" r="4" fill="var(--accent)"/>
+                        <circle cx="45" cy="40" r="4" fill="var(--accent)"/>
+                        <circle cx="55" cy="50" r="4" fill="var(--accent)"/>
+                        <circle cx="70" cy="30" r="4" fill="var(--accent)"/>
+                    </svg>
+                </div>
+                <span class="sidebar__brand-text">Investment Playground</span>
+            </a>
+        </div>
+
+        <nav class="sidebar__nav">
+            <a href="index.html" class="sidebar__link">
+                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__text">Dashboard</span>
+            </a>
+            <a href="lessons.html" class="sidebar__link">
+                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__text">Lessons</span>
+            </a>
+            <a href="calculators.html" class="sidebar__link">
+                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__text">Calculators</span>
+            </a>
+            <a href="simulator.html" class="sidebar__link">
+                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__text">Simulator</span>
+            </a>
+            <a href="profile.html" class="sidebar__link sidebar__link--active">
+                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__text">Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app__content">
+        <div class="friends-header">
+            <h1>Friends & Community</h1>
+            <div class="friends-header__actions">
+                <button class="btn btn--primary" onclick="openAddFriendModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Add Friend
+                </button>
+                <button class="btn btn--secondary friend-requests-btn" onclick="openRequestsModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <polyline points="17 11 19 13 23 9"></polyline>
+                    </svg>
+                    Requests
+                    <span class="friend-requests-badge">3</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Friends -->
+        <div class="friends-search-bar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" id="friendSearch" placeholder="Search friends by name or ID...">
+        </div>
+
+        <!-- Friends Tabs -->
+        <div class="friends-tabs">
+            <button class="friends-tab friends-tab--active" onclick="switchFriendsTab('all')">
+                All Friends <span class="friends-tab__count">12</span>
+            </button>
+            <button class="friends-tab" onclick="switchFriendsTab('online')">
+                Online <span class="friends-tab__count friends-tab__count--online">3</span>
+            </button>
+            <button class="friends-tab" onclick="switchFriendsTab('pending')">
+                Pending <span class="friends-tab__count">2</span>
+            </button>
+        </div>
+
+        <!-- Friends Grid -->
+        <div id="friendsGrid" class="friends-grid">
+            <!-- Online Friends -->
+            <div class="friend-card friend-card--online">
+                <div class="friend-card__header">
+                    <div class="friend-card__avatar">
+                        <div class="friend-card__avatar-circle" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">JD</div>
+                        <div class="friend-card__status friend-card__status--online"></div>
+                    </div>
+                    <div class="friend-card__info">
+                        <h3 class="friend-card__name">John Doe</h3>
+                        <p class="friend-card__badge">Advanced Trader</p>
+                    </div>
+                </div>
+                <div class="friend-card__stats">
+                    <div class="friend-card__stat friend-card__stat--positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        +12.5%
+                    </div>
+                    <div class="friend-card__activity">Active now</div>
+                </div>
+                <div class="friend-card__actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewProfile('john')">View Profile</button>
+                    <button class="btn btn--secondary btn--sm" onclick="removeFriend('john')">Remove</button>
+                </div>
+            </div>
+
+            <div class="friend-card friend-card--online">
+                <div class="friend-card__header">
+                    <div class="friend-card__avatar">
+                        <div class="friend-card__avatar-circle" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">SM</div>
+                        <div class="friend-card__status friend-card__status--online"></div>
+                    </div>
+                    <div class="friend-card__info">
+                        <h3 class="friend-card__name">Sarah Miller</h3>
+                        <p class="friend-card__badge">Intermediate</p>
+                    </div>
+                </div>
+                <div class="friend-card__stats">
+                    <div class="friend-card__stat friend-card__stat--positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        +8.3%
+                    </div>
+                    <div class="friend-card__activity">Active 5m ago</div>
+                </div>
+                <div class="friend-card__actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewProfile('sarah')">View Profile</button>
+                    <button class="btn btn--secondary btn--sm" onclick="removeFriend('sarah')">Remove</button>
+                </div>
+            </div>
+
+            <div class="friend-card friend-card--online">
+                <div class="friend-card__header">
+                    <div class="friend-card__avatar">
+                        <div class="friend-card__avatar-circle" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">MJ</div>
+                        <div class="friend-card__status friend-card__status--online"></div>
+                    </div>
+                    <div class="friend-card__info">
+                        <h3 class="friend-card__name">Mike Johnson</h3>
+                        <p class="friend-card__badge">Expert Investor</p>
+                    </div>
+                </div>
+                <div class="friend-card__stats">
+                    <div class="friend-card__stat friend-card__stat--positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        +15.7%
+                    </div>
+                    <div class="friend-card__activity">Active now</div>
+                </div>
+                <div class="friend-card__actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewProfile('mike')">View Profile</button>
+                    <button class="btn btn--secondary btn--sm" onclick="removeFriend('mike')">Remove</button>
+                </div>
+            </div>
+
+            <!-- Offline Friends -->
+            <div class="friend-card">
+                <div class="friend-card__header">
+                    <div class="friend-card__avatar">
+                        <div class="friend-card__avatar-circle" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">EB</div>
+                        <div class="friend-card__status friend-card__status--offline"></div>
+                    </div>
+                    <div class="friend-card__info">
+                        <h3 class="friend-card__name">Emily Brown</h3>
+                        <p class="friend-card__badge">Beginner</p>
+                    </div>
+                </div>
+                <div class="friend-card__stats">
+                    <div class="friend-card__stat friend-card__stat--positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        +5.2%
+                    </div>
+                    <div class="friend-card__activity">Last seen 2h ago</div>
+                </div>
+                <div class="friend-card__actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewProfile('emily')">View Profile</button>
+                    <button class="btn btn--secondary btn--sm" onclick="removeFriend('emily')">Remove</button>
+                </div>
+            </div>
+
+            <div class="friend-card">
+                <div class="friend-card__header">
+                    <div class="friend-card__avatar">
+                        <div class="friend-card__avatar-circle" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">DW</div>
+                        <div class="friend-card__status friend-card__status--offline"></div>
+                    </div>
+                    <div class="friend-card__info">
+                        <h3 class="friend-card__name">David Wilson</h3>
+                        <p class="friend-card__badge">Advanced Trader</p>
+                    </div>
+                </div>
+                <div class="friend-card__stats">
+                    <div class="friend-card__stat friend-card__stat--negative">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                        -2.1%
+                    </div>
+                    <div class="friend-card__activity">Last seen yesterday</div>
+                </div>
+                <div class="friend-card__actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewProfile('david')">View Profile</button>
+                    <button class="btn btn--secondary btn--sm" onclick="removeFriend('david')">Remove</button>
+                </div>
+            </div>
+
+            <!-- More offline friends... -->
+            <div class="friend-card">
+                <div class="friend-card__header">
+                    <div class="friend-card__avatar">
+                        <div class="friend-card__avatar-circle" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">LT</div>
+                        <div class="friend-card__status friend-card__status--offline"></div>
+                    </div>
+                    <div class="friend-card__info">
+                        <h3 class="friend-card__name">Lisa Taylor</h3>
+                        <p class="friend-card__badge">Intermediate</p>
+                    </div>
+                </div>
+                <div class="friend-card__stats">
+                    <div class="friend-card__stat friend-card__stat--positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        +9.8%
+                    </div>
+                    <div class="friend-card__activity">Last seen 3 days ago</div>
+                </div>
+                <div class="friend-card__actions">
+                    <button class="btn btn--secondary btn--sm" onclick="viewProfile('lisa')">View Profile</button>
+                    <button class="btn btn--secondary btn--sm" onclick="removeFriend('lisa')">Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Friend Modal -->
+        <div id="addFriendModal" class="modal" style="display: none;">
+            <div class="modal__overlay" onclick="closeAddFriendModal()"></div>
+            <div class="modal__content">
+                <div class="modal__header">
+                    <h2>Add Friend</h2>
+                    <button class="modal__close" onclick="closeAddFriendModal()">×</button>
+                </div>
+                <div class="modal__body">
+                    <p style="margin-bottom: 20px; color: var(--text-muted);">
+                        Enter your friend's User ID to send them a friend request.
+                    </p>
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="text" id="friendIdInput" class="form-input" placeholder="e.g., INV101-JD-B8C4">
+                    </div>
+                    <div class="form-help">
+                        💡 You can find your User ID on your profile page
+                    </div>
+                </div>
+                <div class="modal__footer">
+                    <button class="btn btn--secondary" onclick="closeAddFriendModal()">Cancel</button>
+                    <button class="btn btn--primary" onclick="sendFriendRequest()">Send Request</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Friend Requests Modal -->
+        <div id="requestsModal" class="modal" style="display: none;">
+            <div class="modal__overlay" onclick="closeRequestsModal()"></div>
+            <div class="modal__content modal__content--large">
+                <div class="modal__header">
+                    <h2>Friend Requests</h2>
+                    <button class="modal__close" onclick="closeRequestsModal()">×</button>
+                </div>
+                <div class="modal__body">
+                    <h3 style="margin-bottom: 16px;">Incoming Requests (3)</h3>
+                    <div class="friend-request-list">
+                        <div class="friend-request-card">
+                            <div class="friend-request-card__avatar" style="background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);">TC</div>
+                            <div class="friend-request-card__info">
+                                <h4 class="friend-request-card__name">Tom Chen</h4>
+                                <p class="friend-request-card__badge">Beginner Trader</p>
+                                <p class="friend-request-card__time">2 hours ago</p>
+                            </div>
+                            <div class="friend-request-card__actions">
+                                <button class="btn btn--primary btn--sm" onclick="acceptRequest('tom')">Accept</button>
+                                <button class="btn btn--secondary btn--sm" onclick="declineRequest('tom')">Decline</button>
+                            </div>
+                        </div>
+
+                        <div class="friend-request-card">
+                            <div class="friend-request-card__avatar" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">AG</div>
+                            <div class="friend-request-card__info">
+                                <h4 class="friend-request-card__name">Anna Garcia</h4>
+                                <p class="friend-request-card__badge">Intermediate Investor</p>
+                                <p class="friend-request-card__time">1 day ago</p>
+                            </div>
+                            <div class="friend-request-card__actions">
+                                <button class="btn btn--primary btn--sm" onclick="acceptRequest('anna')">Accept</button>
+                                <button class="btn btn--secondary btn--sm" onclick="declineRequest('anna')">Decline</button>
+                            </div>
+                        </div>
+
+                        <div class="friend-request-card">
+                            <div class="friend-request-card__avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">RP</div>
+                            <div class="friend-request-card__info">
+                                <h4 class="friend-request-card__name">Robert Park</h4>
+                                <p class="friend-request-card__badge">Advanced Trader</p>
+                                <p class="friend-request-card__time">3 days ago</p>
+                            </div>
+                            <div class="friend-request-card__actions">
+                                <button class="btn btn--primary btn--sm" onclick="acceptRequest('robert')">Accept</button>
+                                <button class="btn btn--secondary btn--sm" onclick="declineRequest('robert')">Decline</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 32px 0 16px;">Sent Requests (2)</h3>
+                    <div class="friend-request-list">
+                        <div class="friend-request-card friend-request-card--sent">
+                            <div class="friend-request-card__avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">KL</div>
+                            <div class="friend-request-card__info">
+                                <h4 class="friend-request-card__name">Kevin Lee</h4>
+                                <p class="friend-request-card__badge">Expert Investor</p>
+                                <p class="friend-request-card__time">Sent 5 hours ago</p>
+                            </div>
+                            <div class="friend-request-card__actions">
+                                <button class="btn btn--secondary btn--sm" onclick="cancelRequest('kevin')">Cancel Request</button>
+                            </div>
+                        </div>
+
+                        <div class="friend-request-card friend-request-card--sent">
+                            <div class="friend-request-card__avatar" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">MR</div>
+                            <div class="friend-request-card__info">
+                                <h4 class="friend-request-card__name">Maria Rodriguez</h4>
+                                <p class="friend-request-card__badge">Intermediate</p>
+                                <p class="friend-request-card__time">Sent 2 days ago</p>
+                            </div>
+                            <div class="friend-request-card__actions">
+                                <button class="btn btn--secondary btn--sm" onclick="cancelRequest('maria')">Cancel Request</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast" style="display: none;"></div>
+    </main>
+
+    <script src="global-ui.js"></script>
+    <script>
+        // Friends functionality
+        function switchFriendsTab(tab) {
+            // Update tab styling
+            document.querySelectorAll('.friends-tab').forEach(t => t.classList.remove('friends-tab--active'));
+            event.target.classList.add('friends-tab--active');
+            
+            // Filter friends (in real app, this would filter the displayed cards)
+            showToast(`Showing ${tab} friends`, 'info');
+        }
+
+        // Add Friend Modal
+        function openAddFriendModal() {
+            document.getElementById('addFriendModal').style.display = 'flex';
+            document.getElementById('friendIdInput').focus();
+        }
+
+        function closeAddFriendModal() {
+            document.getElementById('addFriendModal').style.display = 'none';
+            document.getElementById('friendIdInput').value = '';
+        }
+
+        function sendFriendRequest() {
+            const friendId = document.getElementById('friendIdInput').value.trim();
+            if (!friendId) {
+                showToast('Please enter a User ID', 'error');
+                return;
+            }
+            
+            // TODO: Send to server
+            showToast(`Friend request sent to ${friendId}! 🎉`, 'success');
+            closeAddFriendModal();
+        }
+
+        // Requests Modal
+        function openRequestsModal() {
+            document.getElementById('requestsModal').style.display = 'flex';
+        }
+
+        function closeRequestsModal() {
+            document.getElementById('requestsModal').style.display = 'none';
+        }
+
+        function acceptRequest(userId) {
+            // TODO: Send to server
+            showToast(`You are now friends with ${userId}! 🎉`, 'success');
+            // Remove from list
+            event.target.closest('.friend-request-card').remove();
+            // Update badge count
+            const badge = document.querySelector('.friend-requests-badge');
+            badge.textContent = parseInt(badge.textContent) - 1;
+        }
+
+        function declineRequest(userId) {
+            // TODO: Send to server
+            showToast(`Request declined`, 'info');
+            event.target.closest('.friend-request-card').remove();
+            const badge = document.querySelector('.friend-requests-badge');
+            badge.textContent = parseInt(badge.textContent) - 1;
+        }
+
+        function cancelRequest(userId) {
+            // TODO: Send to server
+            showToast(`Request cancelled`, 'info');
+            event.target.closest('.friend-request-card').remove();
+        }
+
+        // Friend actions
+        function viewProfile(userId) {
+            showToast(`Opening ${userId}'s profile...`, 'info');
+            // TODO: Navigate to friend profile
+        }
+
+        function removeFriend(userId) {
+            if (confirm(`Are you sure you want to remove ${userId} as a friend?`)) {
+                // TODO: Send to server
+                showToast(`Friend removed`, 'info');
+                event.target.closest('.friend-card').remove();
+            }
+        }
+
+        // Search friends
+        document.getElementById('friendSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.friend-card').forEach(card => {
+                const name = card.querySelector('.friend-card__name').textContent.toLowerCase();
+                card.style.display = name.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast--${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Investment Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="profile-styles.css">
+    <script>
+      // Theme initialization (must come before body loads)
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.className = theme;
+      })();
+    </script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar__header">
+            <a href="index.html" class="sidebar__brand">
+                <div class="sidebar__logo">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="var(--accent)" opacity="0.1"/>
+                        <path d="M30,60 L45,40 L55,50 L70,30" stroke="var(--accent)" stroke-width="4" fill="none"/>
+                        <circle cx="30" cy="60" r="4" fill="var(--accent)"/>
+                        <circle cx="45" cy="40" r="4" fill="var(--accent)"/>
+                        <circle cx="55" cy="50" r="4" fill="var(--accent)"/>
+                        <circle cx="70" cy="30" r="4" fill="var(--accent)"/>
+                    </svg>
+                </div>
+                <span class="sidebar__brand-text">Investment Playground</span>
+            </a>
+        </div>
+
+        <nav class="sidebar__nav">
+            <a href="index.html" class="sidebar__link">
+                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__text">Dashboard</span>
+            </a>
+            <a href="lessons.html" class="sidebar__link">
+                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__text">Lessons</span>
+            </a>
+            <a href="calculators.html" class="sidebar__link">
+                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__text">Calculators</span>
+            </a>
+            <a href="simulator.html" class="sidebar__link">
+                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__text">Simulator</span>
+            </a>
+            <a href="profile.html" class="sidebar__link sidebar__link--active">
+                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__text">Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app__content">
+        <!-- Profile Header with Avatar & User ID -->
+        <section class="profile-header">
+            <div class="profile-header__container">
+                <!-- Profile Avatar with Upload -->
+                <div class="profile-avatar-wrapper">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <span id="avatarInitials">CM</span>
+                        <img id="avatarImage" style="display: none;">
+                    </div>
+                    <button class="profile-avatar__upload-btn" onclick="document.getElementById('avatarUpload').click()" title="Upload profile picture">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </button>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                </div>
+
+                <!-- User Info -->
+                <div class="profile-header__info">
+                    <div class="profile-header__name-row">
+                        <h1 class="profile-header__name" id="userName">Carter Matherne</h1>
+                        <button class="profile-header__edit-btn" onclick="openEditProfileModal()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit Profile
+                        </button>
+                    </div>
+                    <div class="profile-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        Rookie Investor
+                    </div>
+                    <p class="profile-header__bio" id="userBio">"Learning to invest one lesson at a time."</p>
+                    
+                    <!-- User ID with Copy -->
+                    <div class="profile-id-card">
+                        <div class="profile-id-card__label">Your User ID</div>
+                        <div class="profile-id-card__content">
+                            <code class="profile-id-card__code" id="userIdCode">INV101-CM-A7B3</code>
+                            <button class="profile-id-card__copy-btn" onclick="copyUserId()" title="Copy User ID">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="profile-id-card__help">Share this ID with friends to connect!</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="profile-header__actions">
+                    <button class="btn btn--secondary" onclick="shareProfile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                        Share Profile
+                    </button>
+                    <button class="btn btn--danger" onclick="window.location.href='/auth/logout'">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Grid -->
+        <div class="profile-stats-grid">
+            <!-- Education Progress -->
+            <section class="card">
+                <h3>📚 Education Progress</h3>
+                <div class="profile-progress">
+                    <div class="profile-progress__header">
+                        <span class="profile-progress__level">Level 3 - Intermediate</span>
+                        <span class="profile-progress__count">15/25</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar__fill" style="width: 60%"></div>
+                    </div>
+                    <p class="profile-progress__text">60% Complete - Keep it up!</p>
+                </div>
+            </section>
+
+            <!-- Portfolio Performance -->
+            <section class="card">
+                <h3>💰 Portfolio Performance</h3>
+                <div class="profile-stat-large">
+                    <div class="profile-stat-large__value">$52,450</div>
+                    <div class="profile-stat-large__change profile-stat-large__change--positive">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        +12.5% this month
+                    </div>
+                </div>
+            </section>
+
+            <!-- Badges & Achievements -->
+            <section class="card">
+                <h3>🏆 Achievements</h3>
+                <div class="badge-grid">
+                    <div class="achievement-badge achievement-badge--earned">
+                        <div class="achievement-badge__icon achievement-badge__icon--pink">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div class="achievement-badge__name">First Trade</div>
+                    </div>
+                    <div class="achievement-badge achievement-badge--earned">
+                        <div class="achievement-badge__icon achievement-badge__icon--blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="achievement-badge__name">5 Lessons</div>
+                    </div>
+                    <div class="achievement-badge achievement-badge--earned">
+                        <div class="achievement-badge__icon achievement-badge__icon--green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="achievement-badge__name">Networker</div>
+                    </div>
+                    <div class="achievement-badge achievement-badge--locked">
+                        <div class="achievement-badge__icon achievement-badge__icon--gray">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                        <div class="achievement-badge__name">Locked</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- High Scores -->
+            <section class="card">
+                <h3>🎮 High Scores</h3>
+                <div class="high-score-list">
+                    <div class="high-score-item">
+                        <div class="high-score-item__icon">📈</div>
+                        <div class="high-score-item__content">
+                            <div class="high-score-item__name">Portfolio Simulator</div>
+                            <div class="high-score-item__value">$52,450</div>
+                        </div>
+                    </div>
+                    <div class="high-score-item">
+                        <div class="high-score-item__icon">🤖</div>
+                        <div class="high-score-item__content">
+                            <div class="high-score-item__name">Play the AI</div>
+                            <div class="high-score-item__value">8 Wins</div>
+                        </div>
+                    </div>
+                    <div class="high-score-item">
+                        <div class="high-score-item__icon">🔥</div>
+                        <div class="high-score-item__content">
+                            <div class="high-score-item__name">Quiz Streak</div>
+                            <div class="high-score-item__value">5 Days</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Edit Profile Modal -->
+        <div id="editProfileModal" class="modal" style="display: none;">
+            <div class="modal__overlay" onclick="closeEditProfileModal()"></div>
+            <div class="modal__content">
+                <div class="modal__header">
+                    <h2>Edit Profile</h2>
+                    <button class="modal__close" onclick="closeEditProfileModal()">×</button>
+                </div>
+                <div class="modal__body">
+                    <div class="form-group">
+                        <label>Display Name</label>
+                        <input type="text" id="editName" class="form-input" value="Carter Matherne">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio (max 100 characters)</label>
+                        <textarea id="editBio" class="form-input" maxlength="100" rows="3">"Learning to invest one lesson at a time."</textarea>
+                        <div class="form-help"><span id="bioCharCount">46</span>/100 characters</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Profile Visibility</label>
+                        <select id="editVisibility" class="form-input">
+                            <option value="public">Public - Anyone can view</option>
+                            <option value="friends">Friends Only</option>
+                            <option value="private">Private - Only me</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal__footer">
+                    <button class="btn btn--secondary" onclick="closeEditProfileModal()">Cancel</button>
+                    <button class="btn btn--primary" onclick="saveProfile()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast" style="display: none;"></div>
+    </main>
+
+    <script src="global-ui.js"></script>
+    <script>
+        // Profile picture upload handler
+        document.getElementById('avatarUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const avatarImage = document.getElementById('avatarImage');
+                    const avatarInitials = document.getElementById('avatarInitials');
+                    avatarImage.src = event.target.result;
+                    avatarImage.style.display = 'block';
+                    avatarInitials.style.display = 'none';
+                    
+                    // TODO: Upload to server
+                    showToast('Profile picture updated! 📸', 'success');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Copy User ID
+        function copyUserId() {
+            const userIdCode = document.getElementById('userIdCode').textContent;
+            navigator.clipboard.writeText(userIdCode).then(() => {
+                showToast('User ID copied to clipboard! 📋', 'success');
+            }).catch(() => {
+                showToast('Failed to copy. Please try again.', 'error');
+            });
+        }
+
+        // Share Profile
+        function shareProfile() {
+            const userIdCode = document.getElementById('userIdCode').textContent;
+            const userName = document.getElementById('userName').textContent;
+            const shareText = `Connect with me on Investment Playground!\nUser ID: ${userIdCode}\nName: ${userName}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Investment Playground Profile',
+                    text: shareText
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showToast('Profile link copied to clipboard! 🔗', 'success');
+                });
+            }
+        }
+
+        // Edit Profile Modal
+        function openEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'flex';
+            document.getElementById('editName').value = document.getElementById('userName').textContent;
+            document.getElementById('editBio').value = document.getElementById('userBio').textContent;
+            updateBioCharCount();
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function saveProfile() {
+            const newName = document.getElementById('editName').value;
+            const newBio = document.getElementById('editBio').value;
+            
+            document.getElementById('userName').textContent = newName;
+            document.getElementById('userBio').textContent = newBio;
+            
+            // TODO: Save to server
+            showToast('Profile updated successfully! ✨', 'success');
+            closeEditProfileModal();
+        }
+
+        // Bio character counter
+        document.getElementById('editBio').addEventListener('input', updateBioCharCount);
+        
+        function updateBioCharCount() {
+            const bio = document.getElementById('editBio').value;
+            document.getElementById('bioCharCount').textContent = bio.length;
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast--${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
