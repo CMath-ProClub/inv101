@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Investment Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="profile-styles.css">
+    <script>
+      // Theme initialization
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .notifications-header__actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .notification-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .filter-btn__count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .notification-item--unread {
+            background: linear-gradient(90deg, rgba(var(--accent-rgb, 52, 152, 219), 0.05), var(--bg-card));
+            border-left: 4px solid var(--accent);
+        }
+
+        .notification-item__icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-item__icon--friend {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .notification-item__icon--achievement {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .notification-item__icon--lesson {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .notification-item__icon--portfolio {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .notification-item__icon--system {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .notification-item__content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-item__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 4px;
+        }
+
+        .notification-item__title {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .notification-item__time {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .notification-item__message {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 0 0 12px;
+            line-height: 1.5;
+        }
+
+        .notification-item__actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-item__action-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-item__action-btn--primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        .notification-item__action-btn--secondary {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .notification-item__action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-item__unread-dot {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state__icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state__title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 12px;
+        }
+
+        .empty-state__message {
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .notifications-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .notification-item {
+                flex-direction: column;
+            }
+
+            .notification-item__header {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar__header">
+            <a href="index.html" class="sidebar__brand">
+                <div class="sidebar__logo">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="var(--accent)" opacity="0.1"/>
+                        <path d="M30,60 L45,40 L55,50 L70,30" stroke="var(--accent)" stroke-width="4" fill="none"/>
+                        <circle cx="30" cy="60" r="4" fill="var(--accent)"/>
+                        <circle cx="45" cy="40" r="4" fill="var(--accent)"/>
+                        <circle cx="55" cy="50" r="4" fill="var(--accent)"/>
+                        <circle cx="70" cy="30" r="4" fill="var(--accent)"/>
+                    </svg>
+                </div>
+                <span class="sidebar__brand-text">Investment Playground</span>
+            </a>
+        </div>
+
+        <nav class="sidebar__nav">
+            <a href="index.html" class="sidebar__link">
+                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__text">Dashboard</span>
+            </a>
+            <a href="lessons.html" class="sidebar__link">
+                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__text">Lessons</span>
+            </a>
+            <a href="calculators.html" class="sidebar__link">
+                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__text">Calculators</span>
+            </a>
+            <a href="simulator.html" class="sidebar__link">
+                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__text">Simulator</span>
+            </a>
+            <a href="profile.html" class="sidebar__link">
+                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__text">Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app__content">
+        <div class="notifications-header">
+            <div>
+                <h1>🔔 Notifications</h1>
+                <p style="color: var(--text-muted); margin: 8px 0 0;">Stay updated with your progress and friend activity</p>
+            </div>
+            <div class="notifications-header__actions">
+                <button class="btn btn--secondary" onclick="markAllAsRead()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Mark All Read
+                </button>
+                <button class="btn btn--secondary" onclick="openSettings()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6"></path>
+                        <path d="m1 12h6m6 0h6"></path>
+                    </svg>
+                    Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="notification-filters">
+            <button class="filter-btn active" onclick="filterNotifications('all')">
+                All <span class="filter-btn__count">12</span>
+            </button>
+            <button class="filter-btn" onclick="filterNotifications('friends')">
+                👥 Friends <span class="filter-btn__count">5</span>
+            </button>
+            <button class="filter-btn" onclick="filterNotifications('achievements')">
+                🏆 Achievements <span class="filter-btn__count">3</span>
+            </button>
+            <button class="filter-btn" onclick="filterNotifications('lessons')">
+                📚 Lessons <span class="filter-btn__count">2</span>
+            </button>
+            <button class="filter-btn" onclick="filterNotifications('portfolio')">
+                💰 Portfolio <span class="filter-btn__count">2</span>
+            </button>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notifications-list">
+            <!-- Friend Request -->
+            <div class="notification-item notification-item--unread" data-type="friends">
+                <div class="notification-item__unread-dot"></div>
+                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">New Friend Request</h4>
+                        <span class="notification-item__time">5 minutes ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        <strong>Tom Chen</strong> sent you a friend request. Connect to compare portfolios and share strategies!
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="acceptFriend()">
+                            Accept
+                        </button>
+                        <button class="notification-item__action-btn notification-item__action-btn--secondary" onclick="declineFriend()">
+                            Decline
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievement Unlocked -->
+            <div class="notification-item notification-item--unread" data-type="achievements">
+                <div class="notification-item__unread-dot"></div>
+                <div class="notification-item__icon notification-item__icon--achievement">🏆</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Achievement Unlocked!</h4>
+                        <span class="notification-item__time">1 hour ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        Congratulations! You've earned the <strong>"Portfolio Pro"</strong> badge for reaching $50,000 in portfolio value.
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="viewAchievement()">
+                            View Badge
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Milestone -->
+            <div class="notification-item notification-item--unread" data-type="portfolio">
+                <div class="notification-item__unread-dot"></div>
+                <div class="notification-item__icon notification-item__icon--portfolio">💰</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Portfolio Milestone Reached</h4>
+                        <span class="notification-item__time">3 hours ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        Your portfolio just crossed <strong>$50,000</strong>! That's a +12.5% gain this month. Keep up the great work!
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="viewPortfolio()">
+                            View Portfolio
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson Completed -->
+            <div class="notification-item" data-type="lessons">
+                <div class="notification-item__icon notification-item__icon--lesson">📚</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Lesson Completed</h4>
+                        <span class="notification-item__time">5 hours ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        You completed <strong>"Understanding Stock Dividends"</strong>. Next up: Advanced Options Trading.
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="nextLesson()">
+                            Next Lesson
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Activity -->
+            <div class="notification-item" data-type="friends">
+                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Friend Activity</h4>
+                        <span class="notification-item__time">Yesterday</span>
+                    </div>
+                    <p class="notification-item__message">
+                        <strong>Sarah Miller</strong> completed 3 new lessons and earned the "Knowledge Seeker" badge!
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="viewFriendProfile()">
+                            View Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievement Progress -->
+            <div class="notification-item" data-type="achievements">
+                <div class="notification-item__icon notification-item__icon--achievement">🏆</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Almost There!</h4>
+                        <span class="notification-item__time">Yesterday</span>
+                    </div>
+                    <p class="notification-item__message">
+                        You're 2 trades away from unlocking the <strong>"Day Trader"</strong> badge. Keep going!
+                    </p>
+                </div>
+            </div>
+
+            <!-- System Update -->
+            <div class="notification-item" data-type="system">
+                <div class="notification-item__icon notification-item__icon--system">🔔</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">New Features Available</h4>
+                        <span class="notification-item__time">2 days ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        Check out our new Portfolio Comparison tool to see how you stack up against your friends!
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="exploreFeatures()">
+                            Explore
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friend Trade -->
+            <div class="notification-item" data-type="friends">
+                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Friend Made a Trade</h4>
+                        <span class="notification-item__time">2 days ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        <strong>Mike Johnson</strong> bought 10 shares of NVDA. Their portfolio is up 15.7% this month!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Lesson Reminder -->
+            <div class="notification-item" data-type="lessons">
+                <div class="notification-item__icon notification-item__icon--lesson">📚</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Continue Your Learning</h4>
+                        <span class="notification-item__time">3 days ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        You're halfway through Level 3! Complete 5 more lessons to advance to Level 4.
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="continueLearning()">
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Alert -->
+            <div class="notification-item" data-type="portfolio">
+                <div class="notification-item__icon notification-item__icon--portfolio">💰</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Stock Price Alert</h4>
+                        <span class="notification-item__time">3 days ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        AAPL is up 5% today! Your 15 shares have gained $137 in value.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Achievement Earned -->
+            <div class="notification-item" data-type="achievements">
+                <div class="notification-item__icon notification-item__icon--achievement">🏆</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Streak Achievement!</h4>
+                        <span class="notification-item__time">4 days ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        You've completed lessons for 5 days in a row! Earned the <strong>"Dedicated Learner"</strong> badge.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Friend Accepted -->
+            <div class="notification-item" data-type="friends">
+                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__content">
+                    <div class="notification-item__header">
+                        <h4 class="notification-item__title">Friend Request Accepted</h4>
+                        <span class="notification-item__time">5 days ago</span>
+                    </div>
+                    <p class="notification-item__message">
+                        <strong>Anna Garcia</strong> accepted your friend request. Start comparing portfolios!
+                    </p>
+                    <div class="notification-item__actions">
+                        <button class="notification-item__action-btn notification-item__action-btn--primary" onclick="viewFriend()">
+                            View Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast" style="display: none;"></div>
+    </main>
+
+    <script src="global-ui.js"></script>
+    <script>
+        // Filter notifications
+        function filterNotifications(type) {
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter notification items
+            const notifications = document.querySelectorAll('.notification-item');
+            notifications.forEach(item => {
+                if (type === 'all') {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = item.dataset.type === type ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Mark all as read
+        function markAllAsRead() {
+            document.querySelectorAll('.notification-item--unread').forEach(item => {
+                item.classList.remove('notification-item--unread');
+                const dot = item.querySelector('.notification-item__unread-dot');
+                if (dot) dot.remove();
+            });
+            showToast('All notifications marked as read', 'success');
+        }
+
+        // Notification actions
+        function acceptFriend() {
+            event.stopPropagation();
+            showToast('Friend request accepted! 🎉', 'success');
+            event.target.closest('.notification-item').classList.remove('notification-item--unread');
+        }
+
+        function declineFriend() {
+            event.stopPropagation();
+            showToast('Friend request declined', 'info');
+            event.target.closest('.notification-item').remove();
+        }
+
+        function viewAchievement() {
+            event.stopPropagation();
+            window.location.href = 'profile-main-enhanced.html#achievements';
+        }
+
+        function viewPortfolio() {
+            event.stopPropagation();
+            window.location.href = 'simulator.html';
+        }
+
+        function nextLesson() {
+            event.stopPropagation();
+            window.location.href = 'lessons.html';
+        }
+
+        function viewFriendProfile() {
+            event.stopPropagation();
+            showToast('Opening friend profile...', 'info');
+        }
+
+        function viewFriend() {
+            event.stopPropagation();
+            showToast('Opening friend profile...', 'info');
+        }
+
+        function exploreFeatures() {
+            event.stopPropagation();
+            window.location.href = 'compare-portfolios.html';
+        }
+
+        function continueLearning() {
+            event.stopPropagation();
+            window.location.href = 'lessons.html';
+        }
+
+        function openSettings() {
+            showToast('Opening notification settings...', 'info');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast--${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Mark notification as read when clicked
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (this.classList.contains('notification-item--unread')) {
+                    this.classList.remove('notification-item--unread');
+                    const dot = this.querySelector('.notification-item__unread-dot');
+                    if (dot) dot.remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

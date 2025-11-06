@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboards - Investment Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="profile-styles.css">
+    <script>
+      // Theme initialization
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        .leaderboard-header {
+            margin-bottom: 32px;
+        }
+
+        .leaderboard-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .leaderboard-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .leaderboard-tab:hover {
+            color: var(--text);
+            background: var(--bg-hover);
+        }
+
+        .leaderboard-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .time-filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-filter-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .time-filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .leaderboard-section {
+            display: none;
+        }
+
+        .leaderboard-section.active {
+            display: block;
+        }
+
+        .podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+            align-items: end;
+        }
+
+        .podium-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .podium-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .podium-card--first {
+            grid-column: 2;
+            border-color: #FFD700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), var(--bg-card));
+        }
+
+        .podium-card--second {
+            grid-column: 1;
+            grid-row: 1;
+            border-color: #C0C0C0;
+        }
+
+        .podium-card--third {
+            grid-column: 3;
+            grid-row: 1;
+            border-color: #CD7F32;
+        }
+
+        .podium-rank {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 900;
+            margin: 0 auto 16px;
+            color: white;
+        }
+
+        .podium-rank--first {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            font-size: 32px;
+        }
+
+        .podium-rank--second {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+        }
+
+        .podium-rank--third {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+        }
+
+        .podium-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .podium-card--first .podium-avatar {
+            width: 100px;
+            height: 100px;
+            font-size: 40px;
+        }
+
+        .podium-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 4px;
+        }
+
+        .podium-card--first .podium-name {
+            font-size: 20px;
+        }
+
+        .podium-badge {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0 0 16px;
+        }
+
+        .podium-stat {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .podium-card--first .podium-stat {
+            font-size: 32px;
+        }
+
+        .podium-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .leaderboard-list {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .leaderboard-item {
+            display: grid;
+            grid-template-columns: 60px 1fr auto;
+            gap: 16px;
+            padding: 16px 20px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .leaderboard-item--you {
+            background: linear-gradient(90deg, rgba(var(--accent-rgb, 52, 152, 219), 0.1), var(--bg-card));
+            border-left: 4px solid var(--accent);
+        }
+
+        .leaderboard-rank {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .leaderboard-item--you .leaderboard-rank {
+            color: var(--accent);
+        }
+
+        .leaderboard-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .leaderboard-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .leaderboard-user-info h4 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .leaderboard-user-info p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .leaderboard-stat {
+            text-align: right;
+        }
+
+        .leaderboard-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .leaderboard-stat-change {
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .leaderboard-stat-change--positive {
+            background: rgba(46, 213, 115, 0.15);
+            color: #27ae60;
+        }
+
+        .leaderboard-stat-change--negative {
+            background: rgba(255, 71, 87, 0.15);
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .podium {
+                grid-template-columns: 1fr;
+            }
+
+            .podium-card--first,
+            .podium-card--second,
+            .podium-card--third {
+                grid-column: 1;
+                grid-row: auto;
+            }
+
+            .leaderboard-item {
+                grid-template-columns: 40px 1fr auto;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+
+            .leaderboard-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar__header">
+            <a href="index.html" class="sidebar__brand">
+                <div class="sidebar__logo">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="var(--accent)" opacity="0.1"/>
+                        <path d="M30,60 L45,40 L55,50 L70,30" stroke="var(--accent)" stroke-width="4" fill="none"/>
+                        <circle cx="30" cy="60" r="4" fill="var(--accent)"/>
+                        <circle cx="45" cy="40" r="4" fill="var(--accent)"/>
+                        <circle cx="55" cy="50" r="4" fill="var(--accent)"/>
+                        <circle cx="70" cy="30" r="4" fill="var(--accent)"/>
+                    </svg>
+                </div>
+                <span class="sidebar__brand-text">Investment Playground</span>
+            </a>
+        </div>
+
+        <nav class="sidebar__nav">
+            <a href="index.html" class="sidebar__link">
+                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__text">Dashboard</span>
+            </a>
+            <a href="lessons.html" class="sidebar__link">
+                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__text">Lessons</span>
+            </a>
+            <a href="calculators.html" class="sidebar__link">
+                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__text">Calculators</span>
+            </a>
+            <a href="simulator.html" class="sidebar__link">
+                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__text">Simulator</span>
+            </a>
+            <a href="profile.html" class="sidebar__link">
+                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__text">Profile</span>
+            </a>
+            <a href="leaderboard.html" class="sidebar__link sidebar__link--active">
+                <span class="sidebar__icon">🏆</span>
+                <span class="sidebar__text">Leaderboard</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app__content">
+        <div class="leaderboard-header">
+            <h1>🏆 Leaderboards</h1>
+            <p style="color: var(--text-muted); margin: 8px 0 0;">Compete with friends and climb the ranks!</p>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="leaderboard-tabs">
+            <button class="leaderboard-tab active" onclick="switchLeaderboard('portfolio')">
+                💰 Portfolio Value
+            </button>
+            <button class="leaderboard-tab" onclick="switchLeaderboard('returns')">
+                📈 Best Returns
+            </button>
+            <button class="leaderboard-tab" onclick="switchLeaderboard('lessons')">
+                📚 Lessons Completed
+            </button>
+            <button class="leaderboard-tab" onclick="switchLeaderboard('streak')">
+                🔥 Learning Streak
+            </button>
+        </div>
+
+        <!-- Time Filters -->
+        <div class="time-filter">
+            <button class="time-filter-btn" onclick="filterTime('today')">Today</button>
+            <button class="time-filter-btn active" onclick="filterTime('week')">This Week</button>
+            <button class="time-filter-btn" onclick="filterTime('month')">This Month</button>
+            <button class="time-filter-btn" onclick="filterTime('all')">All Time</button>
+        </div>
+
+        <!-- Portfolio Leaderboard -->
+        <div id="portfolio-leaderboard" class="leaderboard-section active">
+            <!-- Top 3 Podium -->
+            <div class="podium">
+                <div class="podium-card podium-card--second">
+                    <div class="podium-rank podium-rank--second">2</div>
+                    <div class="podium-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        MJ
+                    </div>
+                    <h3 class="podium-name">Mike Johnson</h3>
+                    <p class="podium-badge">Expert Investor</p>
+                    <div class="podium-stat">$67,890</div>
+                    <div class="podium-stat-label">Portfolio Value</div>
+                </div>
+
+                <div class="podium-card podium-card--first">
+                    <div class="podium-rank podium-rank--first">1</div>
+                    <div class="podium-avatar" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        EB
+                    </div>
+                    <h3 class="podium-name">Emily Brown</h3>
+                    <p class="podium-badge">Elite Trader</p>
+                    <div class="podium-stat">$82,450</div>
+                    <div class="podium-stat-label">Portfolio Value</div>
+                </div>
+
+                <div class="podium-card podium-card--third">
+                    <div class="podium-rank podium-rank--third">3</div>
+                    <div class="podium-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        DW
+                    </div>
+                    <h3 class="podium-name">David Wilson</h3>
+                    <p class="podium-badge">Advanced Trader</p>
+                    <div class="podium-stat">$58,230</div>
+                    <div class="podium-stat-label">Portfolio Value</div>
+                </div>
+            </div>
+
+            <!-- Rest of List -->
+            <div class="leaderboard-list">
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">4</div>
+                    <div class="leaderboard-user">
+                        <div class="leaderboard-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">SM</div>
+                        <div class="leaderboard-user-info">
+                            <h4>Sarah Miller</h4>
+                            <p>Intermediate Trader</p>
+                        </div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-value">$52,850</div>
+                        <span class="leaderboard-stat-change leaderboard-stat-change--positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            +8.3%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="leaderboard-item leaderboard-item--you">
+                    <div class="leaderboard-rank">5</div>
+                    <div class="leaderboard-user">
+                        <div class="leaderboard-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">CM</div>
+                        <div class="leaderboard-user-info">
+                            <h4>Carter Matherne <span style="color: var(--accent);">(You)</span></h4>
+                            <p>Rookie Investor</p>
+                        </div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-value">$52,450</div>
+                        <span class="leaderboard-stat-change leaderboard-stat-change--positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            +12.5%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">6</div>
+                    <div class="leaderboard-user">
+                        <div class="leaderboard-avatar" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">JD</div>
+                        <div class="leaderboard-user-info">
+                            <h4>John Doe</h4>
+                            <p>Advanced Trader</p>
+                        </div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-value">$48,120</div>
+                        <span class="leaderboard-stat-change leaderboard-stat-change--positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            +5.2%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">7</div>
+                    <div class="leaderboard-user">
+                        <div class="leaderboard-avatar" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">LT</div>
+                        <div class="leaderboard-user-info">
+                            <h4>Lisa Taylor</h4>
+                            <p>Intermediate Investor</p>
+                        </div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-value">$45,670</div>
+                        <span class="leaderboard-stat-change leaderboard-stat-change--negative">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            -2.1%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">8</div>
+                    <div class="leaderboard-user">
+                        <div class="leaderboard-avatar" style="background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);">TC</div>
+                        <div class="leaderboard-user-info">
+                            <h4>Tom Chen</h4>
+                            <p>Beginner Trader</p>
+                        </div>
+                    </div>
+                    <div class="leaderboard-stat">
+                        <div class="leaderboard-stat-value">$42,300</div>
+                        <span class="leaderboard-stat-change leaderboard-stat-change--positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            +3.8%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast" style="display: none;"></div>
+    </main>
+
+    <script src="global-ui.js"></script>
+    <script>
+        function switchLeaderboard(category) {
+            // Update tab states
+            document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update leaderboard sections
+            document.querySelectorAll('.leaderboard-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // For now, only portfolio leaderboard is implemented
+            // In a full implementation, you would show different leaderboards
+            showToast(`Loading ${category} leaderboard...`, 'info');
+        }
+
+        function filterTime(period) {
+            // Update button states
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            showToast(`Loading ${period} rankings...`, 'info');
+            // TODO: Fetch and display data for selected time period
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast--${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
