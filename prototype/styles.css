@@ -1818,50 +1818,58 @@ body {
     height: 100vh;
     margin: 0;
     border-radius: 0;
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    grid-template-rows: 64px 1fr;
-    grid-template-areas:
-      "sidebar header"
-      "sidebar content";
+    /* Remove grid layout - use fixed positioning instead */
     overflow: hidden;
   }
 
   .app__header {
-    grid-area: header;
-    border-bottom: 1px solid var(--border);
-    padding: 0 40px;
+    /* Override grid positioning - use fixed positioning */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    padding: 0 40px 0 calc(var(--sidebar-width) + 40px);
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 64px;
     background: var(--bg-card);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--border);
+    z-index: 900;
+    transition: padding-left 280ms cubic-bezier(.2,.9,.2,1);
+    box-sizing: border-box;
   }
 
   main.app__content {
-    grid-area: content;
+    /* Remove grid positioning */
+    margin-left: var(--sidebar-width);
+    margin-top: 64px;
     padding: 40px;
     padding-bottom: 40px;
     overflow-y: auto;
     height: calc(100vh - 64px);
     max-width: 1400px;
-    margin: 0 auto;
+    margin-right: auto;
     width: 100%;
   }
 
   /* Chess.com-Inspired Sidebar Navigation */
   .sidebar {
-    grid-area: sidebar;
+    /* Remove grid positioning - already has fixed positioning from base styles */
     display: flex;
     flex-direction: column;
     background: var(--bg-card);
     border-right: 1px solid var(--border);
-    padding: 0;
+    padding: 12px 6px;
     overflow-y: auto;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: var(--sidebar-width);
     height: 100vh;
+    z-index: 1100;
   }
 
   .sidebar__logo {
@@ -2035,9 +2043,9 @@ body.sidebar-collapsed .app__header {
   }
 
   .app__header {
-    margin-left: 0;
-    width: 100%;
     padding: 14px 16px;
+    left: 0;
+    width: 100vw;
   }
 
   .app__logo {
@@ -2070,9 +2078,9 @@ body.sidebar-collapsed .app__header {
   }
 
   .app__header {
-    margin-left: 0;
-    width: 100%;
     padding: 16px 20px;
+    left: 0;
+    width: 100vw;
   }
 
   .app__logo {
