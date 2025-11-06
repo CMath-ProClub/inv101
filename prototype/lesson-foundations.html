@@ -85,6 +85,11 @@
       <span>Foundations</span>
     </header>
     <main class="app__content lesson-detail">
+      <!-- Progress Bar -->
+      <div class="lesson-progress-bar">
+        <div class="lesson-progress-fill" id="lessonProgress" style="width: 0%"></div>
+      </div>
+
       <section class="lesson-detail__hero">
         <span class="lesson-detail__tag">Foundations Track</span>
         <h1>Build confident habits from day one.</h1>
@@ -101,10 +106,13 @@
             <span>Flash cards + quick quizzes</span>
           </div>
           <div>
-            <strong>Community streak</strong>
-            <span>78% completion rate</span>
+            <strong>Your Progress</strong>
+            <span id="completionText">0 of 6 completed</span>
           </div>
         </div>
+        <button class="btn btn--primary" id="startLessonBtn" style="margin-top: 20px;">
+          Start Learning →
+        </button>
       </section>
 
       <section class="lesson-detail__content">
@@ -221,6 +229,143 @@
       <span>Profile</span>
     </a>
   </nav>
+
+  <script>
+    // Lesson Progress Tracking
+    const STORAGE_KEY = 'inv101_lesson_foundations_progress';
+    
+    function loadProgress() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : { completed: [], current: 1 };
+      } catch {
+        return { completed: [], current: 1 };
+      }
+    }
+
+    function saveProgress(progress) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      updateUI(progress);
+    }
+
+    function updateUI(progress) {
+      const modules = document.querySelectorAll('.lesson-module');
+      const completionText = document.getElementById('completionText');
+      const progressBar = document.getElementById('lessonProgress');
+
+      if (completionText) {
+        completionText.textContent = `${progress.completed.length} of ${modules.length} completed`;
+      }
+
+      if (progressBar) {
+        const percentage = (progress.completed.length / modules.length) * 100;
+        progressBar.style.width = `${percentage}%`;
+      }
+
+      modules.forEach((module, index) => {
+        const moduleNum = index + 1;
+        const statusIcon = module.querySelector('.module-status');
+        const actionBtn = module.querySelector('.module-action-btn');
+
+        if (progress.completed.includes(moduleNum)) {
+          if (statusIcon) statusIcon.textContent = '✅';
+          if (actionBtn) {
+            actionBtn.textContent = 'Review Module';
+            actionBtn.disabled = false;
+          }
+          module.style.opacity = '0.7';
+        } else if (moduleNum === progress.current) {
+          if (statusIcon) statusIcon.textContent = '🔓';
+          if (actionBtn) {
+            actionBtn.textContent = 'Begin Module';
+            actionBtn.disabled = false;
+          }
+        } else if (moduleNum < progress.current) {
+          if (statusIcon) statusIcon.textContent = '🔓';
+          if (actionBtn) actionBtn.disabled = false;
+        }
+      });
+    }
+
+    // Initialize
+    const progress = loadProgress();
+    updateUI(progress);
+
+    // Module button handlers
+    document.querySelectorAll('.module-action-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const moduleNum = parseInt(this.dataset.module);
+        
+        if (!progress.completed.includes(moduleNum)) {
+          progress.completed.push(moduleNum);
+          progress.current = Math.min(moduleNum + 1, 6);
+          saveProgress(progress);
+          alert(`Module ${moduleNum} completed! ✅`);
+        } else {
+          alert(`Reviewing Module ${moduleNum}...`);
+        }
+      });
+    });
+
+    // Start button
+    const startBtn = document.getElementById('startLessonBtn');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        document.querySelector('.lesson-module').scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+  </script>
+
+  <style>
+    .lesson-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+
+    .lesson-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), rgba(108, 92, 231, 0.8));
+      transition: width 500ms ease;
+    }
+
+    .module-status {
+      font-size: 1.2rem;
+    }
+
+    .module-action-btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 200ms;
+    }
+
+    .module-action-btn:hover:not(:disabled) {
+      background: rgba(29, 209, 161, 0.9);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(29, 209, 161, 0.3);
+    }
+
+    .module-action-btn:disabled {
+      background: var(--bg-hover);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .lesson-module {
+      transition: opacity 300ms;
+    }
+  </style>
 </body>
 </html>
 

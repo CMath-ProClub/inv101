@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Simulator - Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="device-detection.js"></script>
+  <script>
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    .sim-container {
+      display: grid;
+      grid-template-columns: 320px 1fr 300px;
+      gap: 20px;
+      padding: 20px;
+      height: calc(100vh - 140px);
+      overflow: hidden;
+    }
+
+    .sim-sidebar {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .sim-main {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .sim-panel {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .stock-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .stock-tab {
+      padding: 8px 14px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 150ms;
+    }
+
+    .stock-tab:hover, .stock-tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .stock-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stock-item {
+      padding: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 150ms;
+    }
+
+    .stock-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent);
+    }
+
+    .stock-item.selected {
+      background: rgba(29, 209, 161, 0.1);
+      border-color: var(--accent);
+    }
+
+    .stock-symbol {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .stock-price {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .stock-change {
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .stock-change.positive {
+      color: #10b981;
+    }
+
+    .stock-change.negative {
+      color: #ef4444;
+    }
+
+    .chart-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      height: 400px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .metric-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stock-detail-header {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .stock-detail-symbol {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stock-detail-price {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+    }
+
+    .trade-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .trade-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .trade-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 150ms;
+      font-size: 0.95rem;
+    }
+
+    .trade-btn.buy {
+      background: #10b981;
+      color: white;
+    }
+
+    .trade-btn.sell {
+      background: #ef4444;
+      color: white;
+    }
+
+    .trade-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .trade-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .portfolio-item {
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .portfolio-symbol {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .portfolio-details {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .portfolio-card {
+      padding: 20px;
+      background: var(--bg);
+      border: 2px solid rgba(0,0,0,0.08);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 200ms;
+    }
+
+    .portfolio-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .portfolio-card.create {
+      border-style: dashed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    @media (max-width: 1200px) {
+      .sim-container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .sim-sidebar, .sim-panel {
+        max-height: 500px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="global-ui.js"></script>
+  <div class="app">
+    <aside class="sidebar">
+      <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
+        <img src="assets/Investing101.png" alt="Investing 101">
+      </a>
+      <nav class="sidebar__nav" aria-label="Main navigation">
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+          <span>Main</span>
+        </a>
+        <a href="simulator.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 3v3" />
+            <path d="M12 18v3" />
+            <path d="M3 12h3" />
+            <path d="M18 12h3" />
+          </svg>
+          <span>Simulator / AI</span>
+        </a>
+        <a href="lessons.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+            <path d="M4 12l8 3 8-3" />
+            <path d="M12 5v10" />
+          </svg>
+          <span>Lessons</span>
+        </a>
+        <a href="calculators.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 8h10" />
+            <path d="M7 12h10" />
+            <path d="M7 16h3" />
+            <path d="M14 16h3" />
+          </svg>
+          <span>Calculators</span>
+        </a>
+        <a href="profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="app__header">
+      <button class="btn btn--secondary" onclick="showPortfolioModal()">📂 Portfolios</button>
+      <span id="portfolioName">My Portfolio</span>
+      <button class="btn btn--secondary" onclick="savePortfolio()">💾 Save</button>
+    </header>
+
+    <main class="app__content">
+      <div class="sim-container">
+        <!-- Stock Sidebar -->
+        <div class="sim-sidebar">
+          <h3 style="margin-bottom: 16px;">Stock Search</h3>
+          <input type="text" id="stockSearch" class="search-box" placeholder="Search stocks..." />
+          
+          <div class="stock-tabs">
+            <button class="stock-tab active" data-category="popular">Popular</button>
+            <button class="stock-tab" data-category="tech">Tech</button>
+            <button class="stock-tab" data-category="finance">Finance</button>
+            <button class="stock-tab" data-category="energy">Energy</button>
+          </div>
+
+          <div class="stock-list" id="stockList">
+            <!-- Stocks will be populated here -->
+          </div>
+        </div>
+
+        <!-- Main Chart Area -->
+        <div class="sim-main">
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Portfolio Value</div>
+              <div class="metric-value" id="portfolioValue">$10,000.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Cash</div>
+              <div class="metric-value" id="cashValue">$10,000.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">P/L</div>
+              <div class="metric-value" id="plValue" style="color: #10b981;">$0.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Return %</div>
+              <div class="metric-value" id="returnValue" style="color: #10b981;">0.00%</div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="portfolioChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Stock Detail Panel -->
+        <div class="sim-panel">
+          <div id="stockDetail">
+            <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <p>Select a stock to view details and trade</p>
+            </div>
+          </div>
+
+          <h3 style="margin: 24px 0 12px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.08);">Your Holdings</h3>
+          <div id="holdingsList">
+            <p style="text-align: center; color: var(--text-muted); padding: 20px;">No holdings yet</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Portfolio Modal -->
+    <div class="modal" id="portfolioModal">
+      <div class="modal-content">
+        <h2 style="margin-bottom: 24px;">Your Portfolios</h2>
+        <div class="portfolio-grid" id="portfolioGrid">
+          <!-- Portfolios will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 10.5L12 3l9 7.5" />
+          <path d="M5 10.5V21h14V10.5" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v3" />
+          <path d="M12 18v3" />
+          <path d="M3 12h3" />
+          <path d="M18 12h3" />
+        </svg>
+        <span>Simulator</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+          <path d="M4 12l8 3 8-3" />
+          <path d="M12 5v10" />
+        </svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h3" />
+          <path d="M14 16h3" />
+        </svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="theme-switcher.js"></script>
+  <script>
+    // Market Simulator Logic
+    const STORAGE_KEY = 'inv101_market_simulator';
+    const API_BASE = 'http://localhost:4000/api';
+
+    let currentPortfolio = null;
+    let stockData = {};
+    let chart = null;
+    let selectedStock = null;
+
+    // Sample stock data (in production, fetch from API)
+    const STOCKS = {
+      popular: [
+        { symbol: 'AAPL', name: 'Apple Inc.', price: 178.50, change: 2.3 },
+        { symbol: 'MSFT', name: 'Microsoft', price: 380.00, change: 1.8 },
+        { symbol: 'GOOGL', name: 'Alphabet', price: 140.25, change: -0.5 },
+        { symbol: 'AMZN', name: 'Amazon', price: 145.80, change: 1.2 },
+        { symbol: 'TSLA', name: 'Tesla', price: 242.50, change: 3.5 }
+      ],
+      tech: [
+        { symbol: 'NVDA', name: 'NVIDIA', price: 495.00, change: 4.2 },
+        { symbol: 'META', name: 'Meta Platforms', price: 328.00, change: 1.9 },
+        { symbol: 'NFLX', name: 'Netflix', price: 425.00, change: -1.2 },
+        { symbol: 'AMD', name: 'AMD', price: 118.50, change: 2.8 }
+      ],
+      finance: [
+        { symbol: 'JPM', name: 'JPMorgan Chase', price: 155.20, change: 0.8 },
+        { symbol: 'BAC', name: 'Bank of America', price: 32.50, change: -0.3 },
+        { symbol: 'GS', name: 'Goldman Sachs', price: 385.00, change: 1.5 },
+        { symbol: 'V', name: 'Visa', price: 245.00, change: 0.9 }
+      ],
+      energy: [
+        { symbol: 'XOM', name: 'Exxon Mobil', price: 108.50, change: 2.1 },
+        { symbol: 'CVX', name: 'Chevron', price: 154.00, change: 1.4 },
+        { symbol: 'COP', name: 'ConocoPhillips', price: 112.00, change: 1.8 }
+      ]
+    };
+
+    // Initialize
+    function init() {
+      loadPortfolio();
+      renderStocks('popular');
+      initChart();
+      setupEventListeners();
+    }
+
+    function loadPortfolio() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const data = JSON.parse(saved);
+          currentPortfolio = data.current || createNewPortfolio();
+        } else {
+          currentPortfolio = createNewPortfolio();
+        }
+        updateUI();
+      } catch (e) {
+        currentPortfolio = createNewPortfolio();
+      }
+    }
+
+    function createNewPortfolio() {
+      return {
+        name: 'My Portfolio',
+        cash: 10000,
+        holdings: {},
+        history: [{ date: new Date().toISOString(), value: 10000 }],
+        created: new Date().toISOString()
+      };
+    }
+
+    function savePortfolio() {
+      try {
+        const data = {
+          current: currentPortfolio,
+          saved: getSavedPortfolios()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        alert('✅ Portfolio saved successfully!');
+      } catch (e) {
+        alert('❌ Failed to save portfolio');
+      }
+    }
+
+    function getSavedPortfolios() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved).saved || [] : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function renderStocks(category) {
+      const container = document.getElementById('stockList');
+      const stocks = STOCKS[category] || STOCKS.popular;
+      
+      container.innerHTML = stocks.map(stock => `
+        <div class="stock-item" onclick="selectStock('${stock.symbol}')">
+          <div class="stock-symbol">${stock.symbol}</div>
+          <div class="stock-price">$${stock.price.toFixed(2)}</div>
+          <div class="stock-change ${stock.change >= 0 ? 'positive' : 'negative'}">
+            ${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}%
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectStock(symbol) {
+      selectedStock = findStock(symbol);
+      if (!selectedStock) return;
+
+      document.querySelectorAll('.stock-item').forEach(el => el.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+
+      const holding = currentPortfolio.holdings[symbol] || { shares: 0, avgPrice: 0 };
+      
+      document.getElementById('stockDetail').innerHTML = `
+        <div class="stock-detail-header">
+          <div class="stock-detail-symbol">${selectedStock.symbol}</div>
+          <div style="color: var(--text-muted); margin-bottom: 8px;">${selectedStock.name}</div>
+          <div class="stock-detail-price">$${selectedStock.price.toFixed(2)}</div>
+          <div class="stock-change ${selectedStock.change >= 0 ? 'positive' : 'negative'}" style="font-size: 1rem;">
+            ${selectedStock.change >= 0 ? '+' : ''}${selectedStock.change.toFixed(2)}%
+          </div>
+        </div>
+        
+        ${holding.shares > 0 ? `
+          <div style="padding: 12px; background: var(--bg); border-radius: 10px; margin-bottom: 16px;">
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px;">Your Position</div>
+            <div style="font-weight: 600;">${holding.shares} shares @ $${holding.avgPrice.toFixed(2)}</div>
+            <div style="font-size: 0.9rem; margin-top: 4px;">
+              Value: $${(holding.shares * selectedStock.price).toFixed(2)}
+            </div>
+          </div>
+        ` : ''}
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Shares</label>
+          <input type="number" id="tradeShares" class="trade-input" min="1" step="1" value="1" />
+        </div>
+
+        <div class="trade-actions">
+          <button class="trade-btn buy" onclick="executeTrade('buy')">
+            Buy ($${selectedStock.price.toFixed(2)})
+          </button>
+          <button class="trade-btn sell" onclick="executeTrade('sell')" ${holding.shares === 0 ? 'disabled' : ''}>
+            Sell
+          </button>
+        </div>
+      `;
+    }
+
+    function findStock(symbol) {
+      for (const category in STOCKS) {
+        const stock = STOCKS[category].find(s => s.symbol === symbol);
+        if (stock) return stock;
+      }
+      return null;
+    }
+
+    function executeTrade(type) {
+      if (!selectedStock) return;
+
+      const shares = parseInt(document.getElementById('tradeShares').value) || 0;
+      if (shares <= 0) {
+        alert('Please enter a valid number of shares');
+        return;
+      }
+
+      const cost = shares * selectedStock.price;
+
+      if (type === 'buy') {
+        if (currentPortfolio.cash < cost) {
+          alert('❌ Insufficient funds!');
+          return;
+        }
+
+        currentPortfolio.cash -= cost;
+        
+        if (!currentPortfolio.holdings[selectedStock.symbol]) {
+          currentPortfolio.holdings[selectedStock.symbol] = {
+            shares: 0,
+            avgPrice: 0,
+            symbol: selectedStock.symbol,
+            name: selectedStock.name
+          };
+        }
+
+        const holding = currentPortfolio.holdings[selectedStock.symbol];
+        const totalShares = holding.shares + shares;
+        holding.avgPrice = ((holding.shares * holding.avgPrice) + cost) / totalShares;
+        holding.shares = totalShares;
+
+        alert(`✅ Bought ${shares} shares of ${selectedStock.symbol} for $${cost.toFixed(2)}`);
+      } else {
+        const holding = currentPortfolio.holdings[selectedStock.symbol];
+        if (!holding || holding.shares < shares) {
+          alert('❌ Insufficient shares to sell!');
+          return;
+        }
+
+        currentPortfolio.cash += cost;
+        holding.shares -= shares;
+
+        if (holding.shares === 0) {
+          delete currentPortfolio.holdings[selectedStock.symbol];
+        }
+
+        alert(`✅ Sold ${shares} shares of ${selectedStock.symbol} for $${cost.toFixed(2)}`);
+      }
+
+      updateUI();
+      selectStock(selectedStock.symbol);
+    }
+
+    function updateUI() {
+      const totalValue = calculatePortfolioValue();
+      const pl = totalValue - 10000;
+      const returnPct = ((totalValue / 10000) - 1) * 100;
+
+      document.getElementById('portfolioValue').textContent = `$${totalValue.toFixed(2)}`;
+      document.getElementById('cashValue').textContent = `$${currentPortfolio.cash.toFixed(2)}`;
+      document.getElementById('plValue').textContent = `${pl >= 0 ? '+' : ''}$${pl.toFixed(2)}`;
+      document.getElementById('plValue').style.color = pl >= 0 ? '#10b981' : '#ef4444';
+      document.getElementById('returnValue').textContent = `${returnPct >= 0 ? '+' : ''}${returnPct.toFixed(2)}%`;
+      document.getElementById('returnValue').style.color = returnPct >= 0 ? '#10b981' : '#ef4444';
+      
+      updateHoldingsList();
+      updateChart();
+    }
+
+    function calculatePortfolioValue() {
+      let value = currentPortfolio.cash;
+      for (const symbol in currentPortfolio.holdings) {
+        const holding = currentPortfolio.holdings[symbol];
+        const stock = findStock(symbol);
+        if (stock) {
+          value += holding.shares * stock.price;
+        }
+      }
+      return value;
+    }
+
+    function updateHoldingsList() {
+      const container = document.getElementById('holdingsList');
+      const holdings = Object.values(currentPortfolio.holdings);
+
+      if (holdings.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">No holdings yet</p>';
+        return;
+      }
+
+      container.innerHTML = holdings.map(holding => {
+        const stock = findStock(holding.symbol);
+        const currentValue = stock ? holding.shares * stock.price : 0;
+        const costBasis = holding.shares * holding.avgPrice;
+        const pl = currentValue - costBasis;
+
+        return `
+          <div class="portfolio-item">
+            <div class="portfolio-symbol">${holding.symbol}</div>
+            <div class="portfolio-details">
+              ${holding.shares} shares @ $${holding.avgPrice.toFixed(2)}<br>
+              Value: $${currentValue.toFixed(2)} 
+              <span style="color: ${pl >= 0 ? '#10b981' : '#ef4444'}">
+                (${pl >= 0 ? '+' : ''}$${pl.toFixed(2)})
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('portfolioChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Start'],
+          datasets: [{
+            label: 'Portfolio Value',
+            data: [10000],
+            borderColor: '#1dd1a1',
+            backgroundColor: 'rgba(29, 209, 161, 0.1)',
+            tension: 0.4,
+            fill: true
+          }, {
+            label: 'S&P 500 Benchmark',
+            data: [10000],
+            borderColor: '#5f7ff',
+            backgroundColor: 'rgba(95, 127, 255, 0.05)',
+            tension: 0.4,
+            borderDash: [5, 5],
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return '$' + value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChart() {
+      // In production, this would track historical portfolio values
+      const value = calculatePortfolioValue();
+      chart.data.datasets[0].data = [10000, value];
+      chart.data.labels = ['Start', 'Now'];
+      chart.update();
+    }
+
+    function setupEventListeners() {
+      // Stock tabs
+      document.querySelectorAll('.stock-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('.stock-tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          renderStocks(this.dataset.category);
+        });
+      });
+
+      // Stock search
+      const searchInput = document.getElementById('stockSearch');
+      searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.stock-item').forEach(item => {
+          const symbol = item.querySelector('.stock-symbol').textContent.toLowerCase();
+          item.style.display = symbol.includes(query) ? 'block' : 'none';
+        });
+      });
+
+      // Portfolio modal
+      document.getElementById('portfolioModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.remove('active');
+        }
+      });
+    }
+
+    function showPortfolioModal() {
+      const modal = document.getElementById('portfolioModal');
+      const grid = document.getElementById('portfolioGrid');
+      
+      const portfolios = getSavedPortfolios();
+      
+      grid.innerHTML = `
+        <div class="portfolio-card create" onclick="createNewPortfolioFromModal()">
+          <div>
+            <div style="font-size: 2rem; margin-bottom: 8px;">+</div>
+            <div>Create New Portfolio</div>
+            <div style="font-size: 0.85rem; margin-top: 4px; opacity: 0.7;">$10,000 starting balance</div>
+          </div>
+        </div>
+        ${portfolios.map((p, i) => `
+          <div class="portfolio-card" onclick="loadSavedPortfolio(${i})">
+            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">${p.name}</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 4px;">
+              Value: $${calculatePortfolioValueForSaved(p).toFixed(2)}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              Age: ${Math.floor((Date.now() - new Date(p.created)) / (1000 * 60 * 60 * 24))} days
+            </div>
+          </div>
+        `).join('')}
+      `;
+      
+      modal.classList.add('active');
+    }
+
+    function createNewPortfolioFromModal() {
+      const name = prompt('Enter portfolio name:', 'New Portfolio');
+      if (!name) return;
+
+      currentPortfolio = createNewPortfolio();
+      currentPortfolio.name = name;
+      document.getElementById('portfolioName').textContent = name;
+      document.getElementById('portfolioModal').classList.remove('active');
+      updateUI();
+    }
+
+    function loadSavedPortfolio(index) {
+      const portfolios = getSavedPortfolios();
+      if (portfolios[index]) {
+        currentPortfolio = portfolios[index];
+        document.getElementById('portfolioName').textContent = currentPortfolio.name;
+        document.getElementById('portfolioModal').classList.remove('active');
+        updateUI();
+      }
+    }
+
+    function calculatePortfolioValueForSaved(portfolio) {
+      let value = portfolio.cash;
+      for (const symbol in portfolio.holdings) {
+        const holding = portfolio.holdings[symbol];
+        const stock = findStock(symbol);
+        if (stock) {
+          value += holding.shares * stock.price;
+        }
+      }
+      return value;
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

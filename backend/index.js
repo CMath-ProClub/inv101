@@ -40,6 +40,7 @@ const notificationsRouter = require('./routes/notifications');
 const achievementsRouter = require('./routes/achievements');
 const activityRouter = require('./routes/activity');
 const leaderboardsRouter = require('./routes/leaderboards');
+const feedbackRouter = require('./routes/feedback');
 const pingerService = require('./services/pingerService');
 const User = require('./models/User');
 const { JWT_SECRET } = require('./middleware/auth');
@@ -255,6 +256,7 @@ app.use('/api/preferences', preferencesRouter);
 app.use('/api/metrics', metricsRouter);
 app.use('/api/ai-toolkit', aiToolkitRouter);
 app.use('/api/data-providers', dataProvidersRouter);
+app.use('/api/feedback', feedbackRouter);
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
