@@ -5,14 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Friends</title>
   <link rel="stylesheet" href="styles.css">
-  <script>
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
-  </script>
   <script src="device-detection.js"></script>
+  <script>
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
-  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
-    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <script src="global-ui.js"></script>
   <div class="app">
     <!-- sidebar removed — shared-ui provides navigation (keeps layout simpler). -->
     <main class="app__content">

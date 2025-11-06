@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Toolkit & Curriculum</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="shared-ui.css">
+</head>
+<body>
+  <div class="global-header">
+    <div class="brand">
+      <a href="index.html" class="site-logo">Investing101</a>
+    </div>
+    <div class="header-fill">
+      <div class="search">
+        <input type="search" placeholder="Search tracks, labs, or mentors..." aria-label="Search AI toolkit">
+      </div>
+    </div>
+    <div class="actions">
+      <a href="profile.html" class="link-button">Profile</a>
+      <div class="avatar" title="User">
+        <img src="assets/avatar.png" alt="User" onerror="this.style.display='none'">
+      </div>
+    </div>
+  </div>
+  <div class="app">
+    <aside class="sidebar">
+      <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
+        <img src="assets/Investing101.png" alt="Investing 101">
+      </a>
+      <nav class="sidebar__nav" aria-label="Main navigation">
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+          <span>Main</span>
+        </a>
+        <a href="simulator.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 3v3" />
+            <path d="M12 18v3" />
+            <path d="M3 12h3" />
+            <path d="M18 12h3" />
+          </svg>
+          <span>Simulator / AI</span>
+        </a>
+        <a href="lessons.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+            <path d="M4 12l8 3 8-3" />
+            <path d="M12 5v10" />
+          </svg>
+          <span>Lessons</span>
+        </a>
+        <a href="calculators.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 8h10" />
+            <path d="M7 12h10" />
+            <path d="M7 16h3" />
+            <path d="M14 16h3" />
+          </svg>
+          <span>Calculators</span>
+        </a>
+        <a href="ai-toolkit.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20l-7-4v-8l7-4 7 4v8l-7 4z" />
+            <path d="M12 12l7-4" />
+            <path d="M12 12v8" />
+            <path d="M12 12L5 8" />
+          </svg>
+          <span>AI Toolkit</span>
+        </a>
+        <a href="profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="app__content" aria-label="AI curriculum and tools">
+      <header style="margin-bottom: 24px;">
+        <h1>AI Curriculum Hub</h1>
+        <p style="margin: 8px 0 0 0; color: var(--text-muted); max-width: 640px;">Jump into guided tracks, practice labs, and mentor experiences that teach disciplined, hype-resistant investing. Everything ties back to worksheets, simulator branches, and transparent audit logs.</p>
+      </header>
+
+      <section class="card" id="learningTracks">
+        <h3>Guided Learning Tracks</h3>
+        <p class="card__description">Chain lessons, calculators, and AI workflows into progress-aware journeys. Earn skill badges once the full path is complete.</p>
+        <div class="track-grid" data-role="track-list">
+          <div class="skeleton skeleton--track"></div>
+          <div class="skeleton skeleton--track"></div>
+          <div class="skeleton skeleton--track"></div>
+        </div>
+      </section>
+
+      <section class="card" id="practiceLabs">
+        <h3>Scenario Practice Labs</h3>
+        <p class="card__description">Work through pre-baked events using the sentiment worksheet, then compare against the model analyst response.</p>
+        <div class="lab-list" data-role="lab-list">
+          <div class="skeleton skeleton--lab"></div>
+          <div class="skeleton skeleton--lab"></div>
+        </div>
+      </section>
+
+      <section class="card" id="aiResearchCoach">
+        <h3>AI Research Coach</h3>
+        <p class="card__description">Get bias-aware nudges instead of trade calls. Paste your headline notes and receive quick diagnostics.</p>
+        <form class="coach-form" data-role="coach-form">
+          <label for="coachNotes" class="visually-hidden">Headline Notes</label>
+          <textarea id="coachNotes" name="coachNotes" rows="4" placeholder="Paste your headline notes here..." required></textarea>
+          <div class="coach-actions">
+            <button type="submit" class="btn">Run Feedback</button>
+            <label class="checkbox-inline">
+              <input type="checkbox" name="biasChecks" value="source-check">
+              <span>Logged source check</span>
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" name="biasChecks" value="hype-filter">
+              <span>Removed hype words</span>
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" name="biasChecks" value="long-term">
+              <span>Aligned with plan</span>
+            </label>
+          </div>
+        </form>
+        <div class="coach-results" data-role="coach-results" hidden>
+          <h4>Coach Summary</h4>
+          <p data-role="coach-score"></p>
+          <ul data-role="coach-strengths"></ul>
+          <ul data-role="coach-adjustments"></ul>
+          <div data-role="coach-prompts" class="coach-prompts"></div>
+        </div>
+      </section>
+
+      <section class="card" id="communityCases">
+        <h3>Community Case Library</h3>
+        <p class="card__description">See moderated breakdowns of real dilemmas. Each case links to calculators, lessons, and labs.</p>
+        <div class="case-stack" data-role="case-list">
+          <div class="skeleton skeleton--case"></div>
+          <div class="skeleton skeleton--case"></div>
+        </div>
+      </section>
+
+      <section class="card" id="fundamentalsSnapshots">
+        <h3>Integrated Fundamentals Snapshots</h3>
+        <p class="card__description">Get citation-backed metrics for dividend durability and qualitative context tailored to new investors.</p>
+        <div class="snapshot-grid" data-role="snapshot-list">
+          <div class="skeleton skeleton--snapshot"></div>
+          <div class="skeleton skeleton--snapshot"></div>
+        </div>
+      </section>
+
+      <section class="card" id="portfolioSimulator">
+        <h3>Portfolio Simulator Branches</h3>
+        <p class="card__description">Model what happens when sentiment diverges from fundamentals. Each branch includes journaling prompts.</p>
+        <div class="branch-list" data-role="branch-list">
+          <div class="skeleton skeleton--branch"></div>
+          <div class="skeleton skeleton--branch"></div>
+        </div>
+      </section>
+
+      <section class="card" id="mindfulDashboard">
+        <h3>Mindful Investing Dashboard</h3>
+        <p class="card__description">Pair market mood indicators with behavioral nudges before you touch the simulator or real capital.</p>
+        <div class="mindful-panel" data-role="mindful-panel">
+          <div class="skeleton skeleton--mindful"></div>
+        </div>
+      </section>
+
+      <section class="card" id="aiLiteracy">
+        <h3>Weekly AI Literacy Briefings</h3>
+        <p class="card__description">Stay current on regulations, misinformation trends, and best practices. Journaling hooks feed back into badges.</p>
+        <div class="briefing-timeline" data-role="briefing-list">
+          <div class="skeleton skeleton--briefing"></div>
+          <div class="skeleton skeleton--briefing"></div>
+        </div>
+      </section>
+
+      <section class="card" id="earningsNotebook">
+        <h3>Interactive Earnings Notebook</h3>
+        <p class="card__description">Tag quotes, score sentiment, and stash follow-up questions. Export your work when you close the loop.</p>
+        <div class="notebook-panel" data-role="notebook-panel">
+          <div class="skeleton skeleton--notebook"></div>
+        </div>
+      </section>
+
+      <section class="card" id="earnYourTools">
+        <h3>Earn-your-tools Pathway</h3>
+        <p class="card__description">Unlock advanced calculators only after mastering the foundation. Keeps the focus on process, not gadgets.</p>
+        <div class="tiers-grid" data-role="tier-list">
+          <div class="skeleton skeleton--tier"></div>
+          <div class="skeleton skeleton--tier"></div>
+          <div class="skeleton skeleton--tier"></div>
+        </div>
+      </section>
+
+      <section class="card" id="ethicalAudit">
+        <h3>Ethical AI Audit Log</h3>
+        <p class="card__description">Every sentiment score shows where it came from, which filters ran, and how conflicts were resolved.</p>
+        <div class="audit-log" data-role="audit-log">
+          <div class="skeleton skeleton--audit"></div>
+          <div class="skeleton skeleton--audit"></div>
+        </div>
+      </section>
+
+      <section class="card" id="mentorMode">
+        <h3>Mentor-mode Chat</h3>
+        <p class="card__description">Pair with curated personas who reinforce fundamentals instead of hype. Unlock advanced voices as you earn badges.</p>
+        <div class="mentor-grid" data-role="mentor-list">
+          <div class="skeleton skeleton--mentor"></div>
+          <div class="skeleton skeleton--mentor"></div>
+        </div>
+      </section>
+
+      <section class="card" id="goalOnboarding">
+        <h3>Goal-based Onboarding</h3>
+        <p class="card__description">Tell us your intent and we tailor dashboards, newsletters, and calculators instantly.</p>
+        <form class="onboarding-form" data-role="onboarding-form">
+          <label for="onboardingGoal" class="visually-hidden">Select goal</label>
+          <select id="onboardingGoal" name="goal">
+            <option value="income">Income</option>
+            <option value="growth">Growth</option>
+            <option value="education" selected>Education</option>
+          </select>
+          <button type="submit" class="btn">Generate Plan</button>
+        </form>
+        <div class="onboarding-results" data-role="onboarding-results" hidden></div>
+      </section>
+
+      <section class="card" id="mythsReality">
+        <h3>Myths vs Reality Hub</h3>
+        <p class="card__description">Debunk viral trading narratives with data-backed reality checks and quick self-tests.</p>
+        <div class="myth-grid" data-role="myth-list">
+          <div class="skeleton skeleton--myth"></div>
+          <div class="skeleton skeleton--myth"></div>
+        </div>
+      </section>
+
+      <section class="card" id="brokerageSync">
+        <h3>Brokerage Sync Blueprint</h3>
+        <p class="card__description">Plan a secure, read-only connection that maps holdings into simulator modules with risk overlays.</p>
+        <div class="blueprint-panel" data-role="blueprint-panel">
+          <div class="skeleton skeleton--blueprint"></div>
+        </div>
+      </section>
+    </main>
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10.5L12 3l9 7.5" />
+          <path d="M5 10.5V21h14V10.5" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v3" />
+          <path d="M12 18v3" />
+          <path d="M3 12h3" />
+          <path d="M18 12h3" />
+        </svg>
+        <span>Sim/AI</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+          <path d="M4 12l8 3 8-3" />
+          <path d="M12 5v10" />
+        </svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h3" />
+          <path d="M14 16h3" />
+        </svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn tabbar__btn--active" href="ai-toolkit.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20l-7-4v-8l7-4 7 4v8l-7 4z" />
+          <path d="M12 12l7-4" />
+          <path d="M12 12v8" />
+          <path d="M12 12L5 8" />
+        </svg>
+        <span>Toolkit</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="global-ui.js"></script>
+  <script src="ai-toolkit.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Simulator - Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    // Theme initialization (must run before body renders)
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    /* Full-width header without gaps */
+    .sim-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100vw;
+      height: 180px;
+      background: linear-gradient(135deg, var(--primary, #667eea) 0%, var(--accent, #764ba2) 100%);
+      color: white;
+      padding: 20px 40px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .sim-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sim-title {
+      font-size: 2em;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .portfolio-stats {
+      display: flex;
+      gap: 30px;
+      margin-top: 10px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.85em;
+      opacity: 0.9;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 1.6em;
+      font-weight: 700;
+    }
+
+    .stat-value.positive { color: #10b981; }
+    .stat-value.negative { color: #ef4444; }
+
+    /* Main content with proper spacing */
+    .sim-content {
+      margin-top: 200px;
+      margin-left: var(--sidebar-width, 120px);
+      padding: 20px;
+      transition: margin-left 280ms cubic-bezier(.2,.9,.2,1);
+    }
+
+    .sidebar.collapsed ~ .sim-content {
+      margin-left: var(--sidebar-tab, 28px);
+    }
+
+    /* Chart containers */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .chart-title {
+      font-size: 1.2em;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chart-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85em;
+      transition: all 0.2s;
+    }
+
+    .chart-btn:hover {
+      background: var(--bg-hover);
+      transform: translateY(-1px);
+    }
+
+    .chart-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Trading panel */
+    .trading-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .positions-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .positions-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .positions-table th {
+      background: var(--bg);
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+      font-size: 0.9em;
+    }
+
+    .positions-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.9em;
+    }
+
+    .positions-table tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .position-symbol {
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Trade panel */
+    .trade-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1em;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 0.3s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .quote-display {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .quote-display.show {
+      display: block;
+    }
+
+    .quote-symbol {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .quote-price {
+      font-size: 2.2em;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .quote-change {
+      font-size: 1em;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .quote-change.positive {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    .quote-change.negative {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    .trade-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-buy {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-buy:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+
+    .btn-sell {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-sell:hover {
+      background: #dc2626;
+    }
+
+    .trade-form {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .trade-form.show {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1em;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .estimate {
+      background: var(--bg);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .estimate-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .estimate-row:last-child {
+      margin-bottom: 0;
+      padding-top: 8px;
+      border-top: 2px solid var(--border);
+      font-weight: 600;
+    }
+
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .trading-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sim-header {
+        padding: 15px 20px;
+        height: auto;
+      }
+
+      .portfolio-stats {
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .sim-content {
+        margin-left: 0;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="global-ui.js"></script>
+  
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="index.html" class="sidebar__logo">
+        <img src="assets/Investing101.png" alt="Investing 101">
+      </a>
+      <nav class="sidebar__nav">
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+          </svg>
+          <span class="label">Main</span>
+        </a>
+        <a href="market-simulator.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          <span class="label">Simulator</span>
+        </a>
+        <a href="leaderboard.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          <span class="label">Leaderboard</span>
+        </a>
+      </nav>
+      <div class="sidebar__bottom">
+        <a href="my-profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span class="label">Profile</span>
+        </a>
+        <a href="settings.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m-5.2-5.2l4.2-4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M6.8 6.8l4.2 4.2m4.2-4.2l4.2-4.2" />
+          </svg>
+          <span class="label">Settings</span>
+        </a>
+      </div>
+      <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+    </aside>
+
+    <!-- Fixed Header -->
+    <header class="sim-header">
+      <div class="sim-header-top">
+        <h1 class="sim-title">📈 Market Simulator</h1>
+      </div>
+      <div class="portfolio-stats">
+        <div class="stat-item">
+          <div class="stat-label">Portfolio Value</div>
+          <div class="stat-value" id="totalValue">$100,000</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Cash</div>
+          <div class="stat-value" id="cashValue">$100,000</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total P&L</div>
+          <div class="stat-value" id="totalPL">$0</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Return</div>
+          <div class="stat-value" id="totalReturn">0%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Trades</div>
+          <div class="stat-value" id="totalTrades">0</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="sim-content">
+      <div id="alertContainer"></div>
+
+      <!-- Charts -->
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2 class="chart-title">Portfolio Performance</h2>
+            <div class="chart-controls">
+              <button class="chart-btn active" onclick="updateChartRange('1D')">1D</button>
+              <button class="chart-btn" onclick="updateChartRange('1W')">1W</button>
+              <button class="chart-btn" onclick="updateChartRange('1M')">1M</button>
+              <button class="chart-btn" onclick="updateChartRange('ALL')">ALL</button>
+            </div>
+          </div>
+          <canvas id="portfolioChart" height="300"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h2 class="chart-title">Performance Comparison</h2>
+          </div>
+          <canvas id="comparisonChart" height="300"></canvas>
+        </div>
+      </div>
+
+      <!-- Trading Grid -->
+      <div class="trading-grid">
+        <!-- Positions -->
+        <div class="positions-card">
+          <h2 class="card-title">📊 My Positions</h2>
+          <div id="positionsContainer">
+            <p style="text-align: center; color: var(--text-muted); padding: 40px;">
+              No positions yet. Start trading to build your portfolio!
+            </p>
+          </div>
+        </div>
+
+        <!-- Trade Panel -->
+        <div class="trade-card">
+          <h2 class="card-title">🔍 Trade Stocks</h2>
+          
+          <div class="search-box">
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search stocks (AAPL, TSLA, MSFT)"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="quote-display" id="quoteDisplay">
+            <div class="quote-symbol" id="quoteSymbol">-</div>
+            <div class="quote-price" id="quotePrice">$0.00</div>
+            <div class="quote-change" id="quoteChange">$0.00 (0.00%)</div>
+            
+            <div class="trade-buttons">
+              <button class="btn btn-buy" onclick="showTradeForm('buy')">Buy</button>
+              <button class="btn btn-sell" onclick="showTradeForm('sell')">Sell</button>
+            </div>
+          </div>
+
+          <div class="trade-form" id="tradeForm">
+            <h3 id="tradeFormTitle">Buy Shares</h3>
+            
+            <div class="form-group">
+              <label for="sharesInput">Shares</label>
+              <input 
+                type="number" 
+                id="sharesInput" 
+                min="1" 
+                step="1" 
+                placeholder="Quantity"
+                oninput="updateEstimate()"
+              >
+            </div>
+
+            <div class="estimate" id="estimate" style="display: none;">
+              <div class="estimate-row">
+                <span>Price:</span>
+                <span id="estimatePrice">$0.00</span>
+              </div>
+              <div class="estimate-row">
+                <span>Shares:</span>
+                <span id="estimateQty">0</span>
+              </div>
+              <div class="estimate-row">
+                <span>Total:</span>
+                <span id="estimateTotal">$0.00</span>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <button class="btn" style="background: var(--primary); color: white;" id="executeBtn" onclick="executeTrade()">Execute</button>
+              <button class="btn" style="background: var(--bg); color: var(--text); border: 1px solid var(--border);" onclick="cancelTrade()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentPortfolio = null;
+    let currentQuote = null;
+    let currentTradeType = null;
+    let portfolioChart = null;
+    let comparisonChart = null;
+    let chartData = [];
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      initCharts();
+      loadPortfolio();
+      setupSearch();
+    });
+
+    function initCharts() {
+      const isDark = document.documentElement.classList.contains('theme-dark') ||
+                     document.documentElement.classList.contains('theme-ultradark') ||
+                     document.documentElement.classList.contains('theme-quantum-violet') ||
+                     document.documentElement.classList.contains('theme-carbon-edge');
+      
+      const textColor = isDark ? '#e5e7eb' : '#1f2937';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+      // Portfolio Chart
+      const portfolioCtx = document.getElementById('portfolioChart').getContext('2d');
+      portfolioChart = new Chart(portfolioCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Portfolio Value',
+            data: [],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+              titleColor: textColor,
+              bodyColor: textColor,
+              borderColor: gridColor,
+              borderWidth: 1
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: {
+                color: gridColor
+              },
+              ticks: {
+                color: textColor,
+                callback: function(value) {
+                  return '$' + value.toLocaleString();
+                }
+              }
+            },
+            x: {
+              grid: {
+                color: gridColor
+              },
+              ticks: {
+                color: textColor
+              }
+            }
+          }
+        }
+      });
+
+      // Comparison Chart
+      const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+      comparisonChart = new Chart(comparisonCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'Portfolio',
+              data: [],
+              borderColor: '#667eea',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4
+            },
+            {
+              label: 'S&P 500',
+              data: [],
+              borderColor: '#f59e0b',
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: textColor
+              }
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+              titleColor: textColor,
+              bodyColor: textColor,
+              borderColor: gridColor,
+              borderWidth: 1
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: {
+                color: gridColor
+              },
+              ticks: {
+                color: textColor,
+                callback: function(value) {
+                  return value.toFixed(2) + '%';
+                }
+              }
+            },
+            x: {
+              grid: {
+                color: gridColor
+              },
+              ticks: {
+                color: textColor
+              }
+            }
+          }
+        }
+      });
+
+      // Initialize with sample data
+      updateChartData();
+    }
+
+    function updateChartData() {
+      const now = new Date();
+      const labels = [];
+      const portfolioData = [];
+      const sp500Data = [];
+
+      // Generate sample data (replace with real data from API)
+      for (let i = 30; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString());
+        
+        // Sample portfolio growth
+        const portfolioValue = 100000 + (Math.random() * 10000 - 5000) + (30 - i) * 500;
+        portfolioData.push(portfolioValue);
+        
+        // Sample S&P 500 performance
+        const sp500Return = (Math.random() * 2 - 1) + (30 - i) * 0.1;
+        sp500Data.push(sp500Return);
+      }
+
+      portfolioChart.data.labels = labels;
+      portfolioChart.data.datasets[0].data = portfolioData;
+      portfolioChart.update();
+
+      comparisonChart.data.labels = labels;
+      comparisonChart.data.datasets[0].data = portfolioData.map((v, i) => ((v - 100000) / 100000) * 100);
+      comparisonChart.data.datasets[1].data = sp500Data;
+      comparisonChart.update();
+    }
+
+    function updateChartRange(range) {
+      document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      // Update chart data based on range
+      updateChartData();
+    }
+
+    async function loadPortfolio() {
+      try {
+        const response = await fetch('/api/simulator/portfolio', {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/signin.html';
+            return;
+          }
+          throw new Error('Failed to load portfolio');
+        }
+        
+        const data = await response.json();
+        currentPortfolio = data.portfolio;
+        updatePortfolioDisplay();
+      } catch (error) {
+        console.error('Load portfolio error:', error);
+        showAlert('Failed to load portfolio: ' + error.message, 'error');
+      }
+    }
+
+    function updatePortfolioDisplay() {
+      if (!currentPortfolio) return;
+
+      document.getElementById('totalValue').textContent = formatCurrency(currentPortfolio.totalValue);
+      document.getElementById('cashValue').textContent = formatCurrency(currentPortfolio.cash);
+      
+      const plElement = document.getElementById('totalPL');
+      plElement.textContent = formatCurrency(currentPortfolio.totalPL);
+      plElement.className = 'stat-value ' + (currentPortfolio.totalPL >= 0 ? 'positive' : 'negative');
+      
+      const returnElement = document.getElementById('totalReturn');
+      returnElement.textContent = (currentPortfolio.totalPLPercent >= 0 ? '+' : '') + currentPortfolio.totalPLPercent.toFixed(2) + '%';
+      returnElement.className = 'stat-value ' + (currentPortfolio.totalPLPercent >= 0 ? 'positive' : 'negative');
+      
+      document.getElementById('totalTrades').textContent = currentPortfolio.totalTrades;
+
+      const container = document.getElementById('positionsContainer');
+      
+      if (currentPortfolio.positions.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px;">No positions yet. Start trading!</p>';
+      } else {
+        container.innerHTML = `
+          <table class="positions-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Shares</th>
+                <th>Avg Cost</th>
+                <th>Current</th>
+                <th>Value</th>
+                <th>P&L</th>
+                <th>Return</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${currentPortfolio.positions.map(pos => `
+                <tr>
+                  <td><span class="position-symbol" onclick="selectSymbol('${pos.symbol}')">${pos.symbol}</span></td>
+                  <td>${pos.shares}</td>
+                  <td>${formatCurrency(pos.averageCost)}</td>
+                  <td>${formatCurrency(pos.currentPrice)}</td>
+                  <td>${formatCurrency(pos.totalValue)}</td>
+                  <td style="color: ${pos.unrealizedPL >= 0 ? '#10b981' : '#ef4444'}; font-weight: 600;">${formatCurrency(pos.unrealizedPL)}</td>
+                  <td style="color: ${pos.unrealizedPLPercent >= 0 ? '#10b981' : '#ef4444'}; font-weight: 600;">${pos.unrealizedPLPercent.toFixed(2)}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    function setupSearch() {
+      const input = document.getElementById('searchInput');
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const query = e.target.value.trim().toUpperCase();
+          if (query) selectSymbol(query);
+        }
+      });
+    }
+
+    async function selectSymbol(symbol) {
+      document.getElementById('searchInput').value = symbol;
+      
+      try {
+        const response = await fetch('/api/simulator/quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ symbol })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentQuote = data.quote;
+          displayQuote();
+        } else {
+          showAlert(data.message || 'Failed to fetch quote', 'error');
+        }
+      } catch (error) {
+        console.error('Quote error:', error);
+        showAlert('Failed to fetch quote: ' + error.message, 'error');
+      }
+    }
+
+    function displayQuote() {
+      if (!currentQuote) return;
+      
+      document.getElementById('quoteSymbol').textContent = currentQuote.symbol;
+      document.getElementById('quotePrice').textContent = formatCurrency(currentQuote.price);
+      
+      const change = currentQuote.change || 0;
+      const changePercent = currentQuote.changePercent || 0;
+      const changeElement = document.getElementById('quoteChange');
+      changeElement.textContent = `${change >= 0 ? '+' : ''}${formatCurrency(change)} (${changePercent.toFixed(2)}%)`;
+      changeElement.className = 'quote-change ' + (change >= 0 ? 'positive' : 'negative');
+      
+      document.getElementById('quoteDisplay').classList.add('show');
+    }
+
+    function showTradeForm(type) {
+      currentTradeType = type;
+      document.getElementById('tradeFormTitle').textContent = type === 'buy' ? 'Buy Shares' : 'Sell Shares';
+      document.getElementById('sharesInput').value = '';
+      document.getElementById('estimate').style.display = 'none';
+      document.getElementById('tradeForm').classList.add('show');
+    }
+
+    function cancelTrade() {
+      document.getElementById('tradeForm').classList.remove('show');
+      currentTradeType = null;
+    }
+
+    function updateEstimate() {
+      const shares = parseInt(document.getElementById('sharesInput').value) || 0;
+      
+      if (shares > 0 && currentQuote) {
+        const total = shares * currentQuote.price;
+        
+        document.getElementById('estimatePrice').textContent = formatCurrency(currentQuote.price);
+        document.getElementById('estimateQty').textContent = shares;
+        document.getElementById('estimateTotal').textContent = formatCurrency(total);
+        document.getElementById('estimate').style.display = 'block';
+      } else {
+        document.getElementById('estimate').style.display = 'none';
+      }
+    }
+
+    async function executeTrade() {
+      const shares = parseInt(document.getElementById('sharesInput').value);
+      
+      if (!shares || shares < 1) {
+        showAlert('Please enter a valid number of shares', 'error');
+        return;
+      }
+      
+      if (!currentQuote) {
+        showAlert('Please select a stock first', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('executeBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      
+      try {
+        const response = await fetch(`/api/simulator/trade/${currentTradeType}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            symbol: currentQuote.symbol,
+            shares: shares
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showAlert(data.message, 'success');
+          cancelTrade();
+          await loadPortfolio();
+          await selectSymbol(currentQuote.symbol);
+          updateChartData();
+        } else {
+          showAlert(data.message || 'Trade failed', 'error');
+        }
+      } catch (error) {
+        console.error('Trade error:', error);
+        showAlert('Trade failed: ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Execute';
+      }
+    }
+
+    function showAlert(message, type) {
+      const container = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      container.appendChild(alert);
+      
+      setTimeout(() => alert.remove(), 5000);
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+    }
+
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+  </script>
+</body>
+</html>

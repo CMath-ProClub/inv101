@@ -67,6 +67,15 @@
           </svg>
           <span>Calculators</span>
         </a>
+        <a href="ai-toolkit.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20l-7-4v-8l7-4 7 4v8l-7 4z" />
+            <path d="M12 12l7-4" />
+            <path d="M12 12v8" />
+            <path d="M12 12L5 8" />
+          </svg>
+          <span>AI Toolkit</span>
+        </a>
         <a href="profile.html" class="sidebar__btn sidebar__btn--active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="8" r="4" />
@@ -90,13 +99,14 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <div>
-            <strong>Email Notifications</strong>
-            <p style="margin: 4px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">Get weekly market summaries via email</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
+          <div style="flex: 1 1 260px;">
+            <strong>Daily Market Pulse Email</strong>
+            <p id="newsletterPreferenceCopy" style="margin: 4px 0 8px 0; font-size: 0.9rem; color: var(--text-muted);">Receive the Daily Market Pulse briefing in your inbox each trading day.</p>
+            <p id="newsletterPreferenceStatus" style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">Checking your preference...</p>
           </div>
-          <label class="toggle">
-            <input type="checkbox" checked>
+          <label class="toggle" style="flex: 0 0 auto;">
+            <input type="checkbox" id="newsletterToggle" aria-describedby="newsletterPreferenceStatus newsletterPreferenceCopy" disabled>
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -136,6 +146,33 @@
         </div>
       </section>
 
+      <section class="card">
+        <h3>AI Toolkit Guardrails</h3>
+        <p style="margin: 0 0 12px 0; font-size: 0.95rem; color: var(--text-muted);">Our sentiment experiments are classroom tools meant to help you practice reading the news with a critical lens. They are not trading signals or financial advice.</p>
+        <ul style="margin: 0 0 16px 20px; padding: 0; font-size: 0.9rem; color: var(--text-muted);">
+          <li style="margin-bottom: 8px;">Cross check any AI summary against the original source and at least one trusted market feed before acting.</li>
+          <li style="margin-bottom: 8px;">Treat hype-heavy social posts as noise. The demo intentionally downranks clickbait headlines and viral rumor bots.</li>
+          <li style="margin-bottom: 0;">Pause before trading on emotion. Use the worksheet prompts to separate sentiment from fundamentals and your long term plan.</li>
+        </ul>
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+          <strong style="display: block; margin-bottom: 8px;">FAQ</strong>
+          <details style="margin-bottom: 8px;">
+            <summary style="cursor: pointer; font-weight: 600;">Does the AI recommend specific trades?</summary>
+            <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">No. The sentiment endpoint serves static practice scenarios so you can rehearse your analysis process without live-market pressure.</p>
+          </details>
+          <details>
+            <summary style="cursor: pointer; font-weight: 600;">What if a headline sounds too confident?</summary>
+            <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: var(--text-muted);">Assume it is opinionated marketing until proven otherwise. Compare against fundamentals, earnings calls, and risk management guidelines before you react.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="card" id="externalDataIntegrations">
+        <h3>External Data Integrations</h3>
+        <p style="margin: 0 0 12px 0; font-size: 0.95rem; color: var(--text-muted);">Check which market data APIs are configured on this server. Add the missing keys to <code>backend/.env</code> to enable live feeds.</p>
+        <div id="dataProviderStatus" style="display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"></div>
+      </section>
+
       <section class="card settings-card">
         <h3>Display</h3>
         <div class="settings-card__row settings-card__row--stack">
@@ -149,7 +186,7 @@
               <span class="theme-option__swatch" aria-hidden="true"></span>
               <span class="theme-option__meta">
                 <strong>Light</strong>
-                <span>Bright and neutral</span>
+                <span>Bright day mode</span>
               </span>
             </label>
             <label class="theme-option" data-theme="dark">
@@ -157,15 +194,55 @@
               <span class="theme-option__swatch" aria-hidden="true"></span>
               <span class="theme-option__meta">
                 <strong>Dark</strong>
-                <span>Low-light friendly</span>
+                <span>Balanced night view</span>
               </span>
             </label>
-            <label class="theme-option" data-theme="sepia">
-              <input type="radio" name="theme-option" value="sepia" data-theme-option="sepia">
+            <label class="theme-option" data-theme="ultradark">
+              <input type="radio" name="theme-option" value="ultradark" data-theme-option="ultradark">
               <span class="theme-option__swatch" aria-hidden="true"></span>
               <span class="theme-option__meta">
-                <strong>Sepia</strong>
-                <span>Paper-inspired warmth</span>
+                <strong>Ultradark</strong>
+                <span>Neon cyan + lime</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="emerald-trust">
+              <input type="radio" name="theme-option" value="emerald-trust" data-theme-option="emerald-trust">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Emerald Trust</strong>
+                <span>#046307 · #D8C7A1</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="quantum-violet">
+              <input type="radio" name="theme-option" value="quantum-violet" data-theme-option="quantum-violet">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Quantum Violet</strong>
+                <span>#7C3AED · #00BFA6</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="copper-balance">
+              <input type="radio" name="theme-option" value="copper-balance" data-theme-option="copper-balance">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Copper Balance</strong>
+                <span>#B87333 · #4E3B2C</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="regal-portfolio">
+              <input type="radio" name="theme-option" value="regal-portfolio" data-theme-option="regal-portfolio">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Regal Portfolio</strong>
+                <span>#2B0082 · #D4AF37</span>
+              </span>
+            </label>
+            <label class="theme-option" data-theme="carbon-edge">
+              <input type="radio" name="theme-option" value="carbon-edge" data-theme-option="carbon-edge">
+              <span class="theme-option__swatch" aria-hidden="true"></span>
+              <span class="theme-option__meta">
+                <strong>Carbon Edge</strong>
+                <span>#00FF7F · #3A3A3A</span>
               </span>
             </label>
           </div>
@@ -177,16 +254,6 @@
           </div>
           <label class="toggle">
             <input type="checkbox" id="colorblindModeToggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="settings-card__row">
-          <div class="settings-card__text">
-            <strong>Compact View</strong>
-            <p>Show more information on screen at once.</p>
-          </div>
-          <label class="toggle">
-            <input type="checkbox" id="compactModeToggle">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -231,6 +298,15 @@
         </svg>
         <span>Calc</span>
       </a>
+      <a class="tabbar__btn" href="ai-toolkit.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20l-7-4v-8l7-4 7 4v8l-7 4z" />
+          <path d="M12 12l7-4" />
+          <path d="M12 12v8" />
+          <path d="M12 12L5 8" />
+        </svg>
+        <span>Toolkit</span>
+      </a>
       <a class="tabbar__btn tabbar__btn--active" href="profile.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="8" r="4" />
@@ -242,6 +318,271 @@
   </div>
 
   <script src="global-ui.js"></script>
+  <script>
+    (function(){
+      function ready(fn){
+        if (document.readyState !== 'loading') {
+          fn();
+        } else {
+          document.addEventListener('DOMContentLoaded', fn);
+        }
+      }
+
+      ready(function(){
+        var toggle = document.getElementById('newsletterToggle');
+        var statusEl = document.getElementById('newsletterPreferenceStatus');
+
+        function renderProviderCards(providers) {
+          var container = document.getElementById('dataProviderStatus');
+          if (!container) return;
+
+          if (!providers.length) {
+            container.innerHTML = '<div style="padding: 12px; background: var(--surface-subtle); border: 1px dashed var(--border-subtle); border-radius: 8px; font-size: 0.9rem; color: var(--text-muted);">No providers registered yet.</div>';
+            return;
+          }
+
+          var fragment = document.createDocumentFragment();
+
+          providers.forEach(function(provider){
+            var card = document.createElement('div');
+            card.style.border = '1px solid var(--border-subtle)';
+            card.style.borderRadius = '10px';
+            card.style.padding = '12px';
+            card.style.background = 'var(--surface-subtle)';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.gap = '6px';
+
+            var header = document.createElement('div');
+            header.style.display = 'flex';
+            header.style.justifyContent = 'space-between';
+            header.style.alignItems = 'center';
+
+            var title = document.createElement('strong');
+            title.textContent = provider.name;
+            header.appendChild(title);
+
+            var statusBadge = document.createElement('span');
+            statusBadge.textContent = provider.configured ? 'Configured' : 'Missing Key';
+            statusBadge.style.display = 'inline-flex';
+            statusBadge.style.alignItems = 'center';
+            statusBadge.style.fontSize = '0.75rem';
+            statusBadge.style.fontWeight = '600';
+            statusBadge.style.padding = '2px 8px';
+            statusBadge.style.borderRadius = '999px';
+            statusBadge.style.textTransform = 'uppercase';
+            statusBadge.style.letterSpacing = '0.05em';
+            statusBadge.style.background = provider.configured ? 'rgba(16,185,129,0.14)' : 'rgba(194,59,34,0.12)';
+            statusBadge.style.color = provider.configured ? '#047857' : '#b83224';
+            header.appendChild(statusBadge);
+
+            var meta = document.createElement('div');
+            meta.style.fontSize = '0.85rem';
+            meta.style.color = 'var(--text-muted)';
+            meta.textContent = provider.notes || 'No description provided.';
+
+            var descriptor = document.createElement('div');
+            descriptor.style.fontSize = '0.75rem';
+            descriptor.style.color = 'var(--text-muted)';
+            descriptor.style.textTransform = 'capitalize';
+            var descriptorBits = [];
+            if (provider.category) descriptorBits.push(provider.category.replace(/[-_]/g, ' '));
+            if (provider.authType) descriptorBits.push('Auth: ' + provider.authType);
+            descriptor.textContent = descriptorBits.join(' · ');
+
+            if (provider.docs) {
+              var link = document.createElement('a');
+              link.href = provider.docs;
+              link.target = '_blank';
+              link.rel = 'noopener noreferrer';
+              link.style.fontSize = '0.75rem';
+              link.style.fontWeight = '600';
+              link.style.color = 'var(--accent)';
+              link.textContent = 'View docs →';
+              link.style.marginTop = '4px';
+              link.style.display = 'inline-block';
+              meta.appendChild(document.createElement('br'));
+              meta.appendChild(link);
+            }
+
+            card.appendChild(header);
+            if (descriptorBits.length) {
+              card.appendChild(descriptor);
+            }
+            card.appendChild(meta);
+            fragment.appendChild(card);
+          });
+
+          container.innerHTML = '';
+          container.appendChild(fragment);
+        }
+
+        async function loadProviderStatuses() {
+          var container = document.getElementById('dataProviderStatus');
+          if (!container) return;
+
+          container.innerHTML = '<div style="padding: 12px; background: var(--surface-subtle); border: 1px dashed var(--border-subtle); border-radius: 8px; font-size: 0.9rem; color: var(--text-muted);">Checking provider configuration...</div>';
+
+          try {
+            var response = await fetch('/api/data-providers');
+            if (!response.ok) {
+              throw new Error('load');
+            }
+            var payload = await response.json();
+            if (!payload || !payload.success || !Array.isArray(payload.providers)) {
+              throw new Error('invalid');
+            }
+            renderProviderCards(payload.providers);
+          } catch (err) {
+            container.innerHTML = '<div style="padding: 12px; background: rgba(194,59,34,0.1); border: 1px solid rgba(194,59,34,0.3); border-radius: 8px; font-size: 0.9rem; color: #c23b22;">Unable to load provider status. Ensure the backend is running.</div>';
+          }
+        }
+
+        if (!toggle || !statusEl) {
+          loadProviderStatuses();
+          return;
+        }
+        if (!toggle || !statusEl) return;
+
+        var lastPreference = { emailOptIn: false, subscribedAt: null };
+        var locked = false;
+
+        function setDisabled(disabled) {
+          toggle.disabled = !!disabled;
+        }
+
+        function setStatus(message, tone) {
+          statusEl.textContent = message;
+          if (tone === 'error') {
+            statusEl.style.color = '#c23b22';
+          } else if (tone === 'success') {
+            statusEl.style.color = 'var(--accent)';
+          } else {
+            statusEl.style.color = 'var(--text-muted)';
+          }
+        }
+
+        function formatTimestamp(value) {
+          if (!value) return null;
+          try {
+            var dt = new Date(value);
+            if (Number.isNaN(dt.getTime())) return null;
+            return dt.toLocaleString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit'
+            });
+          } catch (err) {
+            return null;
+          }
+        }
+
+        async function loadPreference() {
+          setDisabled(true);
+          setStatus('Checking your preference...');
+          try {
+            var resp = await fetch('/api/preferences/newsletter', {
+              method: 'GET',
+              credentials: 'include'
+            });
+            if (resp.status === 401 || resp.status === 403) {
+              throw new Error('auth');
+            }
+            if (!resp.ok) {
+              throw new Error('load');
+            }
+            var body = await resp.json();
+            var pref = body && body.success ? body.preference : null;
+            lastPreference = pref || { emailOptIn: false, subscribedAt: null };
+            var enabled = !!lastPreference.emailOptIn;
+            toggle.checked = enabled;
+            var stamp = formatTimestamp(lastPreference.subscribedAt);
+            if (enabled) {
+              setStatus(stamp ? 'Subscribed — emails will arrive daily. Updated ' + stamp + '.' : 'Subscribed — emails will arrive daily.', 'success');
+            } else {
+              setStatus('Currently unsubscribed. Flip the switch to join the daily brief.');
+            }
+            locked = false;
+            setDisabled(false);
+          } catch (error) {
+            if (error.message === 'auth') {
+              setStatus('Sign in to manage newsletter delivery.', 'error');
+              locked = true;
+              setDisabled(true);
+              return;
+            }
+            lastPreference = lastPreference || { emailOptIn: false, subscribedAt: null };
+            toggle.checked = !!lastPreference.emailOptIn;
+            setStatus('Unable to load your preference right now.', 'error');
+            setDisabled(false);
+          }
+        }
+
+        async function persistPreference(desired) {
+          var previous = !!lastPreference.emailOptIn;
+          setDisabled(true);
+          setStatus(desired ? 'Subscribing you to Daily Market Pulse...' : 'Updating your preference...');
+          try {
+            var payload = {
+              emailOptIn: desired,
+              subscribedAt: new Date().toISOString()
+            };
+            var resp = await fetch('/api/preferences/newsletter', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            if (resp.status === 401 || resp.status === 403) {
+              throw new Error('auth');
+            }
+            if (!resp.ok) {
+              throw new Error('save');
+            }
+            var body = null;
+            try {
+              body = await resp.json();
+            } catch (parseErr) {}
+            lastPreference = body && body.preference ? body.preference : payload;
+            var enabled = !!lastPreference.emailOptIn;
+            toggle.checked = enabled;
+            var stamp = formatTimestamp(lastPreference.subscribedAt);
+            if (enabled) {
+              setStatus(stamp ? 'Subscribed — emails will arrive daily. Updated ' + stamp + '.' : 'Subscribed — emails will arrive daily.', 'success');
+            } else {
+              setStatus('Subscription turned off. You can re-enable this anytime.');
+            }
+            setDisabled(false);
+          } catch (error) {
+            toggle.checked = previous;
+            if (error.message === 'auth') {
+              setStatus('Please sign in again to update this preference.', 'error');
+              locked = true;
+              setDisabled(true);
+            } else {
+              setStatus('We could not save your preference. Try again shortly.', 'error');
+              setDisabled(false);
+            }
+          }
+        }
+
+        toggle.addEventListener('change', function(){
+          if (locked) {
+            toggle.checked = !!lastPreference.emailOptIn;
+            return;
+          }
+          if (toggle.disabled) return;
+          persistPreference(!!toggle.checked);
+        });
+
+        loadPreference();
+
+        loadProviderStatuses();
+      });
+    })();
+  </script>
 </body>
 </html>
 

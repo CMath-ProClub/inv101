@@ -5,33 +5,192 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Newsletter</title>
   <link rel="stylesheet" href="styles.css">
-  <script>
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode-loading'); }
-  </script>
   <script src="device-detection.js"></script>
+  <script>
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    .newsletter .card--hero {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+    }
+    .mini-card {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      background: var(--bg-card);
+      display: grid;
+      gap: 12px;
+      min-height: 180px;
+    }
+    .mini-card .ticker {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .mini-card .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .mini-card .move {
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      background: var(--bg-muted);
+      color: var(--text);
+    }
+    .mini-card .move--up {
+      color: #0c8f45;
+      background: rgba(12, 143, 69, 0.12);
+    }
+    .mini-card .move--down {
+      color: #c23b22;
+      background: rgba(194, 59, 34, 0.12);
+    }
+    .mini-card .move--proj {
+      color: #1c82e6;
+      background: rgba(28, 130, 230, 0.12);
+    }
+    .mini-card .metric-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .mini-card dt {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .mini-card dd {
+      margin: 0;
+    }
+    .mini-card .driver {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+    @media (max-width: 640px) {
+      .mini-card {
+        min-height: 0;
+      }
+      .mini-card .metric-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-  <script src="global-ui.js"></script>
 <body>
-  <script>if (localStorage.getItem('darkMode') === 'true') { document.body.classList.add('dark-mode'); }
-    if (localStorage.getItem('compactMode') === 'true') { document.body.classList.add('compact-mode'); }</script>
+  <script src="global-ui.js"></script>
+  <script src="newsletter-utils.js"></script>
   <div class="app">
-    <!-- Desktop Sidebar Navigation (visible on desktop only) -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
         <img src="assets/Investing101.png" alt="Investing 101">
       </a>
       <nav class="sidebar__nav" aria-label="Main navigation">
-      <!-- sidebar removed — shared-ui provides navigation (keeps layout simpler). -->
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+          <span>Main</span>
+        </a>
+        <a href="simulator.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 3v3" />
+            <path d="M12 18v3" />
+            <path d="M3 12h3" />
+            <path d="M18 12h3" />
+          </svg>
+          <span>Simulator / AI</span>
+        </a>
+        <a href="lessons.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+            <path d="M4 12l8 3 8-3" />
+            <path d="M12 5v10" />
+          </svg>
+          <span>Lessons</span>
+        </a>
+        <a href="calculators.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 8h10" />
+            <path d="M7 12h10" />
+            <path d="M7 16h3" />
+            <path d="M14 16h3" />
+          </svg>
+          <span>Calculators</span>
+        </a>
+        <a href="newsletter.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 8l9 6 9-6" />
+          </svg>
+          <span>Newsletter</span>
+        </a>
+        <a href="profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <span>Profile</span>
+        </a>
       </nav>
     </aside>
-    <main class="app__content">
-      <section class="card" style="text-align: center; padding: 60px 20px;">
-        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="margin: 0 auto 20px;">
-          <rect x="3" y="4" width="18" height="16" rx="2"/>
-          <path d="M3 8l9 6 9-6"/>
-        </svg>
-        <h2 style="margin-bottom: 12px;">Newsletter Coming Soon</h2>
-        <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto;">We're working on bringing you the latest investment insights, market trends, and educational content directly to your inbox.</p>
+
+    <main class="app__content newsletter">
+      <header class="card card--hero" style="display:flex; flex-direction:column; gap:12px; padding:32px 28px;">
+        <div class="chip" id="newsletterDate">Daily Market Pulse</div>
+        <h1 style="margin:0;">Signal Check: What mattered today</h1>
+        <p style="margin:0; color:var(--text-muted); max-width:720px; line-height:1.5;">
+          Markets leaned into quality and secular growth while defensives treaded water. Below you’ll find the five tickers that led the tape today,
+          the five setups with the cleanest risk/reward heading into tomorrow, and a quick context wrap so you can brief in under five minutes.
+        </p>
+  <div class="chip chip--muted" id="newsletterStatus">Fetching live market data...</div>
+      </header>
+
+      <section class="card" style="padding:28px; display:grid; gap:24px;">
+        <header style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+          <h2 style="margin:0;">Top 5 Performers — Last Session</h2>
+          <span class="chip chip--muted">Source: composite price feed · close-over-close</span>
+        </header>
+        <div id="topPerformers" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;"></div>
+      </section>
+
+      <section class="card" style="padding:28px; display:grid; gap:24px;">
+        <header style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+          <h2 style="margin:0;">Top 5 Momentum Setups — Next 1-Week View</h2>
+          <span class="chip chip--muted">Projected move = model midpoint</span>
+        </header>
+        <div id="topProjections" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;"></div>
+      </section>
+
+      <section class="card" style="padding:28px;">
+        <h2 style="margin:0 0 12px 0;">Why These Names Stood Out</h2>
+        <p id="contextBlurb" style="margin:0; line-height:1.6; color:var(--text-muted);"></p>
       </section>
     </main>
 
@@ -53,27 +212,16 @@
           <path d="M3 12h3" />
           <path d="M18 12h3" />
         </svg>
-        <span>Sim/AI</span>
+        <span>Sim</span>
       </a>
-      <a class="tabbar__btn" href="lessons.html">
-        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
-          <path d="M4 12l8 3 8-3" />
-          <path d="M12 5v10" />
-        </svg>
-        <span>Lessons</span>
-      </a>
-      <a class="tabbar__btn" href="calculators.html">
+      <a class="tabbar__btn tabbar__btn--active" href="newsletter.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="4" width="18" height="16" rx="2" />
-          <path d="M7 8h10" />
-          <path d="M7 12h10" />
-          <path d="M7 16h3" />
-          <path d="M14 16h3" />
+          <path d="M3 8l9 6 9-6" />
         </svg>
-        <span>Calc</span>
+        <span>Newsletter</span>
       </a>
-      <a class="tabbar__btn tabbar__btn--active" href="profile.html">
+      <a class="tabbar__btn" href="profile.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="8" r="4" />
           <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -82,6 +230,201 @@
       </a>
     </nav>
   </div>
+  <script>
+    (function(){
+      var utils = window.NewsletterUtils;
+      if (!utils) {
+        console.error('newsletter_utils_missing');
+        return;
+      }
+
+      var dateFormatter = new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      var fallbackPerformers = utils.transformPerformers(utils.samples.performers);
+      var fallbackProjections = utils.transformRecommendations(utils.samples.recommendations);
+
+      function escapeHtml(value) {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return String(value).replace(/[&<>"']/g, function (char) {
+          switch (char) {
+            case '&': return '&amp;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '"': return '&quot;';
+            case "'": return '&#39;';
+            default: return char;
+          }
+        });
+      }
+
+      function setStatus(message) {
+        var statusEl = document.getElementById('newsletterStatus');
+        if (statusEl) {
+          statusEl.textContent = message;
+        }
+      }
+
+      function setContext(text) {
+        var contextEl = document.getElementById('contextBlurb');
+        if (contextEl) {
+          contextEl.textContent = text;
+        }
+      }
+
+      function renderPerformers(items) {
+        var root = document.getElementById('topPerformers');
+        if (!root) {
+          return;
+        }
+        if (!Array.isArray(items) || items.length === 0) {
+          root.innerHTML = '<p style="margin:0; color:var(--text-muted);">Live leaders will appear once data is available.</p>';
+          return;
+        }
+        root.innerHTML = items.map(function (item) {
+          return '<article class="mini-card">'
+            + '<header style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
+            + '<div>'
+            + '<div class="ticker">' + escapeHtml(item.ticker) + '</div>'
+            + '<div class="subtitle">' + escapeHtml(item.name) + '</div>'
+            + '</div>'
+            + '<span class="move ' + escapeHtml(item.moveClass) + '">' + escapeHtml(item.moveLabel) + '</span>'
+            + '</header>'
+            + '<dl class="metric-list">'
+            + '<div><dt>Close</dt><dd>' + escapeHtml(item.priceLabel) + '</dd></div>'
+            + '<div><dt>Volume</dt><dd>' + escapeHtml(item.liquidityLabel) + '</dd></div>'
+            + '</dl>'
+            + '<p class="driver">' + escapeHtml(item.driver) + '</p>'
+            + '</article>';
+        }).join('');
+      }
+
+      function renderProjections(items) {
+        var root = document.getElementById('topProjections');
+        if (!root) {
+          return;
+        }
+        if (!Array.isArray(items) || items.length === 0) {
+          root.innerHTML = '<p style="margin:0; color:var(--text-muted);">Forward setups will populate when fresh data loads.</p>';
+          return;
+        }
+        root.innerHTML = items.map(function (item) {
+          return '<article class="mini-card">'
+            + '<header style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
+            + '<div>'
+            + '<div class="ticker">' + escapeHtml(item.ticker) + '</div>'
+            + '<div class="subtitle">' + escapeHtml(item.name) + '</div>'
+            + '</div>'
+            + '<span class="move move--proj">' + escapeHtml(item.projectedLabel) + '</span>'
+            + '</header>'
+            + '<dl class="metric-list">'
+            + '<div><dt>Spot</dt><dd>' + escapeHtml(item.priceLabel) + '</dd></div>'
+            + '<div><dt>Confidence</dt><dd>' + escapeHtml(item.confidenceLabel) + '</dd></div>'
+            + '</dl>'
+            + '<p class="driver">' + escapeHtml(item.catalyst) + '</p>'
+            + '</article>';
+        }).join('');
+      }
+
+      function fetchJson(url) {
+        var controller = new AbortController();
+        var timeout = setTimeout(function () {
+          controller.abort();
+        }, 10000);
+
+        return fetch(url, {
+          signal: controller.signal,
+          credentials: 'include'
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error('Request failed with status ' + response.status);
+            }
+            return response.json();
+          })
+          .finally(function () {
+            clearTimeout(timeout);
+          });
+      }
+
+      function applyDateStamp() {
+        var dateEl = document.getElementById('newsletterDate');
+        if (dateEl) {
+          dateEl.textContent = 'Daily Market Pulse · ' + dateFormatter.format(new Date());
+        }
+      }
+
+      function loadNewsletter() {
+        var dataSource = 'live';
+        setStatus('Fetching live market data...');
+
+        return Promise.allSettled([
+          fetchJson('/api/stocks/movers?type=gainers&limit=5'),
+          fetchJson('/api/stocks/recommendations?limit=5')
+        ])
+          .then(function (results) {
+            var performersResult = results[0];
+            var projectionsResult = results[1];
+
+            var performerItems = fallbackPerformers;
+            var projectionItems = fallbackProjections;
+
+            if (performersResult.status === 'fulfilled' && performersResult.value && performersResult.value.success) {
+              var formattedPerformers = utils.transformPerformers(performersResult.value.movers || []);
+              if (formattedPerformers.length > 0) {
+                performerItems = formattedPerformers;
+              } else {
+                dataSource = 'partial';
+              }
+            } else {
+              dataSource = 'fallback';
+            }
+
+            if (projectionsResult.status === 'fulfilled' && projectionsResult.value && projectionsResult.value.success) {
+              var formattedProjections = utils.transformRecommendations(projectionsResult.value.recommendations || []);
+              if (formattedProjections.length > 0) {
+                projectionItems = formattedProjections;
+              } else if (dataSource !== 'fallback') {
+                dataSource = 'partial';
+              }
+            } else {
+              dataSource = 'fallback';
+            }
+
+            renderPerformers(performerItems);
+            renderProjections(projectionItems);
+            setContext(utils.buildContextSummary(performerItems, projectionItems));
+
+            if (dataSource === 'live') {
+              setStatus('Live market data refreshed just now');
+            } else if (dataSource === 'partial') {
+              setStatus('Partially live data (using samples to fill gaps)');
+            } else {
+              setStatus('Using curated samples until the live feed reconnects');
+            }
+          })
+          .catch(function (error) {
+            console.error('newsletter_load_error', error);
+            renderPerformers(fallbackPerformers);
+            renderProjections(fallbackProjections);
+            setContext(utils.buildContextSummary(fallbackPerformers, fallbackProjections));
+            setStatus('Using curated samples until the live feed reconnects');
+          });
+      }
+
+      applyDateStamp();
+      renderPerformers(fallbackPerformers);
+      renderProjections(fallbackProjections);
+      setContext(utils.buildContextSummary(fallbackPerformers, fallbackProjections));
+      loadNewsletter();
+    })();
+  </script>
 </body>
 </html>
 

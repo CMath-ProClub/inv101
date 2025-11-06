@@ -10,29 +10,27 @@
   <link rel="stylesheet" href="styles.css">
   <script src="device-detection.js"></script>
   <script>
-    // Apply dark/compact classes early to prevent flash
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.documentElement.classList.add('dark-mode');
-      document.body.classList.add('dark-mode');
-    }
-    if (localStorage.getItem('compactMode') === 'true') {
-      document.documentElement.classList.add('compact-mode');
-      document.body.classList.add('compact-mode');
-    }
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
   </script>
 </head>
 <body>
-  <script>
-    // Apply dark/compact classes to both documentElement and body for compatibility
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.documentElement.classList.add('dark-mode');
-      document.body.classList.add('dark-mode');
-    }
-    if (localStorage.getItem('compactMode') === 'true') {
-      document.documentElement.classList.add('compact-mode');
-      document.body.classList.add('compact-mode');
-    }
-  </script>
+  <script src="global-ui.js"></script>
   <div class="app">
     <!-- Desktop Sidebar Navigation -->
     <aside class="sidebar">
@@ -76,6 +74,15 @@
             <path d="M14 16h3" />
           </svg>
           <span>Calculators</span>
+        </a>
+        <a class="sidebar__btn" href="ai-toolkit.html">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 20l-7-4v-8l7-4 7 4v8l-7 4z" />
+            <path d="M12 12l7-4" />
+            <path d="M12 12v8" />
+            <path d="M12 12L5 8" />
+          </svg>
+          <span>AI Toolkit</span>
         </a>
         <a class="sidebar__btn" href="profile.html">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -281,6 +288,15 @@
           <path d="M14 16h3" />
         </svg>
         <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="ai-toolkit.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20l-7-4v-8l7-4 7 4v8l-7 4z" />
+          <path d="M12 12l7-4" />
+          <path d="M12 12v8" />
+          <path d="M12 12L5 8" />
+        </svg>
+        <span>Toolkit</span>
       </a>
       <a class="tabbar__btn" href="profile.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

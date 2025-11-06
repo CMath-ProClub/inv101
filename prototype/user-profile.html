@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile - Investing101</title>
+  <link rel="stylesheet" href="shared-ui.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+    }
+
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .profile-header {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: start;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3em;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .display-name {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #1f2937;
+    }
+
+    .username {
+      font-size: 1.2em;
+      color: #6b7280;
+      margin-bottom: 15px;
+    }
+
+    .bio {
+      font-size: 1em;
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .profile-meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6b7280;
+      font-size: 0.95em;
+    }
+
+    .meta-item svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .meta-item a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .meta-item a:hover {
+      text-decoration: underline;
+    }
+
+    .follow-btn {
+      padding: 12px 32px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #667eea;
+      color: white;
+    }
+
+    .follow-btn:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+
+    .follow-btn.following {
+      background: #6b7280;
+    }
+
+    .follow-btn.following:hover {
+      background: #ef4444;
+    }
+
+    .follow-btn.following:hover::before {
+      content: 'Unfollow';
+    }
+
+    .follow-btn.following::before {
+      content: 'Following';
+    }
+
+    .follow-btn:not(.following)::before {
+      content: 'Follow';
+    }
+
+    .follow-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .stat-value.positive {
+      color: #10b981;
+    }
+
+    .stat-value.negative {
+      color: #ef4444;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.5em;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state-icon {
+      font-size: 4em;
+      margin-bottom: 15px;
+    }
+
+    .private-profile {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+
+    .private-icon {
+      font-size: 5em;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #9ca3af;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    @media (max-width: 768px) {
+      .profile-top {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .avatar {
+        margin: 0 auto;
+      }
+
+      .profile-meta {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div id="alertContainer"></div>
+    <div id="profileContent" class="loading">
+      <div class="loading-spinner"></div>
+      <p style="margin-top: 20px;">Loading profile...</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-secondary" onclick="window.location.href='/'">← Home</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/trading.html'">Trade Stocks</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/leaderboard.html'">Leaderboard</button>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let targetUsername = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      targetUsername = params.get('username');
+      
+      if (!targetUsername) {
+        showError('No username specified');
+        return;
+      }
+      
+      loadProfile();
+    });
+
+    async function loadProfile() {
+      try {
+        const response = await fetch(`/api/profile/${encodeURIComponent(targetUsername)}`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/signin.html';
+            return;
+          }
+          if (response.status === 404) {
+            showError('User not found');
+            return;
+          }
+          if (response.status === 403) {
+            showPrivateProfile();
+            return;
+          }
+          throw new Error('Failed to load profile');
+        }
+        
+        const data = await response.json();
+        currentUser = data.user;
+        displayProfile();
+      } catch (error) {
+        console.error('Load profile error:', error);
+        showError('Failed to load profile: ' + error.message);
+      }
+    }
+
+    function displayProfile() {
+      if (!currentUser) return;
+
+      const isFollowing = currentUser.isFollowing || false;
+
+      document.getElementById('profileContent').innerHTML = `
+        <div class="profile-header">
+          <div class="profile-top">
+            <div class="avatar">
+              ${currentUser.avatar ? `<img src="${currentUser.avatar}" alt="${currentUser.username}">` : currentUser.username[0].toUpperCase()}
+            </div>
+            <div class="profile-info">
+              <div class="display-name">${currentUser.displayName || currentUser.username}</div>
+              <div class="username">@${currentUser.username}</div>
+              ${currentUser.bio ? `<div class="bio">${escapeHtml(currentUser.bio)}</div>` : ''}
+              <div class="profile-meta">
+                ${currentUser.location ? `
+                  <div class="meta-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    ${escapeHtml(currentUser.location)}
+                  </div>
+                ` : ''}
+                ${currentUser.website ? `
+                  <div class="meta-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    <a href="${escapeHtml(currentUser.website)}" target="_blank" rel="noopener">${extractDomain(currentUser.website)}</a>
+                  </div>
+                ` : ''}
+                <div class="meta-item">
+                  <strong>${currentUser.followersCount || 0}</strong> Followers
+                </div>
+                <div class="meta-item">
+                  <strong>${currentUser.followingCount || 0}</strong> Following
+                </div>
+              </div>
+            </div>
+            <div>
+              <button class="follow-btn ${isFollowing ? 'following' : ''}" id="followBtn" onclick="toggleFollow()"></button>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Portfolio Value</div>
+              <div class="stat-value">${formatCurrency(currentUser.portfolioValue || 0)}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Return</div>
+              <div class="stat-value ${(currentUser.performancePercent || 0) >= 0 ? 'positive' : 'negative'}">
+                ${(currentUser.performancePercent || 0) >= 0 ? '+' : ''}${(currentUser.performancePercent || 0).toFixed(2)}%
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Trades</div>
+              <div class="stat-value">${currentUser.totalTrades || 0}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Rank</div>
+              <div class="stat-value">#${currentUser.rank || '-'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showPrivateProfile() {
+      document.getElementById('profileContent').innerHTML = `
+        <div class="card">
+          <div class="private-profile">
+            <div class="private-icon">🔒</div>
+            <h2>Private Profile</h2>
+            <p style="margin-top: 10px;">This user has chosen to keep their profile private.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function showError(message) {
+      document.getElementById('profileContent').innerHTML = `
+        <div class="card">
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <h2>${message}</h2>
+            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="window.location.href='/leaderboard.html'">Go to Leaderboard</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function toggleFollow() {
+      const btn = document.getElementById('followBtn');
+      const isFollowing = btn.classList.contains('following');
+      const action = isFollowing ? 'unfollow' : 'follow';
+      
+      btn.disabled = true;
+      
+      try {
+        const response = await fetch(`/api/profile/${targetUsername}/${action}`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          btn.classList.toggle('following');
+          
+          // Update follower count
+          if (currentUser) {
+            currentUser.followersCount = (currentUser.followersCount || 0) + (isFollowing ? -1 : 1);
+            currentUser.isFollowing = !isFollowing;
+          }
+          
+          showAlert(data.message, 'success');
+        } else {
+          showAlert(data.message || 'Action failed', 'error');
+        }
+      } catch (error) {
+        console.error('Follow/Unfollow error:', error);
+        showAlert('Action failed: ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function showAlert(message, type) {
+      const container = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      container.appendChild(alert);
+      
+      setTimeout(() => alert.remove(), 5000);
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function extractDomain(url) {
+      try {
+        const domain = new URL(url).hostname;
+        return domain.replace('www.', '');
+      } catch {
+        return url;
+      }
+    }
+  </script>
+</body>
+</html>

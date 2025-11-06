@@ -48,7 +48,12 @@ A comprehensive web application for learning investing concepts through interact
 - Market heatmaps
 - Portfolio analysis
 
-## 🛠️ Tech Stack
+### � Automated Newsletter Digest
+- Daily "Market Pulse" email dispatched to subscribers who opt in
+- Live market movers and recommendation screens with curated fallback data
+- Scheduler controlled by `NEWSLETTER_DAILY_CRON` and standard SMTP/console transports
+
+## �🛠️ Tech Stack
 
 ### Frontend
 - **Framework**: Vanilla JavaScript (no dependencies)
@@ -120,6 +125,27 @@ THENEWSAPI_TOKEN=your_token_here
 CURRENTS_API_KEY=your_key_here
 GUARDIAN_API_KEY=your_key_here
 NEWSDATA_API_KEY=your_key_here
+
+# Newsletter delivery (optional but recommended)
+EMAIL_TRANSPORT=smtp           # or console/disabled
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_USER=your-smtp-username
+EMAIL_PASS=your-smtp-password
+EMAIL_FROM="Investing101 Newsletter" <newsletter@example.com>
+NEWSLETTER_DAILY_CRON=30 6 * * 1-5
+
+# External market data integrations (enable the ones you plan to use)
+EXTERNAL_API_USER_AGENT="Inv101/1.0 (contact: youremail@example.com)"
+MARKETSTACK_API_KEY=your_marketstack_key
+POLYGON_API_KEY=your_polygon_key
+STOCKDATA_API_KEY=your_stockdata_org_key
+NASDAQ_DATA_LINK_KEY=your_nasdaq_data_link_key
+GMAIL_CLIENT_ID=your_google_oauth_client_id
+GMAIL_CLIENT_SECRET=your_google_oauth_client_secret
+GMAIL_REDIRECT_URI=https://your-app.com/oauth2/callback/gmail
+GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@project.iam.gserviceaccount.com
+GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
 See `backend/.env.example` for all configuration options.

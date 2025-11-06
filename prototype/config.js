@@ -13,7 +13,8 @@ const API_CONFIG = {
     STOCK_DETAIL: (ticker) => `/api/stocks/${ticker}`,
     ARTICLES: '/api/articles',
     PORTFOLIO: '/api/portfolio',
-    MARKET_OVERVIEW: '/api/market/overview'
+    MARKET_OVERVIEW: '/api/market/overview',
+    DATA_PROVIDERS: '/api/data-providers'
   },
   
   // Helper function to get full URL

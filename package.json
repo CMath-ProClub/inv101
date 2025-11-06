@@ -2,7 +2,8 @@
   "name": "inv101",
   "version": "1.0.0",
   "scripts": {
-    "scan-secrets": "node scripts/scan_repo_for_secrets.js"
+    "scan-secrets": "node scripts/scan_repo_for_secrets.js",
+    "test:prototype": "node prototype/tests/newsletter-utils.test.js"
   },
   "dependencies": {
     "express-session": "^1.18.2",

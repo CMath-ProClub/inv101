@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard - Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Theme initialization
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .leaderboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-left: var(--sidebar-width, 120px);
+      margin-top: 80px;
+      transition: margin-left 280ms cubic-bezier(.2,.9,.2,1);
+    }
+
+    .sidebar.collapsed ~ .leaderboard-container {
+      margin-left: var(--sidebar-tab, 28px);
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary, #667eea) 0%, var(--accent, #764ba2) 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      color: var(--text-muted, #6b7280);
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: var(--primary, #667eea);
+      border-bottom-color: var(--primary, #667eea);
+    }
+
+    .tab:hover {
+      color: var(--primary, #667eea);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leaderboard-table th {
+      background: var(--bg);
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .leaderboard-table td {
+      padding: 15px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .leaderboard-table tr:hover {
+      background: var(--bg-hover);
+    }
+
+    .rank {
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      width: 60px;
+    }
+
+    .rank-1 { color: #fbbf24; }
+    .rank-2 { color: #94a3b8; }
+    .rank-3 { color: #cd7f32; }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .username {
+      font-weight: 600;
+      color: #1f2937;
+      cursor: pointer;
+    }
+
+    .username:hover {
+      color: #667eea;
+      text-decoration: underline;
+    }
+
+    .stat-value {
+      font-weight: 600;
+    }
+
+    .stat-value.positive {
+      color: #10b981;
+    }
+
+    .stat-value.negative {
+      color: #ef4444;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .badge-gold {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-silver {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .badge-bronze {
+      background: #fed7aa;
+      color: #9a3412;
+    }
+
+    .activity-feed {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .activity-item {
+      padding: 15px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      font-size: 1.5em;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-user {
+      font-weight: 600;
+      color: #667eea;
+      cursor: pointer;
+    }
+
+    .activity-user:hover {
+      text-decoration: underline;
+    }
+
+    .activity-action {
+      color: #6b7280;
+      font-size: 0.95em;
+    }
+
+    .activity-time {
+      color: #9ca3af;
+      font-size: 0.85em;
+      margin-top: 4px;
+    }
+
+    .trade-buy {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .trade-sell {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state-icon {
+      font-size: 4em;
+      margin-bottom: 15px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    .action-buttons {
+      text-align: center;
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <script src="global-ui.js"></script>
+  
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="index.html" class="sidebar__logo">
+        <img src="assets/Investing101.png" alt="Investing 101">
+      </a>
+      <nav class="sidebar__nav">
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+          </svg>
+          <span class="label">Main</span>
+        </a>
+        <a href="market-simulator.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+          <span class="label">Simulator</span>
+        </a>
+        <a href="leaderboard.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          <span class="label">Leaderboard</span>
+        </a>
+      </nav>
+      <div class="sidebar__bottom">
+        <a href="my-profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span class="label">Profile</span>
+        </a>
+        <a href="settings.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m-5.2-5.2l4.2-4.2m4.2 4.2l4.2 4.2M1 12h6m6 0h6M6.8 6.8l4.2 4.2m4.2-4.2l4.2-4.2" />
+          </svg>
+          <span class="label">Settings</span>
+        </a>
+      </div>
+    </aside>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+
+  <div class="leaderboard-container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🏆 Leaderboard</h1>
+      <p>Top traders in the Investing101 simulator</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('leaderboard')">Top Traders</button>
+      <button class="tab" onclick="switchTab('activity')">Recent Activity</button>
+    </div>
+
+    <!-- Leaderboard Tab -->
+    <div id="leaderboardTab" class="card">
+      <div id="leaderboardContent" class="loading">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 20px;">Loading leaderboard...</p>
+      </div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div id="activityTab" class="card" style="display: none;">
+      <div id="activityContent" class="loading">
+        <div class="loading-spinner"></div>
+        <p style="margin-top: 20px;">Loading activity...</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-secondary" onclick="window.location.href='/'">← Home</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/trading.html'">Trade Stocks</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">My Profile</button>
+    </div>
+  </div>
+
+  <script>
+    let currentTab = 'leaderboard';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadLeaderboard();
+    });
+
+    async function loadLeaderboard() {
+      try {
+        const response = await fetch('/api/profile/leaderboard/top?limit=50', {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/signin.html';
+            return;
+          }
+          throw new Error('Failed to load leaderboard');
+        }
+        
+        const data = await response.json();
+        displayLeaderboard(data.users || []);
+      } catch (error) {
+        console.error('Load leaderboard error:', error);
+        document.getElementById('leaderboardContent').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚠️</div>
+            <p>Failed to load leaderboard</p>
+            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="loadLeaderboard()">Retry</button>
+          </div>
+        `;
+      }
+    }
+
+    function displayLeaderboard(users) {
+      const content = document.getElementById('leaderboardContent');
+      
+      if (users.length === 0) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🏆</div>
+            <p>No traders yet. Be the first to start trading!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      content.innerHTML = `
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th style="width: 60px; text-align: center;">Rank</th>
+              <th>Trader</th>
+              <th>Portfolio Value</th>
+              <th>Return</th>
+              <th>Total Trades</th>
+              <th>Win Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map((user, index) => {
+              const rank = index + 1;
+              const rankClass = rank <= 3 ? `rank-${rank}` : '';
+              const badge = rank === 1 ? '<span class="badge badge-gold">🥇 #1</span>' : 
+                           rank === 2 ? '<span class="badge badge-silver">🥈 #2</span>' :
+                           rank === 3 ? '<span class="badge badge-bronze">🥉 #3</span>' : '';
+              
+              const winRate = user.totalTrades > 0 ? 
+                ((user.stats?.winningTrades || 0) / user.totalTrades * 100).toFixed(1) : '0.0';
+              
+              return `
+                <tr>
+                  <td class="rank ${rankClass}">${rank}</td>
+                  <td>
+                    <div class="user-info">
+                      <div class="avatar">
+                        ${user.avatar ? `<img src="${user.avatar}" alt="${user.username}">` : user.username[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <div class="username" onclick="viewProfile('${user.username}')">${user.displayName || user.username}${badge}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="stat-value">${formatCurrency(user.portfolioValue || 0)}</td>
+                  <td class="stat-value ${user.performancePercent >= 0 ? 'positive' : 'negative'}">
+                    ${user.performancePercent >= 0 ? '+' : ''}${(user.performancePercent || 0).toFixed(2)}%
+                  </td>
+                  <td>${user.totalTrades || 0}</td>
+                  <td class="stat-value ${parseFloat(winRate) >= 50 ? 'positive' : 'negative'}">${winRate}%</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    async function loadActivity() {
+      try {
+        // Note: This endpoint would need to be created on the backend
+        // For now, we'll use a placeholder
+        const response = await fetch('/api/simulator/activity?limit=20', {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load activity');
+        }
+        
+        const data = await response.json();
+        displayActivity(data.activity || []);
+      } catch (error) {
+        console.error('Load activity error:', error);
+        // Show placeholder for now
+        document.getElementById('activityContent').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p>Activity feed coming soon!</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">This will show recent trades from all users</p>
+          </div>
+        `;
+      }
+    }
+
+    function displayActivity(activities) {
+      const content = document.getElementById('activityContent');
+      
+      if (activities.length === 0) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p>No recent activity</p>
+          </div>
+        `;
+        return;
+      }
+      
+      content.innerHTML = `
+        <div class="activity-feed">
+          ${activities.map(activity => `
+            <div class="activity-item">
+              <div class="activity-icon">${activity.type === 'BUY' ? '📈' : '📉'}</div>
+              <div class="activity-content">
+                <div class="activity-action">
+                  <span class="activity-user" onclick="viewProfile('${activity.username}')">${activity.displayName || activity.username}</span>
+                  <span class="${activity.type === 'BUY' ? 'trade-buy' : 'trade-sell'}">${activity.type === 'BUY' ? 'bought' : 'sold'}</span>
+                  ${activity.shares} shares of <strong>${activity.symbol}</strong> at ${formatCurrency(activity.price)}
+                  ${activity.realizedPL !== undefined && activity.realizedPL !== 0 ? 
+                    `<span class="stat-value ${activity.realizedPL >= 0 ? 'positive' : 'negative'}">(${activity.realizedPL >= 0 ? '+' : ''}${formatCurrency(activity.realizedPL)})</span>` : ''}
+                </div>
+                <div class="activity-time">${formatTimeAgo(activity.timestamp)}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // Update tab styles
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // Show/hide content
+      if (tab === 'leaderboard') {
+        document.getElementById('leaderboardTab').style.display = 'block';
+        document.getElementById('activityTab').style.display = 'none';
+      } else {
+        document.getElementById('leaderboardTab').style.display = 'none';
+        document.getElementById('activityTab').style.display = 'block';
+        
+        // Load activity if not loaded yet
+        if (document.getElementById('activityContent').classList.contains('loading')) {
+          loadActivity();
+        }
+      }
+    }
+
+    function viewProfile(username) {
+      window.location.href = `/user-profile.html?username=${encodeURIComponent(username)}`;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function formatTimeAgo(timestamp) {
+      const seconds = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000);
+      
+      if (seconds < 60) return 'just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+      if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+      return new Date(timestamp).toLocaleDateString();
+    }
+    
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('collapsed');
+    }
+  </script>
+  </div> <!-- close app -->
+</body>
+</html>
