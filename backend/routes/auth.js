@@ -101,40 +101,54 @@ router.post('/signin', async (req, res) => {
 });
 
 // Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  console.log('📍 Google OAuth initiated');
+  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+});
 
 router.get('/google/callback', 
-  passport.authenticate('google', { 
-    failureRedirect: '/signin.html',
-    session: false 
-  }), 
+  (req, res, next) => {
+    console.log('📍 Google OAuth callback received');
+    passport.authenticate('google', { 
+      failureRedirect: '/signin.html?error=google_auth_failed',
+      session: false 
+    })(req, res, next);
+  },
   async (req, res) => {
     try {
+      console.log('📍 Google OAuth successful, user:', req.user?.email);
       // Issue JWT tokens and set cookies
       await issueTokens(res, req.user, { rememberMe: true });
       res.redirect('/index.html');
     } catch (error) {
-      console.error('Google OAuth callback error:', error);
+      console.error('❌ Google OAuth callback error:', error);
       res.redirect('/signin.html?error=oauth_failed');
     }
   }
 );
 
 // Facebook OAuth
-router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }));
+router.get('/facebook', (req, res, next) => {
+  console.log('📍 Facebook OAuth initiated');
+  passport.authenticate('facebook', { scope: ['email'] })(req, res, next);
+});
 
 router.get('/facebook/callback', 
-  passport.authenticate('facebook', { 
-    failureRedirect: '/signin.html',
-    session: false 
-  }), 
+  (req, res, next) => {
+    console.log('📍 Facebook OAuth callback received');
+    passport.authenticate('facebook', { 
+      failureRedirect: '/signin.html?error=facebook_auth_failed',
+      session: false 
+    })(req, res, next);
+  },
   async (req, res) => {
     try {
+      console.log('📍 Facebook OAuth successful, user:', req.user?.email);
       // Issue JWT tokens and set cookies
       await issueTokens(res, req.user, { rememberMe: true });
       res.redirect('/index.html');
     } catch (error) {
-      console.error('Facebook OAuth callback error:', error);
+      console.error('❌ Facebook OAuth callback error:', error);
       res.redirect('/signin.html?error=oauth_failed');
     }
   }

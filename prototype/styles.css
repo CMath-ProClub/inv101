@@ -3669,6 +3669,8 @@ main.app__content {
 html, body {
   overflow-x: hidden;
   max-width: 100%;
+  width: 100%;
+  position: relative;
 }
 
 * {
