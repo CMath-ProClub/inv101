@@ -27,7 +27,7 @@
     })();
   </script>
   <style>
-    /* Full-width header without gaps */
+    /* Full-width header that doesn't move when sidebar collapses */
     .sim-header {
       position: fixed;
       top: 0;
@@ -37,12 +37,19 @@
       height: 180px;
       background: linear-gradient(135deg, var(--primary, #667eea) 0%, var(--accent, #764ba2) 100%);
       color: white;
-      padding: 20px 40px;
+      padding: 20px 40px 20px calc(var(--sidebar-width, 120px) + 40px);
       z-index: 1000;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       display: flex;
       flex-direction: column;
       gap: 15px;
+      transition: padding-left 280ms cubic-bezier(.2,.9,.2,1);
+    }
+
+    /* Adjust header padding when sidebar is collapsed */
+    .sidebar.collapsed ~ * .sim-header,
+    body:has(.sidebar.collapsed) .sim-header {
+      padding-left: calc(var(--sidebar-tab, 28px) + 40px);
     }
 
     .sim-header-top {
@@ -81,16 +88,18 @@
     .stat-value.positive { color: #10b981; }
     .stat-value.negative { color: #ef4444; }
 
-    /* Main content with proper spacing */
+    /* Main content with proper spacing - stays in place */
     .sim-content {
       margin-top: 200px;
       margin-left: var(--sidebar-width, 120px);
-      padding: 20px;
-      transition: margin-left 280ms cubic-bezier(.2,.9,.2,1);
+      padding: 20px 20px 20px calc(var(--sidebar-width, 120px) + 20px);
+      padding-left: 20px;
+      transition: none;
     }
 
+    /* Content doesn't shift when sidebar collapses */
     .sidebar.collapsed ~ .sim-content {
-      margin-left: var(--sidebar-tab, 28px);
+      margin-left: var(--sidebar-width, 120px);
     }
 
     /* Chart containers */
