@@ -17,6 +17,21 @@ const UserSchema = new mongoose.Schema({
   provider: { type: String, enum: ['investing101', 'google', 'facebook', 'microsoft'], default: 'investing101' },
   providerId: { type: String }, // For OAuth accounts
   createdAt: { type: Date, default: Date.now },
+  // Profile features
+  bio: { type: String, maxlength: 500 },
+  avatar: { type: String }, // URL or path to avatar image
+  location: { type: String, maxlength: 100 },
+  website: { type: String, maxlength: 200 },
+  isPublic: { type: Boolean, default: true }, // Whether profile is visible to others
+  // Social features
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  // Stats
+  totalTrades: { type: Number, default: 0 },
+  portfolioValue: { type: Number, default: 100000 }, // Starting virtual cash
+  performancePercent: { type: Number, default: 0 },
+  rank: { type: Number },
+  badges: [{ type: String }], // Achievement badges
   // Refresh tokens stored as { id, tokenHash } for efficient lookup
   refreshTokens: [RefreshTokenSchema]
 });

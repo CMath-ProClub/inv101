@@ -18,15 +18,33 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     callbackURL: process.env.APP_URL ? `${process.env.APP_URL.replace(/\/$/, '')}/auth/google/callback` : '/auth/google/callback'
   }, async (accessToken, refreshToken, profile, done) => {
     try {
+      const email = profile.emails && profile.emails[0] ? profile.emails[0].value.toLowerCase() : null;
+      
+      // First try to find by provider ID
       let user = await User.findOne({ provider: 'google', providerId: profile.id });
+      
+      // If not found and we have email, try to find existing user by email
+      if (!user && email) {
+        user = await User.findOne({ email });
+        if (user) {
+          // Link this Google account to existing user
+          user.provider = 'google';
+          user.providerId = profile.id;
+          await user.save();
+        }
+      }
+      
+      // Create new user if still not found
       if (!user) {
         user = await User.create({
-          username: profile.emails?.[0]?.value || profile.id,
-          displayName: profile.displayName,
+          email,
+          username: email ? email.split('@')[0] : profile.id,
+          displayName: profile.displayName || (email ? email.split('@')[0] : 'User'),
           provider: 'google',
           providerId: profile.id
         });
       }
+      
       return done(null, user);
     } catch (err) {
       return done(err);
@@ -44,15 +62,33 @@ if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
     profileFields: ['id', 'displayName', 'emails']
   }, async (accessToken, refreshToken, profile, done) => {
     try {
+      const email = profile.emails && profile.emails[0] ? profile.emails[0].value.toLowerCase() : null;
+      
+      // First try to find by provider ID
       let user = await User.findOne({ provider: 'facebook', providerId: profile.id });
+      
+      // If not found and we have email, try to find existing user by email
+      if (!user && email) {
+        user = await User.findOne({ email });
+        if (user) {
+          // Link this Facebook account to existing user
+          user.provider = 'facebook';
+          user.providerId = profile.id;
+          await user.save();
+        }
+      }
+      
+      // Create new user if still not found
       if (!user) {
         user = await User.create({
-          username: profile.emails?.[0]?.value || profile.id,
-          displayName: profile.displayName,
+          email,
+          username: email ? email.split('@')[0] : profile.id,
+          displayName: profile.displayName || (email ? email.split('@')[0] : 'User'),
           provider: 'facebook',
           providerId: profile.id
         });
       }
+      
       return done(null, user);
     } catch (err) {
       return done(err);

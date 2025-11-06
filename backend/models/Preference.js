@@ -7,5 +7,6 @@ const PreferenceSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 PreferenceSchema.index({ userId: 1, key: 1 }, { unique: true });
+PreferenceSchema.index({ key: 1, 'value.emailOptIn': 1 });
 
 module.exports = mongoose.models.Preference || mongoose.model('Preference', PreferenceSchema);

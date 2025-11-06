@@ -3,6 +3,7 @@ const articleCache = require('./articleCache');
 const stockCache = require('./stockCache');
 const CacheRefreshLog = require('./models/CacheRefreshLog');
 const SchedulerLog = require('./models/SchedulerLog');
+const newsletterService = require('./services/newsletterService');
 
 const MIDNIGHT_CST_CRON = '0 0 * * *';
 const TIMEZONE = 'America/Chicago';
@@ -377,6 +378,48 @@ class ArticleScheduler {
 
     this.tasks.push(task);
     console.log('✅ Daily cleanup scheduled successfully');
+  }
+
+  startNewsletterDigest(cronExpression) {
+    const expression = cronExpression && typeof cronExpression === 'string' && cronExpression.trim()
+      ? cronExpression.trim()
+      : '30 6 * * 1-5';
+
+    console.log(`📅 Scheduling newsletter digest: ${expression}`);
+
+    const task = cron.schedule(expression, async () => {
+      console.log('\n✉️  Newsletter digest job triggered');
+      const logContext = await startJobLog('newsletter.digest.daily', {
+        cronExpression: expression,
+        metadata: { source: 'scheduled' }
+      });
+      const startedAt = Date.now();
+      try {
+        const result = await newsletterService.sendDailyNewsletter();
+        await finalizeJobLog(logContext, 'completed', {
+          durationMs: Date.now() - startedAt,
+          recipients: result.totalRecipients,
+          emailsSent: result.emailsSent,
+          failures: result.failures ? result.failures.length : 0,
+          dataSource: result.snapshot ? result.snapshot.dataSource : null
+        });
+        console.log('✅ Newsletter digest sent', {
+          recipients: result.totalRecipients,
+          emailsSent: result.emailsSent,
+          failures: result.failures ? result.failures.length : 0
+        });
+      } catch (error) {
+        console.error('❌ Newsletter digest failed:', error.message);
+        await finalizeJobLog(logContext, 'failed', {
+          durationMs: Date.now() - startedAt
+        }, error);
+      }
+    }, {
+      timezone: TIMEZONE
+    });
+
+    this.tasks.push(task);
+    console.log('✅ Newsletter digest scheduled successfully');
   }
 
   /**

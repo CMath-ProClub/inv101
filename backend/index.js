@@ -32,6 +32,11 @@ const session = require('express-session');
 const passport = require('passport');
 const apiAuthRouter = require('./routes/apiAuth');
 const portfolioRouter = require('./routes/portfolio');
+const aiToolkitRouter = require('./routes/aiToolkit');
+const dataProvidersRouter = require('./routes/dataProviders');
+const profileRouter = require('./routes/profile');
+const simulatorRouter = require('./routes/simulator');
+const pingerService = require('./services/pingerService');
 const User = require('./models/User');
 const { JWT_SECRET } = require('./middleware/auth');
 const { issueTokens, clearAuthCookies } = require('./services/authTokens');
@@ -234,10 +239,14 @@ app.get('/signin.html', async (req, res) => {
 app.use(express.static(staticDir));
 app.use('/api/auth', apiAuthRouter);
 app.use('/api/portfolio', portfolioRouter);
+app.use('/api/profile', profileRouter);
+app.use('/api/simulator', simulatorRouter);
 app.use('/auth', oauthRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/preferences', preferencesRouter);
 app.use('/api/metrics', metricsRouter);
+app.use('/api/ai-toolkit', aiToolkitRouter);
+app.use('/api/data-providers', dataProvidersRouter);
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB
@@ -347,29 +356,70 @@ app.post('/api/simulate', async (req, res) => {
 });
 
 // Helper: Fetch top large-cap stocks via Yahoo Finance screener
-async function fetchTopMarketCap() {
+async function fetchTopMarketCap(limit = 50) {
+  const numericLimit = Number.isFinite(Number(limit)) ? Math.floor(Number(limit)) : 50;
+  const safeLimit = Math.min(Math.max(numericLimit || 50, 1), 250);
+  const fetchCount = Math.min(Math.max(safeLimit * 2, 60), 250);
+
   try {
     const result = await yahooFinance.screener({
       scrIds: 'market_cap_large_cap',
-      count: 100,
+      count: fetchCount,
       offset: 0
     });
-    const quotes = result?.finance?.result?.[0]?.quotes || [];
-    return quotes.map((quote) => ({
-      ticker: quote.symbol,
-      name: quote.shortName || quote.longName || quote.symbol
-    }));
+    const quotes = Array.isArray(result?.finance?.result?.[0]?.quotes)
+      ? result.finance.result[0].quotes
+      : [];
+
+    const ranked = quotes
+      .filter((quote) => quote && quote.symbol)
+      .map((quote) => ({
+        ticker: quote.symbol,
+        name: quote.shortName || quote.longName || quote.symbol,
+        marketCap: typeof quote.marketCap === 'number' ? quote.marketCap : null,
+        price: typeof quote.regularMarketPrice === 'number' ? quote.regularMarketPrice : null,
+        change: typeof quote.regularMarketChange === 'number' ? quote.regularMarketChange : null,
+        changePercent: typeof quote.regularMarketChangePercent === 'number' ? quote.regularMarketChangePercent : null,
+        currency: quote.currency || 'USD',
+        exchange: quote.fullExchangeName || quote.exchange,
+        sector: quote.sector,
+        industry: quote.industry,
+        trailingPE: typeof quote.trailingPE === 'number' ? quote.trailingPE : null,
+        forwardPE: typeof quote.forwardPE === 'number' ? quote.forwardPE : null,
+        dividendYield: typeof quote.trailingAnnualDividendYield === 'number'
+          ? quote.trailingAnnualDividendYield
+          : quote.dividendYield ?? null
+      }))
+      .sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0));
+
+    return ranked.slice(0, safeLimit);
   } catch (err) {
     console.warn('⚠️ Yahoo Finance screener failed, falling back to curated list:', err.message);
-    return [];
+    return getRecognizableCompanies(safeLimit);
   }
 }
 
-// Helper: Add 50 recognizable companies
-function getRecognizableCompanies() {
-  return [
+// Helper: Add recognizable companies for fallback scenarios
+function getRecognizableCompanies(limit = 50) {
+  const fallbackTickers = [
     'AAPL','MSFT','GOOGL','AMZN','META','TSLA','NVDA','JPM','V','UNH','HD','MA','PG','DIS','BAC','KO','PEP','MRK','ABBV','T','NFLX','ADBE','CRM','AVGO','COST','WMT','MCD','INTC','CSCO','CMCSA','TXN','HON','QCOM','ACN','LIN','DHR','NEE','MDT','BMY','SBUX','AMGN','LOW','CVX','TMO','ISRG','GILD','VRTX','REGN','BKNG','LRCX','DE'
-  ].map(ticker => ({ ticker, name: ticker }));
+  ];
+
+  return fallbackTickers.slice(0, limit).map((ticker) => ({
+    ticker,
+    name: ticker,
+    marketCap: null,
+    price: null,
+    change: null,
+    changePercent: null,
+    currency: 'USD',
+    exchange: null,
+    sector: null,
+    industry: null,
+    trailingPE: null,
+    forwardPE: null,
+    dividendYield: null
+  }));
 }
 
 // ============================================
@@ -523,6 +573,29 @@ app.post('/api/stocks/refresh-cache', refreshLimiter, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+// GET /api/stocks/top-market-cap?limit=50
+app.get('/api/stocks/top-market-cap', async (req, res) => {
+  const limitParam = Number(req.query.limit);
+  const limit = Number.isFinite(limitParam) ? limitParam : 50;
+
+  try {
+    const stocks = await fetchTopMarketCap(limit);
+    res.json({
+      success: true,
+      source: 'yahoo-finance',
+      requested: limit,
+      count: stocks.length,
+      asOf: new Date().toISOString(),
+      data: stocks
+    });
+  } catch (error) {
+    res.status(502).json({
+      success: false,
+      error: error.message || 'Unable to retrieve top market cap stocks'
     });
   }
 });
@@ -1019,6 +1092,15 @@ async function startServer() {
             console.warn('⚠️  Historical backfill (startup) failed:', err.message);
           });
         }, 5000);
+      }
+      
+      // Initialize pinger service to keep server alive
+      if (process.env.APP_URL) {
+        console.log(`🔄 Pinger service initialized for ${process.env.APP_URL}`);
+        console.log('⏱️  Pinging every 10 minutes to keep server alive');
+        // Note: pingerService auto-starts when APP_URL is set
+      } else {
+        console.log('ℹ️  Pinger service not started (APP_URL not configured)');
       }
       
       console.log('\n✅ Server ready for requests\n');
