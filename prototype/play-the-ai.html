@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play the AI - Investing101</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="device-detection.js"></script>
+  <script>
+    (function(){
+      try {
+        var supported = ['light','dark','ultradark','emerald-trust','quantum-violet','copper-balance','regal-portfolio','carbon-edge'];
+        var alias = { sepia: 'copper-balance' };
+        var stored = localStorage.getItem('inv101_theme');
+        var legacy = localStorage.getItem('darkMode') === 'true' ? 'dark' : null;
+        var theme = (stored || legacy || 'light').toLowerCase();
+        if (theme.indexOf('theme-') === 0) theme = theme.slice(6);
+        if (alias[theme]) theme = alias[theme];
+        if (supported.indexOf(theme) === -1) theme = 'light';
+        var root = document.documentElement;
+        var purge = ['dark-mode','theme-sepia'];
+        supported.forEach(function(id){ purge.push('theme-' + id); });
+        purge.forEach(function(cls){ root.classList.remove(cls); });
+        root.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    .ai-setup-screen {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 40px;
+      background: var(--bg-card);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .ai-setup-screen h1 {
+      margin-bottom: 12px;
+      font-size: 2.2rem;
+    }
+
+    .ai-setup-screen p {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .setup-section {
+      margin-bottom: 32px;
+    }
+
+    .setup-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+
+    .difficulty-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .difficulty-btn {
+      padding: 20px;
+      border: 2px solid rgba(0,0,0,0.1);
+      border-radius: 12px;
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 200ms;
+      text-align: center;
+    }
+
+    .difficulty-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .difficulty-btn.selected {
+      border-color: var(--accent);
+      background: rgba(29, 209, 161, 0.1);
+    }
+
+    .difficulty-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .difficulty-name {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .difficulty-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .time-slider-container {
+      padding: 20px;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .time-slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: linear-gradient(to right, var(--accent), rgba(29, 209, 161, 0.3));
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .time-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .time-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .time-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .selected-time {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .start-game-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), rgba(29, 209, 161, 0.8));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 200ms;
+      margin-top: 32px;
+    }
+
+    .start-game-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(29, 209, 161, 0.4);
+    }
+
+    .game-container {
+      display: none;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      padding: 20px;
+      height: calc(100vh - 140px);
+      overflow: hidden;
+    }
+
+    .game-sidebar {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .game-main {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .game-controls {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .speed-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .speed-btn {
+      padding: 8px 16px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 150ms;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .speed-btn:hover, .speed-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .game-date {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .comparison-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .player-metrics {
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .player-metrics.you {
+      background: linear-gradient(135deg, rgba(29, 209, 161, 0.1), rgba(29, 209, 161, 0.05));
+      border: 2px solid rgba(29, 209, 161, 0.3);
+    }
+
+    .player-metrics.ai {
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(108, 92, 231, 0.05));
+      border: 2px solid rgba(108, 92, 231, 0.3);
+    }
+
+    .player-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .player-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .player-change {
+      font-size: 1rem;
+    }
+
+    .game-chart {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      height: 400px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .stock-trading {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .game-over-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      padding: 20px;
+    }
+
+    .game-over-content {
+      background: var(--bg-card);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+
+    .game-over-icon {
+      font-size: 4rem;
+      margin-bottom: 24px;
+    }
+
+    .game-over-title {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .game-over-stats {
+      margin: 32px 0;
+      padding: 24px;
+      background: var(--bg);
+      border-radius: 16px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .game-over-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 1200px) {
+      .game-container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .difficulty-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="global-ui.js"></script>
+  <div class="app">
+    <aside class="sidebar">
+      <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
+        <img src="assets/Investing101.png" alt="Investing 101">
+      </a>
+      <nav class="sidebar__nav" aria-label="Main navigation">
+        <a href="index.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 10.5L12 3l9 7.5" />
+            <path d="M5 10.5V21h14V10.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+          <span>Main</span>
+        </a>
+        <a href="simulator.html" class="sidebar__btn sidebar__btn--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 3v3" />
+            <path d="M12 18v3" />
+            <path d="M3 12h3" />
+            <path d="M18 12h3" />
+          </svg>
+          <span>Simulator / AI</span>
+        </a>
+        <a href="lessons.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+            <path d="M4 12l8 3 8-3" />
+            <path d="M12 5v10" />
+          </svg>
+          <span>Lessons</span>
+        </a>
+        <a href="calculators.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M7 8h10" />
+            <path d="M7 12h10" />
+            <path d="M7 16h3" />
+            <path d="M14 16h3" />
+          </svg>
+          <span>Calculators</span>
+        </a>
+        <a href="profile.html" class="sidebar__btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </aside>
+
+    <header class="app__header">
+      <button class="btn btn--secondary" onclick="showSetup()">⚙️ New Game</button>
+      <span>Play the AI</span>
+      <button class="btn btn--secondary" onclick="window.location.href='market-simulator-new.html'">📊 Market Simulator</button>
+    </header>
+
+    <main class="app__content">
+      <!-- Setup Screen -->
+      <div id="setupScreen" class="ai-setup-screen">
+        <h1>🎯 Challenge the AI</h1>
+        <p>
+          Test your trading skills against an AI opponent using real historical market data. 
+          Choose your difficulty, select a time period, and see who can generate better returns!
+        </p>
+
+        <div class="setup-section">
+          <label class="setup-label">AI Difficulty</label>
+          <div class="difficulty-grid">
+            <div class="difficulty-btn" data-difficulty="easy" onclick="selectDifficulty('easy')">
+              <div class="difficulty-icon">🟢</div>
+              <div class="difficulty-name">Easy</div>
+              <div class="difficulty-desc">Random trades, beginner strategy</div>
+            </div>
+            <div class="difficulty-btn selected" data-difficulty="medium" onclick="selectDifficulty('medium')">
+              <div class="difficulty-icon">🟡</div>
+              <div class="difficulty-name">Medium</div>
+              <div class="difficulty-desc">Balanced approach, trend following</div>
+            </div>
+            <div class="difficulty-btn" data-difficulty="hard" onclick="selectDifficulty('hard')">
+              <div class="difficulty-icon">🔴</div>
+              <div class="difficulty-name">Hard</div>
+              <div class="difficulty-desc">Advanced algorithms, optimal timing</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="setup-section">
+          <label class="setup-label">Time Period</label>
+          <div class="time-slider-container">
+            <input type="range" class="time-slider" id="timePeriodSlider" min="1" max="1825" value="180" step="1" />
+            <div class="time-labels">
+              <span>1 Day</span>
+              <span>1 Month</span>
+              <span>6 Months</span>
+              <span>1 Year</span>
+              <span>5 Years</span>
+            </div>
+            <div class="selected-time" id="selectedTime">6 Months</div>
+          </div>
+        </div>
+
+        <div class="setup-section">
+          <label class="setup-label">Starting Balance</label>
+          <div style="text-align: center; font-size: 2rem; font-weight: 700; color: var(--accent); padding: 20px; background: var(--bg); border-radius: 12px;">
+            $10,000.00
+          </div>
+        </div>
+
+        <button class="start-game-btn" onclick="startGame()">
+          Start Game →
+        </button>
+      </div>
+
+      <!-- Game Screen -->
+      <div id="gameScreen" class="game-container">
+        <div class="game-sidebar">
+          <h3 style="margin-bottom: 16px;">Available Stocks</h3>
+          <input type="text" id="gameStockSearch" class="search-box" placeholder="Search stocks..." />
+          <div class="stock-list" id="gameStockList">
+            <!-- Stocks will be populated here -->
+          </div>
+
+          <h3 style="margin: 24px 0 12px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.08);">Your Holdings</h3>
+          <div id="gameHoldingsList">
+            <p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem;">No holdings yet</p>
+          </div>
+
+          <h3 style="margin: 24px 0 12px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.08);">AI Holdings</h3>
+          <div id="aiHoldingsList">
+            <p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem;">No holdings yet</p>
+          </div>
+        </div>
+
+        <div class="game-main">
+          <div class="game-controls">
+            <div class="speed-controls">
+              <button class="speed-btn" data-speed="paused" onclick="setSpeed('paused')">⏸️ Pause</button>
+              <button class="speed-btn" data-speed="0.5" onclick="setSpeed(0.5)">0.5x</button>
+              <button class="speed-btn active" data-speed="1" onclick="setSpeed(1)">1x</button>
+              <button class="speed-btn" data-speed="2" onclick="setSpeed(2)">2x</button>
+              <button class="speed-btn" data-speed="4" onclick="setSpeed(4)">4x</button>
+            </div>
+            <div class="game-date" id="gameDate">Day 1 / 180</div>
+          </div>
+
+          <div class="comparison-metrics">
+            <div class="player-metrics you">
+              <div class="player-label">YOUR PORTFOLIO</div>
+              <div class="player-value" id="yourValue">$10,000.00</div>
+              <div class="player-change" id="yourChange">+$0.00 (0.00%)</div>
+            </div>
+            <div class="player-metrics ai">
+              <div class="player-label">AI PORTFOLIO</div>
+              <div class="player-value" id="aiValue">$10,000.00</div>
+              <div class="player-change" id="aiChange">+$0.00 (0.00%)</div>
+            </div>
+          </div>
+
+          <div class="game-chart">
+            <canvas id="comparisonChart"></canvas>
+          </div>
+
+          <div class="stock-trading" id="stockTrading">
+            <p style="text-align: center; color: var(--text-muted); padding: 20px;">Select a stock to trade</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Screen -->
+      <div id="gameOverScreen" class="game-over-screen">
+        <div class="game-over-content">
+          <div class="game-over-icon" id="resultIcon">🏆</div>
+          <h2 class="game-over-title" id="resultTitle">You Win!</h2>
+          <p id="resultMessage" style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 24px;"></p>
+          
+          <div class="game-over-stats">
+            <div class="stat-row">
+              <span>Your Final Value:</span>
+              <strong id="finalYourValue">$10,500.00</strong>
+            </div>
+            <div class="stat-row">
+              <span>AI Final Value:</span>
+              <strong id="finalAiValue">$9,800.00</strong>
+            </div>
+            <div class="stat-row">
+              <span>Your Return:</span>
+              <strong id="finalYourReturn" style="color: #10b981;">+5.00%</strong>
+            </div>
+            <div class="stat-row">
+              <span>AI Return:</span>
+              <strong id="finalAiReturn" style="color: #ef4444;">-2.00%</strong>
+            </div>
+            <div class="stat-row">
+              <span>Trades Made:</span>
+              <strong id="finalTrades">12</strong>
+            </div>
+          </div>
+
+          <div class="game-over-actions">
+            <button class="btn btn--secondary" style="flex: 1;" onclick="showSetup()">New Game</button>
+            <button class="btn btn--primary" style="flex: 1;" onclick="shareResults()">Share Results</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="tabbar" aria-label="Primary navigation">
+      <a class="tabbar__btn" href="index.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 10.5L12 3l9 7.5" />
+          <path d="M5 10.5V21h14V10.5" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+        <span>Main</span>
+      </a>
+      <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 3v3" />
+          <path d="M12 18v3" />
+          <path d="M3 12h3" />
+          <path d="M18 12h3" />
+        </svg>
+        <span>Simulator</span>
+      </a>
+      <a class="tabbar__btn" href="lessons.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
+          <path d="M4 12l8 3 8-3" />
+          <path d="M12 5v10" />
+        </svg>
+        <span>Lessons</span>
+      </a>
+      <a class="tabbar__btn" href="calculators.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h3" />
+          <path d="M14 16h3" />
+        </svg>
+        <span>Calc</span>
+      </a>
+      <a class="tabbar__btn" href="profile.html">
+        <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+        </svg>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="theme-switcher.js"></script>
+  <script>
+    // Play the AI Game Logic
+    let gameConfig = {
+      difficulty: 'medium',
+      days: 180,
+      speed: 1
+    };
+
+    let gameState = {
+      currentDay: 0,
+      isPlaying: false,
+      intervalId: null,
+      playerCash: 10000,
+      playerHoldings: {},
+      aiCash: 10000,
+      aiHoldings: {},
+      playerHistory: [10000],
+      aiHistory: [10000],
+      tradeCount: 0
+    };
+
+    const STOCKS = [
+      { symbol: 'AAPL', name: 'Apple Inc.', basePrice: 170, volatility: 0.02 },
+      { symbol: 'MSFT', name: 'Microsoft', basePrice: 370, volatility: 0.018 },
+      { symbol: 'GOOGL', name: 'Alphabet', basePrice: 135, volatility: 0.022 },
+      { symbol: 'AMZN', name: 'Amazon', basePrice: 140, volatility: 0.025 },
+      { symbol: 'TSLA', name: 'Tesla', basePrice: 235, volatility: 0.035 },
+      { symbol: 'NVDA', name: 'NVIDIA', basePrice: 480, volatility: 0.03 },
+      { symbol: 'META', name: 'Meta', basePrice: 320, volatility: 0.028 }
+    ];
+
+    let stockPrices = {};
+    let chart = null;
+    let selectedStock = null;
+
+    // Initialize time period slider
+    const timeSlider = document.getElementById('timePeriodSlider');
+    const selectedTime = document.getElementById('selectedTime');
+
+    function updateTimeLabel(days) {
+      if (days === 1) return '1 Day';
+      if (days <= 7) return `${days} Days`;
+      if (days <= 30) return '1 Month';
+      if (days <= 90) return '3 Months';
+      if (days <= 180) return '6 Months';
+      if (days <= 365) return '1 Year';
+      if (days <= 730) return '2 Years';
+      return '5 Years';
+    }
+
+    timeSlider.addEventListener('input', function() {
+      gameConfig.days = parseInt(this.value);
+      selectedTime.textContent = updateTimeLabel(gameConfig.days);
+    });
+
+    function selectDifficulty(difficulty) {
+      gameConfig.difficulty = difficulty;
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.difficulty === difficulty);
+      });
+    }
+
+    function startGame() {
+      // Initialize game
+      initializeStockPrices();
+      gameState = {
+        currentDay: 0,
+        isPlaying: true,
+        intervalId: null,
+        playerCash: 10000,
+        playerHoldings: {},
+        aiCash: 10000,
+        aiHoldings: {},
+        playerHistory: [10000],
+        aiHistory: [10000],
+        tradeCount: 0
+      };
+
+      document.getElementById('setupScreen').style.display = 'none';
+      document.getElementById('gameScreen').style.display = 'grid';
+      
+      renderGameStocks();
+      initComparisonChart();
+      startGameLoop();
+    }
+
+    function initializeStockPrices() {
+      STOCKS.forEach(stock => {
+        stockPrices[stock.symbol] = {
+          ...stock,
+          currentPrice: stock.basePrice,
+          history: [stock.basePrice]
+        };
+      });
+    }
+
+    function simulatePriceChange() {
+      STOCKS.forEach(stock => {
+        const data = stockPrices[stock.symbol];
+        const change = (Math.random() - 0.5) * 2 * stock.volatility;
+        data.currentPrice *= (1 + change);
+        data.history.push(data.currentPrice);
+      });
+    }
+
+    function startGameLoop() {
+      const baseInterval = 1000; // 1 second = 1 game day at 1x speed
+      
+      function tick() {
+        if (!gameState.isPlaying) return;
+
+        gameState.currentDay++;
+        simulatePriceChange();
+        
+        // AI makes trades based on difficulty
+        if (gameState.currentDay % 5 === 0) {
+          makeAITrade();
+        }
+
+        updateGameUI();
+
+        if (gameState.currentDay >= gameConfig.days) {
+          endGame();
+          return;
+        }
+
+        gameState.intervalId = setTimeout(tick, baseInterval / gameConfig.speed);
+      }
+
+      tick();
+    }
+
+    function makeAITrade() {
+      const difficulty = gameConfig.difficulty;
+      
+      if (difficulty === 'easy') {
+        // Random trades
+        if (Math.random() < 0.3) {
+          const stock = STOCKS[Math.floor(Math.random() * STOCKS.length)];
+          const shares = Math.floor(Math.random() * 5) + 1;
+          executedAITrade(stock.symbol, shares, Math.random() > 0.5);
+        }
+      } else if (difficulty === 'medium') {
+        // Trend following
+        STOCKS.forEach(stock => {
+          const data = stockPrices[stock.symbol];
+          const recent = data.history.slice(-10);
+          const trend = recent[recent.length - 1] - recent[0];
+          
+          if (trend > 0 && Math.random() < 0.2) {
+            executedAITrade(stock.symbol, Math.floor(Math.random() * 3) + 1, true);
+          } else if (trend < 0 && Math.random() < 0.15) {
+            executedAITrade(stock.symbol, Math.floor(Math.random() * 2) + 1, false);
+          }
+        });
+      } else {
+        // Hard: momentum + mean reversion
+        STOCKS.forEach(stock => {
+          const data = stockPrices[stock.symbol];
+          const recent = data.history.slice(-20);
+          const sma = recent.reduce((a, b) => a + b) / recent.length;
+          const current = data.currentPrice;
+          
+          if (current > sma * 1.05 && Math.random() < 0.25) {
+            executedAITrade(stock.symbol, Math.floor(Math.random() * 4) + 2, true);
+          } else if (current < sma * 0.95 && gameState.currentDay > 20 && Math.random() < 0.2) {
+            executedAITrade(stock.symbol, Math.floor(Math.random() * 3) + 1, false);
+          }
+        });
+      }
+    }
+
+    function executeAITrade(symbol, shares, isBuy) {
+      const price = stockPrices[symbol].currentPrice;
+      const cost = shares * price;
+
+      if (isBuy) {
+        if (gameState.aiCash >= cost) {
+          gameState.aiCash -= cost;
+          if (!gameState.aiHoldings[symbol]) {
+            gameState.aiHoldings[symbol] = { shares: 0, avgPrice: 0, symbol, name: STOCKS.find(s => s.symbol === symbol).name };
+          }
+          const holding = gameState.aiHoldings[symbol];
+          const totalShares = holding.shares + shares;
+          holding.avgPrice = ((holding.shares * holding.avgPrice) + cost) / totalShares;
+          holding.shares = totalShares;
+        }
+      } else {
+        const holding = gameState.aiHoldings[symbol];
+        if (holding && holding.shares >= shares) {
+          gameState.aiCash += cost;
+          holding.shares -= shares;
+          if (holding.shares === 0) {
+            delete gameState.aiHoldings[symbol];
+          }
+        }
+      }
+    }
+
+    function updateGameUI() {
+      const playerValue = calculatePlayerValue();
+      const aiValue = calculateAIValue();
+      
+      const playerChange = playerValue - 10000;
+      const playerPct = ((playerValue / 10000) - 1) * 100;
+      const aiChange = aiValue - 10000;
+      const aiPct = ((aiValue / 10000) - 1) * 100;
+
+      document.getElementById('gameDate').textContent = `Day ${gameState.currentDay} / ${gameConfig.days}`;
+      document.getElementById('yourValue').textContent = `$${playerValue.toFixed(2)}`;
+      document.getElementById('yourChange').textContent = `${playerChange >= 0 ? '+' : ''}$${playerChange.toFixed(2)} (${playerPct.toFixed(2)}%)`;
+      document.getElementById('yourChange').style.color = playerChange >= 0 ? '#10b981' : '#ef4444';
+      
+      document.getElementById('aiValue').textContent = `$${aiValue.toFixed(2)}`;
+      document.getElementById('aiChange').textContent = `${aiChange >= 0 ? '+' : ''}$${aiChange.toFixed(2)} (${aiPct.toFixed(2)}%)`;
+      document.getElementById('aiChange').style.color = aiChange >= 0 ? '#10b981' : '#ef4444';
+
+      gameState.playerHistory.push(playerValue);
+      gameState.aiHistory.push(aiValue);
+
+      updateComparisonChart();
+      updateHoldingsDisplay();
+    }
+
+    function calculatePlayerValue() {
+      let value = gameState.playerCash;
+      for (const symbol in gameState.playerHoldings) {
+        const holding = gameState.playerHoldings[symbol];
+        value += holding.shares * stockPrices[symbol].currentPrice;
+      }
+      return value;
+    }
+
+    function calculateAIValue() {
+      let value = gameState.aiCash;
+      for (const symbol in gameState.aiHoldings) {
+        const holding = gameState.aiHoldings[symbol];
+        value += holding.shares * stockPrices[symbol].currentPrice;
+      }
+      return value;
+    }
+
+    function renderGameStocks() {
+      const container = document.getElementById('gameStockList');
+      container.innerHTML = STOCKS.map(stock => `
+        <div class="stock-item" onclick="selectGameStock('${stock.symbol}')">
+          <div class="stock-symbol">${stock.symbol}</div>
+          <div class="stock-price" id="price-${stock.symbol}">$${stock.basePrice.toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+
+    function selectGameStock(symbol) {
+      selectedStock = symbol;
+      const stock = STOCKS.find(s => s.symbol === symbol);
+      const price = stockPrices[symbol].currentPrice;
+      const holding = gameState.playerHoldings[symbol];
+
+      document.querySelectorAll('.stock-item').forEach(el => el.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+
+      document.getElementById('stockTrading').innerHTML = `
+        <h3 style="margin-bottom: 16px;">${stock.name} (${symbol})</h3>
+        <div style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px;">$${price.toFixed(2)}</div>
+        
+        ${holding ? `
+          <div style="padding: 12px; background: var(--bg); border-radius: 10px; margin-bottom: 16px;">
+            <strong>${holding.shares} shares</strong> @ $${holding.avgPrice.toFixed(2)}
+          </div>
+        ` : ''}
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600;">Shares</label>
+          <input type="number" id="gameTradeShares" class="trade-input" min="1" step="1" value="1" style="width: 100%;" />
+        </div>
+
+        <div class="trade-actions">
+          <button class="trade-btn buy" onclick="playerTrade('buy')">Buy</button>
+          <button class="trade-btn sell" onclick="playerTrade('sell')" ${!holding || holding.shares === 0 ? 'disabled' : ''}>Sell</button>
+        </div>
+      `;
+    }
+
+    function playerTrade(type) {
+      if (!selectedStock) return;
+
+      const shares = parseInt(document.getElementById('gameTradeShares').value) || 0;
+      if (shares <= 0) {
+        alert('Please enter valid shares');
+        return;
+      }
+
+      const price = stockPrices[selectedStock].currentPrice;
+      const cost = shares * price;
+
+      if (type === 'buy') {
+        if (gameState.playerCash < cost) {
+          alert('❌ Insufficient funds!');
+          return;
+        }
+
+        gameState.playerCash -= cost;
+        if (!gameState.playerHoldings[selectedStock]) {
+          gameState.playerHoldings[selectedStock] = {
+            shares: 0,
+            avgPrice: 0,
+            symbol: selectedStock,
+            name: STOCKS.find(s => s.symbol === selectedStock).name
+          };
+        }
+
+        const holding = gameState.playerHoldings[selectedStock];
+        const totalShares = holding.shares + shares;
+        holding.avgPrice = ((holding.shares * holding.avgPrice) + cost) / totalShares;
+        holding.shares = totalShares;
+
+        gameState.tradeCount++;
+        alert(`✅ Bought ${shares} shares of ${selectedStock}`);
+      } else {
+        const holding = gameState.playerHoldings[selectedStock];
+        if (!holding || holding.shares < shares) {
+          alert('❌ Insufficient shares!');
+          return;
+        }
+
+        gameState.playerCash += cost;
+        holding.shares -= shares;
+        if (holding.shares === 0) {
+          delete gameState.playerHoldings[selectedStock];
+        }
+
+        gameState.tradeCount++;
+        alert(`✅ Sold ${shares} shares of ${selectedStock}`);
+      }
+
+      selectGameStock(selectedStock);
+      updateGameUI();
+    }
+
+    function updateHoldingsDisplay() {
+      const playerContainer = document.getElementById('gameHoldingsList');
+      const aiContainer = document.getElementById('aiHoldingsList');
+
+      const playerHoldings = Object.values(gameState.playerHoldings);
+      const aiHoldings = Object.values(gameState.aiHoldings);
+
+      playerContainer.innerHTML = playerHoldings.length === 0 
+        ? '<p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem;">No holdings</p>'
+        : playerHoldings.map(h => `
+          <div class="portfolio-item" style="padding: 10px; margin-bottom: 6px;">
+            <div style="font-weight: 700; font-size: 0.9rem;">${h.symbol}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${h.shares} shares</div>
+          </div>
+        `).join('');
+
+      aiContainer.innerHTML = aiHoldings.length === 0
+        ? '<p style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 0.9rem;">No holdings</p>'
+        : aiHoldings.map(h => `
+          <div class="portfolio-item" style="padding: 10px; margin-bottom: 6px;">
+            <div style="font-weight: 700; font-size: 0.9rem;">${h.symbol}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${h.shares} shares</div>
+          </div>
+        `).join('');
+
+      // Update stock prices
+      STOCKS.forEach(stock => {
+        const el = document.getElementById(`price-${stock.symbol}`);
+        if (el) {
+          el.textContent = `$${stockPrices[stock.symbol].currentPrice.toFixed(2)}`;
+        }
+      });
+    }
+
+    function initComparisonChart() {
+      const ctx = document.getElementById('comparisonChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Start'],
+          datasets: [{
+            label: 'Your Portfolio',
+            data: [10000],
+            borderColor: '#1dd1a1',
+            backgroundColor: 'rgba(29, 209, 161, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3
+          }, {
+            label: 'AI Portfolio',
+            data: [10000],
+            borderColor: '#6c5ce7',
+            backgroundColor: 'rgba(108, 92, 231, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return '$' + value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateComparisonChart() {
+      const labels = Array.from({length: gameState.currentDay + 1}, (_, i) => `Day ${i}`);
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = gameState.playerHistory;
+      chart.data.datasets[1].data = gameState.aiHistory;
+      chart.update('none'); // No animation for performance
+    }
+
+    function setSpeed(speed) {
+      if (speed === 'paused') {
+        gameState.isPlaying = false;
+        if (gameState.intervalId) {
+          clearTimeout(gameState.intervalId);
+        }
+      } else {
+        gameConfig.speed = speed;
+        if (!gameState.isPlaying) {
+          gameState.isPlaying = true;
+          startGameLoop();
+        }
+      }
+
+      document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.speed == speed);
+      });
+    }
+
+    function endGame() {
+      gameState.isPlaying = false;
+      const playerValue = calculatePlayerValue();
+      const aiValue = calculateAIValue();
+      const playerWon = playerValue > aiValue;
+
+      document.getElementById('resultIcon').textContent = playerWon ? '🏆' : '😔';
+      document.getElementById('resultTitle').textContent = playerWon ? 'You Win!' : 'AI Wins!';
+      document.getElementById('resultMessage').textContent = playerWon 
+        ? `Congratulations! Your portfolio outperformed the AI by $${(playerValue - aiValue).toFixed(2)}`
+        : `The AI's portfolio outperformed yours by $${(aiValue - playerValue).toFixed(2)}. Try again!`;
+
+      document.getElementById('finalYourValue').textContent = `$${playerValue.toFixed(2)}`;
+      document.getElementById('finalAiValue').textContent = `$${aiValue.toFixed(2)}`;
+      
+      const playerReturn = ((playerValue / 10000) - 1) * 100;
+      const aiReturn = ((aiValue / 10000) - 1) * 100;
+      
+      document.getElementById('finalYourReturn').textContent = `${playerReturn >= 0 ? '+' : ''}${playerReturn.toFixed(2)}%`;
+      document.getElementById('finalYourReturn').style.color = playerReturn >= 0 ? '#10b981' : '#ef4444';
+      document.getElementById('finalAiReturn').textContent = `${aiReturn >= 0 ? '+' : ''}${aiReturn.toFixed(2)}%`;
+      document.getElementById('finalAiReturn').style.color = aiReturn >= 0 ? '#10b981' : '#ef4444';
+      document.getElementById('finalTrades').textContent = gameState.tradeCount;
+
+      document.getElementById('gameOverScreen').style.display = 'flex';
+    }
+
+    function showSetup() {
+      document.getElementById('setupScreen').style.display = 'block';
+      document.getElementById('gameScreen').style.display = 'none';
+      document.getElementById('gameOverScreen').style.display = 'none';
+      gameState.isPlaying = false;
+      if (gameState.intervalId) {
+        clearTimeout(gameState.intervalId);
+      }
+    }
+
+    function shareResults() {
+      const playerValue = calculatePlayerValue();
+      const playerReturn = ((playerValue / 10000) - 1) * 100;
+      const text = `I just played Investing101's "Play the AI" mode and achieved ${playerReturn.toFixed(2)}% return! Can you beat the AI? #Investing101`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'Play the AI - Investing101',
+          text: text,
+          url: window.location.href
+        });
+      } else {
+        alert('Share: ' + text);
+      }
+    }
+  </script>
+</body>
+</html>
