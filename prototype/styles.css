@@ -43,6 +43,7 @@
 .sidebar.collapsed {
   width: var(--sidebar-tab);
   padding: 0;
+  transform: translateX(calc(-1 * (var(--sidebar-expanded) - var(--sidebar-tab))));
 }
 .sidebar.collapsed .sidebar__logo,
 .sidebar.collapsed .sidebar__nav,
@@ -53,10 +54,7 @@
   display: none;
 }
 
-/* Prevent content from shifting when sidebar collapses */
-.sidebar.collapsed ~ * {
-  margin-left: 0 !important;
-}
+/* Content stays in place when sidebar collapses */
 .sidebar.collapsed .sidebar__btn .label { display: none }
 .sidebar:not(.collapsed) .sidebar__btn .label { display: block }
 
@@ -121,7 +119,7 @@
   box-sizing: border-box;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   backdrop-filter: blur(6px);
-  z-index: 1000;
+  z-index: 900; /* Below sidebar (1100) but above content */
   transition: padding-left 280ms cubic-bezier(.2,.9,.2,1);
 }
 
@@ -183,13 +181,13 @@ body:has(.sidebar.collapsed) .global-header {
 .app__content, main {
   margin-left: var(--sidebar-width); /* account for updated sidebar width */
   margin-top: 64px;
-  transition: margin-left 280ms cubic-bezier(.2,.9,.2,1);
+  /* DO NOT transition margin when sidebar collapses - content stays fixed */
 }
 
-/* If sidebar is collapsed, reduce left margin */
+/* Content margin stays the same even when sidebar is collapsed */
 body.sidebar-collapsed .app__content,
 body.sidebar-collapsed main {
-  margin-left: var(--sidebar-tab);
+  margin-left: var(--sidebar-width); /* Keep the same margin */
 }
 
 /* Shrink header offset when sidebar collapses */
@@ -545,6 +543,11 @@ body.sidebar-collapsed .global-header {
     text-decoration: none;
     box-shadow: 0 14px 32px rgba(31, 42, 55, 0.08);
     transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    font-size: inherit;
   }
 
   .calculator-card:hover,
@@ -553,6 +556,10 @@ body.sidebar-collapsed .global-header {
     border-color: rgba(29, 209, 161, 0.32);
     box-shadow: 0 24px 48px rgba(31, 42, 55, 0.14);
     outline: none;
+  }
+
+  .calculator-card:active {
+    transform: translateY(-4px);
   }
 
   .calculator-card.is-hidden {
@@ -1991,20 +1998,24 @@ body {
 }
 
 .app__header {
-  margin-left: var(--sidebar-width);
-  width: calc(100% - var(--sidebar-width));
-  transition: margin-left 280ms cubic-bezier(.2,.9,.2,1), width 280ms cubic-bezier(.2,.9,.2,1);
-  padding: 18px 22px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  padding: 18px 22px 18px calc(var(--sidebar-width) + 22px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
+  z-index: 900; /* Below sidebar */
+  transition: padding-left 280ms cubic-bezier(.2,.9,.2,1);
+  box-sizing: border-box;
 }
 
 body.sidebar-collapsed .app__header {
-  margin-left: var(--sidebar-tab);
-  width: calc(100% - var(--sidebar-tab));
+  padding-left: calc(var(--sidebar-tab) + 22px);
 }
 
 .app__logo {

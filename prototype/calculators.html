@@ -84,10 +84,18 @@
       </nav>
     </aside>
 
-    <header class="app__header">
-      <a class="link-button" href="index.html">← Calc</a>
-      <span>Calculator Suite</span>
-      <span class="chip">CORE · RISK · STOCK · ASSET · RETIRE · TAX · CRYPTO</span>
+    <header class="global-header">
+      <div class="brand">
+        <span>Calculator Suite</span>
+      </div>
+      <div class="header-fill">
+        <div class="search">
+          <input id="headerCalculatorSearch" type="search" placeholder="Search calculators (e.g., compound interest, Kelly, P/E ratio)..." aria-label="Search calculators">
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn--secondary" onclick="window.location.href='index.html'">← Back</button>
+      </div>
     </header>
 
     <main class="app__content calculators-layout">
@@ -106,48 +114,48 @@
       </section>
 
       <section class="calculator-grid" id="calculatorGrid" aria-label="Calculator shortcuts">
-        <a href="calc-core.html" class="calculator-card" data-calculator="core compounding growth roi networth" data-category="Core">
+        <button onclick="window.location.href='calc-core.html'" class="calculator-card" data-calculator="core compounding growth roi networth" data-category="Core">
           <span class="calculator-icon">💰</span>
           <h2>Core</h2>
           <p>Compound interest, future value, and ROI drills that model the power of time.</p>
           <span class="calculator-meta">Includes compounding, annualized returns, ROI</span>
-        </a>
-        <a href="calc-risk.html" class="calculator-card" data-calculator="risk kelly drawdown var volatility" data-category="Risk">
+        </button>
+        <button onclick="window.location.href='calc-risk.html'" class="calculator-card" data-calculator="risk kelly drawdown var volatility" data-category="Risk">
           <span class="calculator-icon">⚠️</span>
           <h2>Risk</h2>
           <p>Position sizing, Kelly criterion, and value-at-risk calculators to keep drawdowns contained.</p>
           <span class="calculator-meta">Includes Kelly, VaR, position sizing</span>
-        </a>
-        <a href="calc-stock.html" class="calculator-card" data-calculator="stock valuation pe dividend intrinsic" data-category="Stock">
+        </button>
+        <button onclick="window.location.href='calc-stock.html'" class="calculator-card" data-calculator="stock valuation pe dividend intrinsic" data-category="Stock">
           <span class="calculator-icon">📈</span>
           <h2>Stock</h2>
           <p>Valuation helpers covering P/E, dividend yield, and growth expectations per ticker.</p>
           <span class="calculator-meta">Includes P/E, dividend yield, intrinsic value</span>
-        </a>
-        <a href="calc-asset.html" class="calculator-card" data-calculator="asset allocation rebalance mpt diversification" data-category="Asset">
+        </button>
+        <button onclick="window.location.href='calc-asset.html'" class="calculator-card" data-calculator="asset allocation rebalance mpt diversification" data-category="Asset">
           <span class="calculator-icon">🏦</span>
           <h2>Asset</h2>
           <p>Map portfolio weights, rebalance triggers, and mean-variance mixes to stay on target.</p>
           <span class="calculator-meta">Includes allocation, rebalancer, factor mix</span>
-        </a>
-        <a href="calc-retire.html" class="calculator-card" data-calculator="retire retirement savings 401k fire" data-category="Retire">
+        </button>
+        <button onclick="window.location.href='calc-retire.html'" class="calculator-card" data-calculator="retire retirement savings 401k fire" data-category="Retire">
           <span class="calculator-icon">🏖️</span>
           <h2>Retire</h2>
           <p>Estimate retirement runway, 401(k) contributions, and savings milestones.</p>
           <span class="calculator-meta">Includes savings runway, 401(k) planner</span>
-        </a>
-        <a href="calc-tax.html" class="calculator-card" data-calculator="tax capital gains net profit after tax" data-category="Tax">
+        </button>
+        <button onclick="window.location.href='calc-tax.html'" class="calculator-card" data-calculator="tax capital gains net profit after tax" data-category="Tax">
           <span class="calculator-icon">📋</span>
           <h2>Tax</h2>
           <p>Work through capital gains, after-tax profit, and planning scenarios with clarity.</p>
           <span class="calculator-meta">Includes capital gains, net profit</span>
-        </a>
-        <a href="calc-crypto.html" class="calculator-card" data-calculator="crypto staking mining yield tokens" data-category="Crypto">
+        </button>
+        <button onclick="window.location.href='calc-crypto.html'" class="calculator-card" data-calculator="crypto staking mining yield tokens" data-category="Crypto">
           <span class="calculator-icon">₿</span>
           <h2>Crypto</h2>
           <p>Projection tools for staking, mining, and token growth anchored to realistic assumptions.</p>
           <span class="calculator-meta">Includes mining breakeven, staking yield</span>
-        </a>
+        </button>
       </section>
 
       <section class="calculator-extras">
@@ -294,6 +302,7 @@
   const calculatorForm = document.getElementById('calculatorForm');
   const calculatorResult = document.getElementById('calculatorResult');
   const calculatorSearch = document.getElementById('calculatorSearch');
+    const headerCalculatorSearch = document.getElementById('headerCalculatorSearch');
     const calculatorGrid = document.getElementById('calculatorGrid');    
 
     function filterCalculatorCards(query) {
@@ -311,6 +320,13 @@
 
     calculatorSearch?.addEventListener('input', (event) => {
       const value = (event.target?.value || '').toString();
+      if (headerCalculatorSearch) headerCalculatorSearch.value = value;
+      filterCalculatorCards(value);
+    });
+
+    headerCalculatorSearch?.addEventListener('input', (event) => {
+      const value = (event.target?.value || '').toString();
+      if (calculatorSearch) calculatorSearch.value = value;
       filterCalculatorCards(value);
     });
 
