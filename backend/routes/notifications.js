@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const Notification = require('../models/Notification');
-const { ensureAuthenticated } = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 
 // Get user's notifications
-router.get('/', ensureAuthenticated, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const { type, isRead, limit = 50, offset = 0 } = req.query;
     
-    const query = { userId: req.user._id };
+    const query = { userId: req.user.id };
     
     if (type) {
       query.type = type;
@@ -26,7 +26,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
     
     const totalCount = await Notification.countDocuments(query);
     const unreadCount = await Notification.countDocuments({ 
-      userId: req.user._id, 
+      userId: req.user.id, 
       isRead: false 
     });
     
@@ -50,11 +50,11 @@ router.get('/', ensureAuthenticated, async (req, res) => {
 });
 
 // Mark notification as read
-router.put('/:id/read', ensureAuthenticated, async (req, res) => {
+router.put('/:id/read', authMiddleware, async (req, res) => {
   try {
     const notification = await Notification.findOne({
       _id: req.params.id,
-      userId: req.user._id
+      userId: req.user.id
     });
     
     if (!notification) {
@@ -80,10 +80,10 @@ router.put('/:id/read', ensureAuthenticated, async (req, res) => {
 });
 
 // Mark all notifications as read
-router.put('/mark-all-read', ensureAuthenticated, async (req, res) => {
+router.put('/mark-all-read', authMiddleware, async (req, res) => {
   try {
     const result = await Notification.updateMany(
-      { userId: req.user._id, isRead: false },
+      { userId: req.user.id, isRead: false },
       { 
         $set: { 
           isRead: true, 
@@ -106,11 +106,11 @@ router.put('/mark-all-read', ensureAuthenticated, async (req, res) => {
 });
 
 // Delete notification
-router.delete('/:id', ensureAuthenticated, async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const result = await Notification.deleteOne({
       _id: req.params.id,
-      userId: req.user._id
+      userId: req.user.id
     });
     
     if (result.deletedCount === 0) {
@@ -133,10 +133,10 @@ router.delete('/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // Get notification counts by type
-router.get('/counts', ensureAuthenticated, async (req, res) => {
+router.get('/counts', authMiddleware, async (req, res) => {
   try {
     const counts = await Notification.aggregate([
-      { $match: { userId: req.user._id, isRead: false } },
+      { $match: { userId: req.user.id, isRead: false } },
       { $group: { _id: '$type', count: { $sum: 1 } } }
     ]);
     

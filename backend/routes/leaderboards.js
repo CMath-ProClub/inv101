@@ -3,10 +3,10 @@ const router = express.Router();
 const User = require('../models/User');
 const Portfolio = require('../models/Portfolio');
 const Trade = require('../models/Trade');
-const { ensureAuthenticated } = require('../middleware/auth');
+const { authMiddleware } = require('../middleware/auth');
 
 // Get leaderboard
-router.get('/', ensureAuthenticated, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const { category = 'portfolio_value', period = 'all', limit = 100 } = req.query;
     
@@ -79,7 +79,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
     
     // Find current user's position
     const userPosition = leaderboard.findIndex(
-      item => item.userId.toString() === req.user._id.toString()
+      item => item.userId.toString() === req.user.id.toString()
     );
     
     res.json({
@@ -99,7 +99,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
 });
 
 // Get user's leaderboard rank
-router.get('/rank', ensureAuthenticated, async (req, res) => {
+router.get('/rank', authMiddleware, async (req, res) => {
   try {
     const { category = 'portfolio_value' } = req.query;
     
@@ -107,7 +107,7 @@ router.get('/rank', ensureAuthenticated, async (req, res) => {
     let value = null;
     
     if (category === 'portfolio_value') {
-      const userPortfolio = await Portfolio.findOne({ userId: req.user._id });
+      const userPortfolio = await Portfolio.findOne({ userId: req.user.id });
       const userValue = userPortfolio?.totalValue || 0;
       
       const higherCount = await Portfolio.countDocuments({
@@ -118,7 +118,7 @@ router.get('/rank', ensureAuthenticated, async (req, res) => {
       value = userValue;
       
     } else if (category === 'best_returns') {
-      const userPortfolio = await Portfolio.findOne({ userId: req.user._id });
+      const userPortfolio = await Portfolio.findOne({ userId: req.user.id });
       const userReturn = userPortfolio?.totalReturnPercent || 0;
       
       const higherCount = await Portfolio.countDocuments({
