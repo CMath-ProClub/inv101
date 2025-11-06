@@ -100,6 +100,47 @@ router.post('/signin', async (req, res) => {
   }
 });
 
+// Alias for signin (some frontend pages call /login)
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password, rememberMe } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Email and password required' });
+    }
+    
+    const user = await User.findOne({ 
+      email: email.toLowerCase(), 
+      provider: 'investing101' 
+    });
+    
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Account not found' });
+    }
+    
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Incorrect password' });
+    }
+    
+    // Issue JWT tokens and set cookies
+    await issueTokens(res, user, { rememberMe: rememberMe || true });
+    
+    res.json({ 
+      success: true,
+      message: 'Signed in successfully', 
+      user: { 
+        id: user._id,
+        email: user.email,
+        displayName: user.displayName 
+      } 
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ success: false, error: 'Failed to sign in. Please try again.' });
+  }
+});
+
 // Google OAuth
 router.get('/google', (req, res, next) => {
   console.log('📍 Google OAuth initiated');
