@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Feed - Investment Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="profile-styles.css">
+    <script>
+      // Theme initialization
+      (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        .activity-header {
+            margin-bottom: 32px;
+        }
+
+        .activity-filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .activity-filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .activity-filter-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .activity-filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .activity-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .activity-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .activity-item__header {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .activity-item__avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-item__content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-item__user {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        .activity-item__action {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin: 4px 0;
+            line-height: 1.6;
+        }
+
+        .activity-item__action strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .activity-item__time {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .activity-item__icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .activity-item__icon--trade {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .activity-item__icon--lesson {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .activity-item__icon--achievement {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .activity-item__icon--friend {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .activity-item__details {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .activity-item__stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item__stat:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item__stat-label {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .activity-item__stat-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .activity-item__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, rgba(var(--accent-rgb, 52, 152, 219), 0.15), rgba(var(--accent-rgb, 52, 152, 219), 0.05));
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 8px;
+        }
+
+        .activity-item__actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .activity-item__action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .activity-item__action-btn--primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .activity-item__action-btn--secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .activity-item__action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .load-more-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .load-more-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .activity-item__header {
+                flex-direction: column;
+            }
+
+            .activity-filters {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar__header">
+            <a href="index.html" class="sidebar__brand">
+                <div class="sidebar__logo">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="var(--accent)" opacity="0.1"/>
+                        <path d="M30,60 L45,40 L55,50 L70,30" stroke="var(--accent)" stroke-width="4" fill="none"/>
+                        <circle cx="30" cy="60" r="4" fill="var(--accent)"/>
+                        <circle cx="45" cy="40" r="4" fill="var(--accent)"/>
+                        <circle cx="55" cy="50" r="4" fill="var(--accent)"/>
+                        <circle cx="70" cy="30" r="4" fill="var(--accent)"/>
+                    </svg>
+                </div>
+                <span class="sidebar__brand-text">Investment Playground</span>
+            </a>
+        </div>
+
+        <nav class="sidebar__nav">
+            <a href="index.html" class="sidebar__link">
+                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__text">Dashboard</span>
+            </a>
+            <a href="lessons.html" class="sidebar__link">
+                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__text">Lessons</span>
+            </a>
+            <a href="calculators.html" class="sidebar__link">
+                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__text">Calculators</span>
+            </a>
+            <a href="simulator.html" class="sidebar__link">
+                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__text">Simulator</span>
+            </a>
+            <a href="profile.html" class="sidebar__link">
+                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__text">Profile</span>
+            </a>
+            <a href="activity-feed.html" class="sidebar__link sidebar__link--active">
+                <span class="sidebar__icon">🌊</span>
+                <span class="sidebar__text">Activity</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app__content">
+        <div class="activity-header">
+            <h1>🌊 Friend Activity</h1>
+            <p style="color: var(--text-muted); margin: 8px 0 0;">See what your friends are up to</p>
+        </div>
+
+        <!-- Activity Filters -->
+        <div class="activity-filters">
+            <button class="activity-filter-btn active" onclick="filterActivity('all')">
+                All Activity
+            </button>
+            <button class="activity-filter-btn" onclick="filterActivity('trades')">
+                💹 Trades
+            </button>
+            <button class="activity-filter-btn" onclick="filterActivity('lessons')">
+                📚 Lessons
+            </button>
+            <button class="activity-filter-btn" onclick="filterActivity('achievements')">
+                🏆 Achievements
+            </button>
+            <button class="activity-filter-btn" onclick="filterActivity('friends')">
+                👥 Social
+            </button>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="activity-feed">
+            <!-- Trade Activity -->
+            <div class="activity-item" data-type="trades">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        MJ
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">Mike Johnson</div>
+                        <div class="activity-item__action">
+                            Bought <strong>15 shares of NVDA</strong> at $498.23
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            15 minutes ago
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--trade">💹</div>
+                </div>
+                <div class="activity-item__details">
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">Total Investment</span>
+                        <span class="activity-item__stat-value">$7,473.45</span>
+                    </div>
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">Portfolio Impact</span>
+                        <span class="activity-item__stat-value">+11.2%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievement Activity -->
+            <div class="activity-item" data-type="achievements">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        SM
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">Sarah Miller</div>
+                        <div class="activity-item__action">
+                            Unlocked the <strong>"Portfolio Master"</strong> achievement
+                        </div>
+                        <div class="activity-item__badge">
+                            🏆 50,000+ Portfolio Value
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            1 hour ago
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--achievement">🏆</div>
+                </div>
+                <div class="activity-item__actions">
+                    <button class="activity-item__action-btn activity-item__action-btn--primary" onclick="viewAchievement()">
+                        View Badge
+                    </button>
+                    <button class="activity-item__action-btn activity-item__action-btn--secondary" onclick="congratulate()">
+                        Congratulate
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lesson Activity -->
+            <div class="activity-item" data-type="lessons">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        JD
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">John Doe</div>
+                        <div class="activity-item__action">
+                            Completed <strong>"Advanced Options Trading"</strong> lesson
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            2 hours ago
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--lesson">📚</div>
+                </div>
+                <div class="activity-item__details">
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">Quiz Score</span>
+                        <span class="activity-item__stat-value">94%</span>
+                    </div>
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">Total Lessons</span>
+                        <span class="activity-item__stat-value">18/25</span>
+                    </div>
+                </div>
+                <div class="activity-item__actions">
+                    <button class="activity-item__action-btn activity-item__action-btn--primary" onclick="viewLesson()">
+                        Try This Lesson
+                    </button>
+                </div>
+            </div>
+
+            <!-- Friend Activity -->
+            <div class="activity-item" data-type="friends">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        TC
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">Tom Chen</div>
+                        <div class="activity-item__action">
+                            Connected with <strong>Anna Garcia</strong>
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            3 hours ago
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--friend">👥</div>
+                </div>
+            </div>
+
+            <!-- Multiple Trades -->
+            <div class="activity-item" data-type="trades">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        DW
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">David Wilson</div>
+                        <div class="activity-item__action">
+                            Made <strong>3 trades</strong> today
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            5 hours ago
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--trade">💹</div>
+                </div>
+                <div class="activity-item__details">
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">AAPL</span>
+                        <span class="activity-item__stat-value">+10 shares</span>
+                    </div>
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">TSLA</span>
+                        <span class="activity-item__stat-value">-5 shares</span>
+                    </div>
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">META</span>
+                        <span class="activity-item__stat-value">+8 shares</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson Streak -->
+            <div class="activity-item" data-type="lessons">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                        LT
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">Lisa Taylor</div>
+                        <div class="activity-item__action">
+                            Reached a <strong>7-day learning streak</strong> 🔥
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Yesterday
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--lesson">📚</div>
+                </div>
+            </div>
+
+            <!-- Big Win -->
+            <div class="activity-item" data-type="trades">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        EB
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">Emily Brown</div>
+                        <div class="activity-item__action">
+                            Sold <strong>20 shares of AMZN</strong> for a <strong>$2,340 profit</strong> 🎉
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Yesterday
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--trade">💹</div>
+                </div>
+                <div class="activity-item__details">
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">Return</span>
+                        <span class="activity-item__stat-value" style="color: #27ae60;">+18.7%</span>
+                    </div>
+                    <div class="activity-item__stat">
+                        <span class="activity-item__stat-label">Holding Period</span>
+                        <span class="activity-item__stat-value">45 days</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievement Progress -->
+            <div class="activity-item" data-type="achievements">
+                <div class="activity-item__header">
+                    <div class="activity-item__avatar" style="background: linear-gradient(135deg, #38f9d7 0%, #43e97b 100%);">
+                        AG
+                    </div>
+                    <div class="activity-item__content">
+                        <div class="activity-item__user">Anna Garcia</div>
+                        <div class="activity-item__action">
+                            Completed Level 4 and earned <strong>"Intermediate Investor"</strong> badge
+                        </div>
+                        <div class="activity-item__time">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            2 days ago
+                        </div>
+                    </div>
+                    <div class="activity-item__icon activity-item__icon--achievement">🏆</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <button class="load-more-btn" onclick="loadMore()">
+            Load More Activity
+        </button>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast" style="display: none;"></div>
+    </main>
+
+    <script src="global-ui.js"></script>
+    <script>
+        // Filter activity
+        function filterActivity(type) {
+            // Update button states
+            document.querySelectorAll('.activity-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter activity items
+            const activities = document.querySelectorAll('.activity-item');
+            activities.forEach(item => {
+                if (type === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = item.dataset.type === type ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Activity actions
+        function viewAchievement() {
+            event.stopPropagation();
+            showToast('Opening achievement details...', 'info');
+        }
+
+        function congratulate() {
+            event.stopPropagation();
+            showToast('Congratulations sent! 🎉', 'success');
+        }
+
+        function viewLesson() {
+            event.stopPropagation();
+            window.location.href = 'lessons.html';
+        }
+
+        function loadMore() {
+            showToast('Loading more activity...', 'info');
+            // TODO: Load more activity from server
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast--${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
