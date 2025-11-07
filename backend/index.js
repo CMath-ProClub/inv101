@@ -261,6 +261,7 @@ app.use('/api/feedback', feedbackRouter);
 app.use('/api/gamification', require('./routes/gamification'));
 app.use('/api/lessons', require('./routes/lessons'));
 app.use('/api/user-profile', require('./routes/userProfile'));
+app.use('/api/challenges', require('./routes/challenges'));
 const PORT = process.env.PORT || 4000;
 
 // Connect to MongoDB

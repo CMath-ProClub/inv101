@@ -6,6 +6,8 @@
   <title>ROI Calculator</title>
   <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
+  <script src="gamification-widget.js"></script>
+  <script src="calculator-xp-tracker.js"></script>
   <script>
     (function(){
       try {
@@ -143,6 +145,11 @@
       
       document.getElementById('result').style.display = 'block';
       document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // Award XP for calculation
+      if (window.calculatorXP) {
+        window.calculatorXP.trigger('roi');
+      }
     });
   </script>
 </body>
