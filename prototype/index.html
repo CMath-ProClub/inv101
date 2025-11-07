@@ -9,6 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
+  <script src="gamification-widget.js"></script>
+  <script>
+    // Check onboarding status on page load
+    (function() {
+      const onboardingComplete = localStorage.getItem('inv101_onboardingComplete');
+      if (onboardingComplete !== 'true' && onboardingComplete !== 'false') {
+        // First time user - redirect to onboarding
+        if (window.location.pathname.indexOf('onboarding.html') === -1) {
+          window.location.href = 'onboarding.html';
+        }
+      }
+    })();
+  </script>
   <script>
     (function(){
       try {

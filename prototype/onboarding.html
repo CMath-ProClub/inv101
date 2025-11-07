@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to Investing101</title>
+  <link rel="stylesheet" href="dist/main.css">
+  <style>
+    .onboarding-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    .quiz-progress {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .quiz-progress__bar {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      transition: width 0.3s ease;
+    }
+    .quiz-question {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    .quiz-option {
+      border: 2px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1rem 1.5rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      text-align: left;
+      width: 100%;
+      font-size: 1rem;
+    }
+    .quiz-option:hover {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+    .quiz-option.selected {
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+    .quiz-option.correct {
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+    .quiz-option.incorrect {
+      border-color: #ef4444;
+      background: #fee2e2;
+    }
+    .quiz-explanation {
+      background: #f8fafc;
+      border-left: 4px solid #10b981;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    .skill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .skill-badge.new { background: #e0e7ff; color: #3730a3; }
+    .skill-badge.beginner { background: #dbeafe; color: #1e40af; }
+    .skill-badge.intermediate { background: #d1fae5; color: #065f46; }
+    .skill-badge.advanced { background: #fef3c7; color: #92400e; }
+    .skill-badge.expert { background: #fce7f3; color: #831843; }
+  </style>
+  <script>
+    (function(){
+      try {
+        var supported = ['light','dark'];
+        var stored = localStorage.getItem('inv101_theme') || 'light';
+        document.documentElement.classList.add('theme-' + stored);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950">
+  <div class="onboarding-container">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="text-center">
+      <img src="assets/Investing101.png" alt="Investing101" class="mx-auto mb-6" style="max-width: 200px;">
+      <h1 class="text-4xl font-bold mb-4">Welcome to Investing101!</h1>
+      <p class="text-xl text-slate-600 dark:text-slate-400 mb-8">
+        Your personalized investing education journey starts here.
+      </p>
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-lg text-left max-w-md mx-auto mb-8">
+        <h2 class="text-2xl font-bold mb-4">Quick Assessment</h2>
+        <p class="text-slate-600 dark:text-slate-400 mb-6">
+          Take a 2-minute quiz so we can personalize your learning experience. We'll assess your current knowledge level and recommend the perfect starting point.
+        </p>
+        <ul class="space-y-3 mb-6">
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-primary-green" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span>10 questions</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-primary-green" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            <span>~5 minutes</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-primary-green" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+            </svg>
+            <span>Earn 50 XP for completing</span>
+          </li>
+        </ul>
+        <button onclick="startQuiz()" class="w-full bg-primary-green text-white font-semibold py-3 px-6 rounded-xl hover:bg-green-600 transition">
+          Start Assessment
+        </button>
+      </div>
+      <button onclick="skipOnboarding()" class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+        Skip for now →
+      </button>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="hidden">
+      <div class="quiz-progress">
+        <div id="progressBar" class="quiz-progress__bar" style="width: 0%"></div>
+      </div>
+
+      <div class="flex justify-between items-center mb-6">
+        <span class="text-sm text-slate-500">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">10</span></span>
+        <span class="text-sm font-semibold text-slate-700 dark:text-slate-300" id="timeDisplay">5:00</span>
+      </div>
+
+      <div id="questionContainer" class="quiz-question">
+        <!-- Question content will be inserted here -->
+      </div>
+
+      <div class="flex gap-4">
+        <button id="prevBtn" onclick="previousQuestion()" class="px-6 py-3 border-2 border-slate-300 rounded-xl font-semibold hover:border-slate-400 transition" disabled>
+          Previous
+        </button>
+        <button id="nextBtn" onclick="nextQuestion()" class="flex-1 bg-primary-green text-white font-semibold py-3 px-6 rounded-xl hover:bg-green-600 transition" disabled>
+          Next Question
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="resultsScreen" class="hidden text-center">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 shadow-lg max-w-2xl mx-auto">
+        <div class="mb-6">
+          <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-green/10 mb-4">
+            <svg class="w-10 h-10 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold mb-2">Assessment Complete!</h2>
+          <p class="text-slate-600 dark:text-slate-400">You earned <strong id="xpEarned">50 XP</strong></p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+            <div class="text-3xl font-bold text-primary-green mb-1" id="scoreDisplay">0%</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400">Score</div>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+            <div class="text-3xl font-bold text-primary-green mb-1" id="correctDisplay">0/10</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400">Correct</div>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+            <div class="text-3xl font-bold text-primary-green mb-1" id="gradeDisplay">-</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400">Grade</div>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-xl font-bold mb-3">Your Skill Level</h3>
+          <div id="skillBadge" class="skill-badge inline-flex">
+            <!-- Skill level will be inserted here -->
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 mt-4" id="skillDescription">
+            <!-- Description will be inserted here -->
+          </p>
+        </div>
+
+        <div class="space-y-3">
+          <button onclick="viewResults()" class="w-full bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold py-3 px-6 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+            Review Answers
+          </button>
+          <button onclick="goToDashboard()" class="w-full bg-primary-green text-white font-semibold py-3 px-6 rounded-xl hover:bg-green-600 transition">
+            Start Learning →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="onboarding.js"></script>
+</body>
+</html>
