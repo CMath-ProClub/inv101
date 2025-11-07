@@ -32,12 +32,12 @@
   <script src="global-ui.js"></script>
   <div class="flex min-h-screen flex-col">
     <!-- Desktop Sidebar Navigation (visible on desktop only) -->
-    <aside class="sidebar">
+    <aside class="flex min-h-screen flex-col">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
         <img src="assets/Investing101.png" alt="Investing 101">
       </a>
-      <nav class="sidebar__nav" aria-label="Main navigation">
-        <a href="index.html" class="sidebar__btn">
+      <nav class="space-y-1 flex-1" aria-label="Main navigation">
+        <a href="index.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 10.5L12 3l9 7.5" />
             <path d="M5 10.5V21h14V10.5" />
@@ -45,7 +45,7 @@
           </svg>
           <span>Main</span>
         </a>
-        <a href="simulator.html" class="sidebar__btn">
+        <a href="simulator.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="9" />
             <circle cx="12" cy="12" r="3" />
@@ -56,7 +56,7 @@
           </svg>
           <span>Simulator / AI</span>
         </a>
-        <a href="lessons.html" class="sidebar__btn">
+        <a href="lessons.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
             <path d="M4 12l8 3 8-3" />
@@ -64,7 +64,7 @@
           </svg>
           <span>Lessons</span>
         </a>
-        <a href="calculators.html" class="sidebar__btn sidebar__btn--active">
+        <a href="calculators.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 sidebar__btn--active">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M7 8h10" />
@@ -74,7 +74,7 @@
           </svg>
           <span>Calculators</span>
         </a>
-        <a href="profile.html" class="sidebar__btn">
+        <a href="profile.html" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="8" r="4" />
             <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -103,7 +103,7 @@
       </div>
     </header>
 
-    <main class="app__content calculators-layout">
+    <main class="flex-1 overflow-auto bg-slate-50 dark:bg-slate-900 calculators-layout">
       <section class="calculators-hero" aria-label="Calculator suite overview">
         <div>
           <span class="calculators-chip">Trusted Toolkit</span>
@@ -396,6 +396,7 @@
   <script src="device-detection.js"></script>
 </body>
 </html>
+
 
 
 

@@ -1,0 +1,235 @@
+/* Minimal shared UI styles to ensure consistent header, sidebar, and tabbar across prototype pages */
+:root{
+  --accent: #1DD1A1;
+  --accent-strong: #18b38f;
+  --bg: #F6F8FB;
+  --bg-card: #FFFFFF;
+  --bg-gradient: linear-gradient(180deg, #f6f8fb 0%, #e8eff7 100%);
+  --bg-dark-gradient: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  --accent-gradient: linear-gradient(90deg, #1DD1A1 0%, #18b38f 100%);
+  --muted: #F1F5F9;
+  --border: rgba(31,42,55,0.06);
+  --text: #1F2A37;
+  --text-muted: #6B7785;
+}
+
+/* Use Inter where available for a modern, compact UI */
+html, body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+
+.app__header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 18px;
+  background: var(--bg-card);
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  z-index:40;
+}
+/* Shift legacy header to account for left sidebar presence - header will sit to the right of the sidebar */
+.app__header { transition: left 160ms ease, width 160ms ease; }
+/* When collapsed, let header align to collapsed edge */
+body.sidebar-collapsed .app__header { left: var(--sidebar-collapsed); width: calc(100% - var(--sidebar-collapsed)); }
+.app__header .app__logo{
+  height:40px;
+  width:auto;
+  display:block;
+}
+.app__header-actions{display:flex;gap:8px;align-items:center}
+.icon-button{background:transparent;border:0;padding:8px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+
+.icon-button .icon{width:20px;height:20px}
+.icon-button:focus{outline:2px solid rgba(24,179,143,0.12);outline-offset:2px}
+
+.chip{display:inline-block;background:var(--muted);color:var(--text);padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px;border:1px solid var(--border)}
+
+/* Tabbar for mobile */
+.tabbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  position:fixed;
+  left:0;right:0;bottom:0;
+  height:60px;
+  background: var(--bg-card);
+  border-top:1px solid var(--border);
+  z-index:50;
+  box-shadow: 0 -6px 20px rgba(31,42,55,0.04);
+}
+.tabbar .tabbar__btn{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--text);padding:6px 4px;font-size:12px}
+.tabbar .tabbar__btn--active{color:var(--accent)}
+.tabbar .icon{width:20px;height:20px}
+
+/* Make tabbar touch-friendly */
+.tabbar .tabbar__btn{min-width:48px;min-height:48px;padding:6px 2px}
+.tabbar .tabbar__btn span{font-size:11px}
+
+/* Sidebar for desktop: use theme variables so dark/sepia/light all style consistently */
+.sidebar{width:var(--sidebar-width);background:var(--bg-card);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding-top:12px;z-index:45;color:var(--text)}
+.sidebar .sidebar__logo img{height:40px}
+.sidebar .sidebar__nav{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.sidebar .sidebar__btn{display:flex;flex-direction:column;align-items:center;padding:8px 6px;text-decoration:none;color:var(--text);font-size:12px}
+.sidebar .sidebar__btn--active{color:var(--accent)}
+.sidebar .sidebar__btn .icon{width:22px;height:22px;margin-bottom:6px}
+.sidebar .sidebar__btn span{font-size:11px}
+
+
+/* Responsive layout improvements */
+@media (max-width: 600px) {
+  .app__header { flex-direction: column; align-items: flex-start; padding: 10px 8px; }
+  .app__logo { height: 32px; }
+  .app__header-actions { gap: 4px; }
+  .app__content { padding: 8px 2px 80px 2px; }
+  .card { padding: 10px; font-size: 0.95rem; }
+  .feature-link.card h3 { font-size: 1.1rem; }
+}
+
+/* Mobile/tablet: hide desktop sidebar, show tabbar, and make header full-width */
+@media (max-width: 1023px) {
+  .sidebar { display: none !important; }
+  /* ensure header spans full width on small screens */
+  .global-header, .app__header { left: 0 !important; width: 100% !important; }
+  /* content should not be offset on mobile */
+  .app__content, main { margin-left: 0 !important; }
+  /* mark tabbar visible on mobile (desktop hides it at >=1024px) */
+  .tabbar { display: flex !important; }
+}
+
+/* Smooth transitions for header and content when sidebar width changes */
+.global-header, .app__header { transition: left 220ms cubic-bezier(.2,.9,.2,1), width 220ms cubic-bezier(.2,.9,.2,1), background 200ms ease; }
+.app__content, main { transition: margin-left 220ms cubic-bezier(.2,.9,.2,1), padding 200ms ease; }
+
+@media (max-width: 900px) {
+  .app__content { padding: 8px 2px 80px 2px; }
+  .card { padding: 12px; }
+}
+
+@media (min-width: 601px) and (max-width: 1023px) {
+  .app__header { padding: 12px 10px; }
+  .app__content { padding: 12px 6px 92px 6px; }
+}
+
+@media (min-width: 1024px) {
+  .tabbar { display: none; }
+  .app__content { margin-left: var(--sidebar-width); padding: 24px 24px 24px 24px; }
+}
+
+/* Theming variables for quick QOL themes */
+body.dark-mode {
+  --bg: #0f1112;
+  --bg-card: #121316;
+  --text: #e6eef2;
+  --muted: #151617;
+  --border: rgba(255,255,255,0.04);
+}
+
+body.theme-sepia {
+  --bg: #f4efe6;
+  --bg-card: #fff8f0;
+  --text: #3b2f2f;
+  --muted: #f0e6dd;
+  --border: rgba(59,47,47,0.06);
+}
+
+.app__content { padding: 16px; padding-top: 72px; background: var(--bg); transition: padding 0.2s; }
+
+.card { background: var(--bg-card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); box-shadow: 0 6px 18px rgba(31,42,55,0.03); transition: padding 0.2s, font-size 0.2s; }
+
+/* Compact mode: tighter spacing and slightly smaller type for power users */
+
+/* Simple transient toast notifications */
+.toast-container { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 2000; pointer-events: none; }
+.toast { display: inline-block; background: rgba(24,26,27,0.95); color: #fff; padding: 10px 14px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); margin-top: 8px; opacity: 0; transform: translateY(6px); transition: opacity 200ms ease, transform 200ms ease; pointer-events: auto; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Theme menu anchored to header actions */
+.global-header .actions { position: relative }
+.theme-menu { position: absolute; right: 0; top: calc(100% + 8px); background: var(--bg-card); border: 1px solid var(--border); padding: 6px; border-radius: 8px; box-shadow: 0 6px 18px rgba(31,42,55,0.08); display: flex; gap: 8px; z-index: 1200 }
+.theme-menu button{ background: transparent; border: 0; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 600 }
+.theme-menu button.active{ background: var(--accent); color: #fff }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 10px; border: 0; font-weight: 600; cursor: pointer; }
+.btn--primary { background: var(--accent); color: white; }
+.btn--secondary { background: var(--muted); color: var(--text); }
+
+.track-grid,
+.snapshot-grid,
+.tiers-grid,
+.mentor-grid,
+.myth-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+.lab-list,
+.case-stack,
+.branch-list,
+.briefing-timeline,
+.audit-log { display: grid; gap: 16px; }
+
+.mindful-panel,
+.notebook-panel,
+.blueprint-panel { display: flex; flex-direction: column; gap: 12px; }
+
+.coach-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.coach-form textarea { width: 100%; border-radius: 10px; border: 1px solid var(--border); padding: 12px; font-family: inherit; resize: vertical; min-height: 140px; }
+.coach-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.checkbox-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--text-muted); }
+
+.coach-results ul { margin: 8px 0; padding-left: 18px; }
+.coach-results li { margin-bottom: 4px; }
+.coach-prompts { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--border); background: rgba(29, 209, 161, 0.08); }
+
+.onboarding-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.onboarding-form select { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); font-family: inherit; }
+.onboarding-results { padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(31, 42, 55, 0.04); font-size: 0.95rem; }
+
+.card__description { margin: 6px 0 16px 0; color: var(--text-muted); font-size: 0.95rem; }
+
+.skeleton { position: relative; overflow: hidden; background: var(--muted); border-radius: 12px; min-height: 120px; }
+.skeleton::after { content: ""; position: absolute; top: 0; left: -40%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: skeleton-loading 1.2s infinite; }
+
+.skeleton--track { min-height: 180px; }
+.skeleton--lab { min-height: 160px; }
+.skeleton--case { min-height: 140px; }
+.skeleton--snapshot { min-height: 180px; }
+.skeleton--branch { min-height: 130px; }
+.skeleton--mindful { min-height: 120px; }
+.skeleton--briefing { min-height: 110px; }
+.skeleton--notebook { min-height: 120px; }
+.skeleton--tier { min-height: 140px; }
+.skeleton--audit { min-height: 110px; }
+.skeleton--mentor { min-height: 120px; }
+.skeleton--myth { min-height: 140px; }
+.skeleton--blueprint { min-height: 120px; }
+
+@keyframes skeleton-loading {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+.track-card,
+.lab-card,
+.case-card,
+.snapshot-card,
+.branch-card,
+.briefing-card,
+.tier-card,
+.audit-card,
+.mentor-card,
+.myth-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 14px rgba(31, 42, 55, 0.08); }
+
+.track-card__modules { margin: 12px 0; padding-left: 18px; }
+.track-card__badge { display: inline-block; padding: 6px 10px; border-radius: 999px; background: rgba(29, 209, 161, 0.12); color: var(--accent-strong); font-weight: 600; font-size: 0.85rem; }
+
+.snapshot-card__metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.snapshot-card__metric { padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(31, 42, 55, 0.03); font-size: 0.9rem; }
+
+.branch-card__decisions { margin: 12px 0; padding-left: 18px; }
+.briefing-card__list { margin: 10px 0; padding-left: 18px; }
+.tier-card__unlocks { margin: 10px 0; padding-left: 18px; }
+.audit-card__meta { margin: 6px 0 0 0; font-size: 0.9rem; color: var(--text-muted); }
+.mentor-card__focus { margin: 8px 0; color: var(--text-muted); }
+.myth-card__quiz { margin-top: 10px; padding: 10px; border-radius: 10px; border: 1px dashed var(--border); background: rgba(31, 42, 55, 0.03); }
+.myth-card__quiz ul { margin: 8px 0; padding-left: 18px; }
