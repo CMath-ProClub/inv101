@@ -67,22 +67,28 @@ class ArticleDisplay {
    * Render articles in groups
    */
   renderArticles(groups, title) {
+    if (!this.container) return;
+    this.loading = false;
+    this.currentGroups = Array.isArray(groups) ? groups : [];
     if (!groups || groups.length === 0) {
       this.container.innerHTML = `
-        <div class="no-articles">
-          <p>📰 No recent articles found</p>
+        <div class="flex items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50/80 p-10 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300">
+          <span class="inline-flex items-center gap-2"><span aria-hidden="true">📰</span>No recent articles found</span>
         </div>
       `;
       return;
     }
 
+    const safeTitle = typeof title === 'string' && title.length ? title : 'Latest Articles';
     const html = `
-      <div class="articles-wrapper">
-        <h2 class="articles-title">${title}</h2>
-        <div class="articles-groups">
-          ${groups.map(group => this.renderGroup(group)).join('')}
+      <section class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6">
+        <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white">${this.escapeHtml(safeTitle)}</h2>
+        </header>
+        <div class="flex flex-col gap-6">
+          ${groups.map((group, index) => this.renderGroup(group, index)).join('')}
         </div>
-      </div>
+      </section>
     `;
 
     this.container.innerHTML = html;
@@ -91,28 +97,33 @@ class ArticleDisplay {
   /**
    * Render single article group
    */
-  renderGroup(group) {
+  renderGroup(group, index) {
     const ticker = group._id || 'General';
     const articles = group.articles || [];
-    const latestDate = articles[0]?.publishDate 
-      ? new Date(articles[0].publishDate).toLocaleDateString() 
+    const latestDate = articles[0]?.publishDate
+      ? new Date(articles[0].publishDate).toLocaleDateString()
       : 'Recent';
 
     return `
-      <div class="article-group">
-        <div class="article-group-header">
-          <h3 class="group-ticker">${ticker}</h3>
-          <span class="group-count">${articles.length} article${articles.length !== 1 ? 's' : ''}</span>
-        </div>
-        <div class="article-list">
+      <article class="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover dark:border-slate-800 dark:bg-slate-900" data-group-index="${index}">
+        <header class="flex flex-col gap-3 border-b border-slate-200 pb-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-primary-green">${this.escapeHtml(ticker)}</h3>
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Updated ${this.escapeHtml(latestDate)}</p>
+          </div>
+          <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
+            ${articles.length} article${articles.length !== 1 ? 's' : ''}
+          </span>
+        </header>
+        <div class="article-list space-y-4 pt-4" data-role="article-list">
           ${articles.slice(0, 5).map(article => this.renderArticle(article)).join('')}
         </div>
         ${articles.length > 5 ? `
-          <button class="show-more-btn" onclick="articleDisplay.expandGroup('${ticker}')">
+          <button type="button" class="mt-4 inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-primary-green/60 hover:bg-primary-green/10 hover:text-primary-green dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300" data-role="show-more" onclick="articleDisplay.expandGroup(${index})">
             Show ${articles.length - 5} more
           </button>
         ` : ''}
-      </div>
+      </article>
     `;
   }
 
@@ -122,31 +133,68 @@ class ArticleDisplay {
   renderArticle(article) {
     const date = new Date(article.publishDate);
     const timeAgo = this.getTimeAgo(date);
-    const relevance = Math.round(article.relevance * 100);
+    const relevanceScore = typeof article.relevance === 'number' ? Math.round(article.relevance * 100) : null;
+    const highlightClass = relevanceScore !== null && relevanceScore >= 70
+      ? 'text-emerald-600 dark:text-emerald-300'
+      : 'text-slate-500 dark:text-slate-400';
+    const articleUrl = typeof article.url === 'string' && article.url.length
+      ? this.escapeHtml(article.url)
+      : '#';
+    const titleText = typeof article.title === 'string' && article.title.length
+      ? article.title
+      : 'Untitled article';
+    const descriptionText = typeof article.description === 'string' && article.description.length
+      ? article.description
+      : null;
+    const sourceText = typeof article.source === 'string' && article.source.length
+      ? article.source
+      : 'Unknown source';
 
     return `
-      <div class="article-item">
-        <div class="article-content">
-          <h4 class="article-title">
-            <a href="${article.url}" target="_blank" rel="noopener">
-              ${this.escapeHtml(article.title)}
+      <article class="article-item rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary-green/50 hover:bg-white dark:border-slate-800 dark:bg-slate-900/40 dark:hover:border-primary-green/40 dark:hover:bg-slate-900">
+        <div class="flex flex-col gap-2">
+          <h4 class="text-base font-semibold leading-6 text-slate-900 dark:text-white">
+            <a class="inline-flex items-center gap-2 text-left transition hover:text-primary-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40" href="${articleUrl}" target="_blank" rel="noopener">
+              ${this.escapeHtml(titleText)}
+              <svg aria-hidden="true" class="h-4 w-4 text-primary-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h6m0 0v6m0-6L10 16" />
+              </svg>
             </a>
           </h4>
-          <p class="article-meta">
-            <span class="article-source">${this.escapeHtml(article.source)}</span>
-            <span class="article-divider">•</span>
-            <span class="article-date">${timeAgo}</span>
-            ${relevance >= 70 ? `
-              <span class="article-divider">•</span>
-              <span class="article-relevance">${relevance}% relevant</span>
+          <p class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span class="font-medium text-slate-600 dark:text-slate-300">${this.escapeHtml(sourceText)}</span>
+            <span aria-hidden="true">•</span>
+            <span>${timeAgo}</span>
+            ${relevanceScore !== null && relevanceScore >= 0 ? `
+              <span aria-hidden="true">•</span>
+              <span class="font-semibold ${highlightClass}">${relevanceScore}% relevant</span>
             ` : ''}
           </p>
-          ${article.description ? `
-            <p class="article-description">${this.escapeHtml(article.description)}</p>
+          ${descriptionText ? `
+            <p class="text-sm leading-6 text-slate-600 dark:text-slate-300">${this.escapeHtml(descriptionText)}</p>
           ` : ''}
         </div>
-      </div>
+      </article>
     `;
+  }
+
+  /**
+   * Expand group to reveal remaining articles
+   */
+  expandGroup(groupIndex) {
+    if (!Array.isArray(this.currentGroups)) return;
+    const index = Number(groupIndex);
+    if (!Number.isFinite(index)) return;
+    const group = this.currentGroups[index];
+    if (!group) return;
+    const wrapper = this.container.querySelector(`[data-group-index="${index}"]`);
+    if (!wrapper) return;
+    const list = wrapper.querySelector('[data-role="article-list"]');
+    if (!list) return;
+    const articles = Array.isArray(group.articles) ? group.articles : [];
+    list.innerHTML = articles.map(article => this.renderArticle(article)).join('');
+    const button = wrapper.querySelector('[data-role="show-more"]');
+    if (button) button.remove();
   }
 
   /**
@@ -154,10 +202,11 @@ class ArticleDisplay {
    */
   showLoading() {
     this.loading = true;
+    if (!this.container) return;
     this.container.innerHTML = `
-      <div class="articles-loading">
-        <div class="spinner"></div>
-        <p>Loading articles...</p>
+      <div class="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-10 text-sm text-slate-500 shadow-card dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+        <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-primary-green dark:border-slate-800 dark:border-t-primary-green/80"></div>
+        <p class="font-medium text-slate-600 dark:text-slate-300">Loading articles...</p>
       </div>
     `;
   }
@@ -167,9 +216,11 @@ class ArticleDisplay {
    */
   showError(message) {
     this.loading = false;
+    if (!this.container) return;
     this.container.innerHTML = `
-      <div class="articles-error">
-        <p>❌ ${this.escapeHtml(message)}</p>
+      <div class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-10 text-sm text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-200">
+        <span aria-hidden="true" class="text-lg">❌</span>
+        <p class="text-center font-medium">${this.escapeHtml(message)}</p>
       </div>
     `;
   }
@@ -213,206 +264,3 @@ let articleDisplay;
 document.addEventListener('DOMContentLoaded', () => {
   articleDisplay = new ArticleDisplay();
 });
-
-/* CSS Styles - Add to your stylesheet or include in <style> tag */
-const articleStyles = `
-.articles-wrapper {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.articles-title {
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #1a1a1a;
-}
-
-.articles-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.article-group {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: box-shadow 0.3s;
-}
-
-.article-group:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-
-.article-group-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.group-ticker {
-  font-size: 20px;
-  font-weight: bold;
-  color: #2563eb;
-  margin: 0;
-}
-
-.group-count {
-  font-size: 14px;
-  color: #666;
-  background: #f3f4f6;
-  padding: 4px 12px;
-  border-radius: 16px;
-}
-
-.article-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.article-item {
-  padding: 12px;
-  border-left: 3px solid #e0e0e0;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.article-item:hover {
-  border-left-color: #2563eb;
-  background: #f9fafb;
-}
-
-.article-title {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.article-title a {
-  color: #1a1a1a;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.article-title a:hover {
-  color: #2563eb;
-}
-
-.article-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 8px 0;
-  font-size: 13px;
-  color: #666;
-}
-
-.article-divider {
-  color: #ccc;
-}
-
-.article-source {
-  font-weight: 500;
-}
-
-.article-relevance {
-  color: #059669;
-  font-weight: 500;
-}
-
-.article-description {
-  margin: 0;
-  font-size: 14px;
-  color: #4b5563;
-  line-height: 1.5;
-}
-
-.show-more-btn {
-  margin-top: 12px;
-  padding: 8px 16px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #374151;
-  transition: all 0.2s;
-}
-
-.show-more-btn:hover {
-  background: #e5e7eb;
-  border-color: #9ca3af;
-}
-
-.articles-loading,
-.articles-error,
-.no-articles {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 16px;
-  border: 4px solid #f3f4f6;
-  border-top: 4px solid #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .articles-title {
-    color: #f9fafb;
-  }
-  
-  .article-group {
-    background: #1f2937;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  
-  .article-title a {
-    color: #f9fafb;
-  }
-  
-  .article-item:hover {
-    background: #111827;
-  }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .articles-wrapper {
-    padding: 12px;
-  }
-  
-  .article-group {
-    padding: 16px;
-  }
-  
-  .articles-title {
-    font-size: 24px;
-  }
-}
-`;
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
-  styleSheet.textContent = articleStyles;
-  document.head.appendChild(styleSheet);
-}

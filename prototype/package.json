@@ -1,0 +1,27 @@
+{
+  "name": "prototype",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ai-toolkit.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build:css": "npx postcss ./src/main.css -o ./dist/main.css",
+    "watch:css": "npx postcss ./src/main.css -o ./dist/main.css --watch",
+    "dev": "npm run watch:css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "postcss-cli": "^11.0.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
+  }
+}

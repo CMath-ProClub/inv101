@@ -4,439 +4,233 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Button Testing Dashboard · Investing 101</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 20px;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 24px;
-      padding: 48px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      color: #1a202c;
-      margin-bottom: 12px;
-      text-align: center;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: #718096;
-      font-size: 1.1rem;
-      margin-bottom: 48px;
-    }
-
-    .status-badge {
-      display: inline-block;
-      background: #10b981;
-      color: white;
-      padding: 8px 20px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 24px;
-    }
-
-    .section {
-      margin-bottom: 48px;
-    }
-
-    .section-title {
-      font-size: 1.8rem;
-      color: #2d3748;
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 3px solid #667eea;
-    }
-
-    .test-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      margin-top: 24px;
-    }
-
-    .test-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border-radius: 16px;
-      padding: 24px;
-      border: 2px solid #cbd5e0;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .test-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-      border-color: #667eea;
-    }
-
-    .test-card h3 {
-      font-size: 1.3rem;
-      color: #2d3748;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .test-card ul {
-      list-style: none;
-      margin-top: 16px;
-    }
-
-    .test-card li {
-      padding: 8px 0;
-      color: #4a5568;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .test-card li::before {
-      content: "✅";
-      font-size: 1.2rem;
-    }
-
-    .button-showcase {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-
-    .demo-button {
-      padding: 14px 32px;
-      border-radius: 12px;
-      border: 2px solid #667eea;
-      background: white;
-      color: #667eea;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .demo-button:hover {
-      background: #667eea;
-      color: white;
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-    }
-
-    .demo-button.active {
-      background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-      color: white;
-      border-color: #00d4ff;
-      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      margin-top: 32px;
-    }
-
-    .stat-box {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 24px;
-      border-radius: 16px;
-      text-align: center;
-    }
-
-    .stat-number {
-      font-size: 3rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      font-size: 1rem;
-      opacity: 0.9;
-    }
-
-    .footer {
-      margin-top: 48px;
-      text-align: center;
-      color: #718096;
-      font-size: 0.95rem;
-    }
-
-    .device-indicator {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #1a202c;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-    }
-
-  @media (max-width: 768px) {
-    .container {
-      padding: 24px;
-    }
-
-    h1 {
-      font-size: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.5rem;
-    }
-  }
-  </style>
+  <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
 </head>
-<body>
-  <div class="container">
-    <div style="text-align: center;">
-      <span class="status-badge">✅ ALL SYSTEMS FUNCTIONAL</span>
+<body class="bg-gradient-to-br from-slate-900 via-primary-purple to-slate-900">
+  <div class="mx-auto max-w-6xl rounded-3xl bg-white p-12 shadow-2xl">
+    <div class="text-center">
+      <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 font-semibold text-emerald-700 dark:border-emerald-700 dark:bg-slate-900 dark:text-emerald-200">
+        ✅ ALL SYSTEMS FUNCTIONAL
+      </span>
     </div>
 
-    <h1>🎯 Button Testing Dashboard</h1>
-    <p class="subtitle">Chess.com-Inspired Design · Fully Responsive · Production Ready</p>
+    <h1 class="mt-8 text-center text-5xl font-bold text-slate-900">🎯 Button Testing Dashboard</h1>
+    <p class="mt-3 text-center text-lg text-slate-600">Chess.com-Inspired Design · Fully Responsive · Production Ready</p>
 
     <!-- Statistics -->
-    <div class="stats">
-      <div class="stat-box">
-        <div class="stat-number">5</div>
-        <div class="stat-label">Main Pages</div>
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-2xl bg-gradient-to-br from-primary-green to-emerald-600 p-6 text-center text-white shadow-lg">
+        <div class="text-4xl font-bold">5</div>
+        <div class="mt-2 text-sm font-semibold opacity-90">Main Pages</div>
       </div>
-      <div class="stat-box">
-        <div class="stat-number">27</div>
-        <div class="stat-label">Total Buttons</div>
+      <div class="rounded-2xl bg-gradient-to-br from-primary-purple to-primary-red p-6 text-center text-white shadow-lg">
+        <div class="text-4xl font-bold">27</div>
+        <div class="mt-2 text-sm font-semibold opacity-90">Total Buttons</div>
       </div>
-      <div class="stat-box">
-        <div class="stat-number">100%</div>
-        <div class="stat-label">Functional</div>
+      <div class="rounded-2xl bg-gradient-to-br from-sky-500 to-sky-600 p-6 text-center text-white shadow-lg">
+        <div class="text-4xl font-bold">100%</div>
+        <div class="mt-2 text-sm font-semibold opacity-90">Functional</div>
       </div>
-      <div class="stat-box">
-        <div class="stat-number">3</div>
-        <div class="stat-label">Device Sizes</div>
+      <div class="rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 p-6 text-center text-white shadow-lg">
+        <div class="text-4xl font-bold">3</div>
+        <div class="mt-2 text-sm font-semibold opacity-90">Device Sizes</div>
       </div>
     </div>
 
     <!-- Navigation Testing -->
-    <div class="section">
-      <h2 class="section-title">🧭 Navigation Systems</h2>
-      <div class="test-grid">
-        <div class="test-card">
-          <h3>🖥️ Desktop Sidebar</h3>
-          <p style="color: #718096; margin-top: 8px;">≥1280px screens</p>
-          <ul>
-            <li>280px fixed width</li>
-            <li>Gradient active states</li>
-            <li>Smooth hover effects</li>
-            <li>5 navigation buttons</li>
+    <section class="mt-12">
+      <h2 class="border-b-4 border-primary-green pb-3 text-3xl font-bold text-slate-900">🧭 Navigation Systems</h2>
+      <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">🖥️ Desktop Sidebar</h3>
+          <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">≥1280px screens</p>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 280px fixed width</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Gradient active states</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Smooth hover effects</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 5 navigation buttons</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card">
-          <h3>📱 Mobile Tabbar</h3>
-          <p style="color: #718096; margin-top: 8px;">&lt;1280px screens</p>
-          <ul>
-            <li>Bottom navigation</li>
-            <li>Active indicators</li>
-            <li>Touch-friendly</li>
-            <li>Icon + label design</li>
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">📱 Mobile Tabbar</h3>
+          <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">&lt;1280px screens</p>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Bottom navigation</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Active indicators</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Touch-friendly</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Icon + label design</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card">
-          <h3>🔄 Device Detection</h3>
-          <p style="color: #718096; margin-top: 8px;">Automatic adaptation</p>
-          <ul>
-            <li>Real-time detection</li>
-            <li>Orientation support</li>
-            <li>Debounced handlers</li>
-            <li>CSS class injection</li>
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">🔄 Device Detection</h3>
+          <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Automatic adaptation</p>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Real-time detection</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Orientation support</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Debounced handlers</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> CSS class injection</li>
           </ul>
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
 
     <!-- Button Showcase -->
-    <div class="section">
-      <h2 class="section-title">🎨 Button Styles Demo</h2>
-      <div class="button-showcase">
-        <a href="index.html" class="demo-button active">
+    <section class="mt-12">
+      <h2 class="border-b-4 border-primary-green pb-3 text-3xl font-bold text-slate-900">🎨 Button Styles Demo</h2>
+      <div class="mt-6 flex flex-wrap gap-4">
+        <a href="index.html" class="inline-flex items-center gap-2 rounded-xl border-2 border-primary-green bg-primary-green px-6 py-3 font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40">
           <span>🏠</span> Main (Active)
         </a>
-        <a href="simulator.html" class="demo-button">
+        <a href="simulator.html" class="inline-flex items-center gap-2 rounded-xl border-2 border-primary-green bg-white px-6 py-3 font-semibold text-primary-green shadow-md transition hover:-translate-y-0.5 hover:border-primary-green/70 hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-primary-green/60 dark:bg-slate-900 dark:text-primary-green dark:hover:border-primary-green/80">
           <span>🎯</span> Simulator
         </a>
-        <a href="lessons.html" class="demo-button">
+        <a href="lessons.html" class="inline-flex items-center gap-2 rounded-xl border-2 border-primary-green bg-white px-6 py-3 font-semibold text-primary-green shadow-md transition hover:-translate-y-0.5 hover:border-primary-green/70 hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-primary-green/60 dark:bg-slate-900 dark:text-primary-green dark:hover:border-primary-green/80">
           <span>📚</span> Lessons
         </a>
-        <a href="calculators.html" class="demo-button">
+        <a href="calculators.html" class="inline-flex items-center gap-2 rounded-xl border-2 border-primary-green bg-white px-6 py-3 font-semibold text-primary-green shadow-md transition hover:-translate-y-0.5 hover:border-primary-green/70 hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-primary-green/60 dark:bg-slate-900 dark:text-primary-green dark:hover:border-primary-green/80">
           <span>🧮</span> Calculators
         </a>
-        <a href="profile.html" class="demo-button">
+        <a href="profile.html" class="inline-flex items-center gap-2 rounded-xl border-2 border-primary-green bg-white px-6 py-3 font-semibold text-primary-green shadow-md transition hover:-translate-y-0.5 hover:border-primary-green/70 hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-primary-green/60 dark:bg-slate-900 dark:text-primary-green dark:hover:border-primary-green/80">
           <span>👤</span> Profile
         </a>
       </div>
-    </div>
+    </section>
 
     <!-- Page Updates -->
-    <div class="section">
-      <h2 class="section-title">📄 Updated Pages</h2>
-      <div class="test-grid">
-        <div class="test-card" onclick="window.location.href='index.html'">
-          <h3>🏠 index.html</h3>
-          <ul>
-            <li>5 Feature links</li>
-            <li>Sidebar navigation</li>
-            <li>Device detection</li>
-            <li>Active state: Main</li>
+    <section class="mt-12">
+      <h2 class="border-b-4 border-primary-green pb-3 text-3xl font-bold text-slate-900">📄 Updated Pages</h2>
+      <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <article class="cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60" onclick="window.location.href='index.html'">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">🏠 index.html</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 5 Feature links</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Sidebar navigation</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Device detection</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Active state: Main</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card" onclick="window.location.href='simulator.html'">
-          <h3>🎯 simulator.html</h3>
-          <ul>
-            <li>2 Split buttons</li>
-            <li>Sidebar added</li>
-            <li>Device detection</li>
-            <li>Active state: Sim/AI</li>
+        <article class="cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60" onclick="window.location.href='simulator.html'">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">🎯 simulator.html</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 2 Split buttons</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Sidebar added</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Device detection</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Active state: Sim/AI</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card" onclick="window.location.href='lessons.html'">
-          <h3>📚 lessons.html</h3>
-          <ul>
-            <li>4 Vertical buttons</li>
-            <li>Sidebar added</li>
-            <li>Device detection</li>
-            <li>Active state: Lessons</li>
+        <article class="cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60" onclick="window.location.href='lessons.html'">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">📚 lessons.html</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 4 Vertical buttons</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Sidebar added</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Device detection</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Active state: Lessons</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card" onclick="window.location.href='calculators.html'">
-          <h3>🧮 calculators.html</h3>
-          <ul>
-            <li>7 Row buttons</li>
-            <li>Sidebar added</li>
-            <li>Device detection</li>
-            <li>Active state: Calc</li>
+        <article class="cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60" onclick="window.location.href='calculators.html'">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">🧮 calculators.html</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 7 Row buttons</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Sidebar added</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Device detection</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Active state: Calc</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card" onclick="window.location.href='profile.html'">
-          <h3>👤 profile.html</h3>
-          <ul>
-            <li>5 Profile buttons</li>
-            <li>Sidebar added</li>
-            <li>Device detection</li>
-            <li>Active state: Profile</li>
+        <article class="cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60" onclick="window.location.href='profile.html'">
+          <h3 class="flex items-center gap-3 text-xl font-bold text-slate-900 dark:text-white">👤 profile.html</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 5 Profile buttons</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Sidebar added</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Device detection</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Active state: Profile</li>
           </ul>
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
 
     <!-- Feature Highlights -->
-    <div class="section">
-      <h2 class="section-title">✨ Chess.com Design Features</h2>
-      <div class="test-grid">
-        <div class="test-card">
-          <h3>⚡ Smooth Animations</h3>
-          <ul>
-            <li>160-200ms transitions</li>
-            <li>GPU-accelerated</li>
-            <li>Transform effects</li>
-            <li>Shadow animations</li>
+    <section class="mt-12">
+      <h2 class="border-b-4 border-primary-green pb-3 text-3xl font-bold text-slate-900">✨ Chess.com Design Features</h2>
+      <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-white">⚡ Smooth Animations</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 160-200ms transitions</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> GPU-accelerated</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Transform effects</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Shadow animations</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card">
-          <h3>🎨 Professional Colors</h3>
-          <ul>
-            <li>Gradient backgrounds</li>
-            <li>Accent highlights</li>
-            <li>Subtle shadows</li>
-            <li>High contrast</li>
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-white">🎨 Professional Colors</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Gradient backgrounds</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Accent highlights</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Subtle shadows</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> High contrast</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card">
-          <h3>📐 Responsive Grids</h3>
-          <ul>
-            <li>Mobile-first</li>
-            <li>7 Breakpoints</li>
-            <li>Flexible layouts</li>
-            <li>Full viewport</li>
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-white">📐 Responsive Grids</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Mobile-first</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> 7 Breakpoints</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Flexible layouts</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Full viewport</li>
           </ul>
-        </div>
+        </article>
 
-        <div class="test-card">
-          <h3>♿ Accessibility</h3>
-          <ul>
-            <li>ARIA labels</li>
-            <li>Keyboard navigation</li>
-            <li>Focus states</li>
-            <li>High contrast</li>
+        <article class="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-slate-100 p-6 shadow-card transition hover:-translate-y-1 hover:border-primary-green/50 hover:shadow-card-hover dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-900/60">
+          <h3 class="flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-white">♿ Accessibility</h3>
+          <ul class="mt-4 space-y-2">
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> ARIA labels</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Keyboard navigation</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> Focus states</li>
+            <li class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200"><span>✅</span> High contrast</li>
           </ul>
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
 
     <!-- Documentation -->
-    <div class="section">
-      <h2 class="section-title">📚 Documentation</h2>
-      <p style="color: #4a5568; margin-bottom: 16px;">
-        Comprehensive documentation has been created to ensure maintainability and ease of development:
-      </p>
-      <div class="button-showcase">
-        <a href="BUTTON_FUNCTIONALITY_REPORT.md" class="demo-button">
+    <section class="mt-12">
+      <h2 class="border-b-4 border-primary-green pb-3 text-3xl font-bold text-slate-900">📚 Documentation</h2>
+      <p class="mt-4 text-slate-700 dark:text-slate-300">Comprehensive documentation has been created to ensure maintainability and ease of development:</p>
+      <div class="mt-6 flex flex-wrap gap-4">
+        <a href="BUTTON_FUNCTIONALITY_REPORT.md" class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 shadow-md transition hover:-translate-y-0.5 hover:border-primary-green hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-primary-green/60">
           📄 Button Report
         </a>
-        <a href="RESPONSIVE_DESIGN_GUIDE.md" class="demo-button">
+        <a href="RESPONSIVE_DESIGN_GUIDE.md" class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 shadow-md transition hover:-translate-y-0.5 hover:border-primary-green hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-primary-green/60">
           📱 Responsive Guide
         </a>
-        <a href="DARK_MODE_README.md" class="demo-button">
+        <a href="DARK_MODE_README.md" class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 shadow-md transition hover:-translate-y-0.5 hover:border-primary-green hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-primary-green/60">
           🌙 Dark Mode
         </a>
-        <a href="COMPACT_MODE_README.md" class="demo-button">
+        <a href="COMPACT_MODE_README.md" class="inline-flex items-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 shadow-md transition hover:-translate-y-0.5 hover:border-primary-green hover:bg-primary-green/10 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-green/40 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-primary-green/60">
           📦 Compact Mode
         </a>
       </div>
-    </div>
+    </section>
 
-    <div class="footer">
-      <p><strong>Investing 101</strong> · Button Functionality Testing Dashboard</p>
-      <p style="margin-top: 8px; font-size: 0.85rem;">
-        All systems operational · Last updated: December 2024
-      </p>
-    </div>
+    <footer class="mt-12 border-t border-slate-200 pt-8 text-center text-slate-600 dark:border-slate-800 dark:text-slate-400">
+      <p class="font-semibold"><strong>Investing 101</strong> · Button Functionality Testing Dashboard</p>
+      <p class="mt-2 text-sm">All systems operational · Last updated: December 2024</p>
+    </footer>
   </div>
 
   <!-- Device Indicator -->
-  <div class="device-indicator" id="deviceIndicator">
-    Loading...
+  <div class="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white shadow-lg" id="deviceIndicator">
+    <span aria-hidden="true" id="deviceEmoji">🖥️</span>
+    <span id="deviceText">Loading...</span>
   </div>
 
   <script>
@@ -444,16 +238,21 @@
     function updateDeviceIndicator() {
       const width = window.innerWidth;
       const indicator = document.getElementById('deviceIndicator');
+      const emoji = document.getElementById('deviceEmoji');
+      const text = document.getElementById('deviceText');
       
       if (width >= 1280) {
-        indicator.textContent = `🖥️ Desktop (${width}px)`;
-        indicator.style.background = '#10b981';
+        emoji.textContent = '🖥️';
+        text.textContent = `Desktop (${width}px)`;
+        indicator.className = 'fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white shadow-lg';
       } else if (width >= 768) {
-        indicator.textContent = `📱 Tablet (${width}px)`;
-        indicator.style.background = '#f59e0b';
+        emoji.textContent = '📱';
+        text.textContent = `Tablet (${width}px)`;
+        indicator.className = 'fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-amber-600 px-4 py-2 font-semibold text-white shadow-lg';
       } else {
-        indicator.textContent = `📱 Mobile (${width}px)`;
-        indicator.style.background = '#ef4444';
+        emoji.textContent = '📱';
+        text.textContent = `Mobile (${width}px)`;
+        indicator.className = 'fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 font-semibold text-white shadow-lg';
       }
     }
 
@@ -462,12 +261,14 @@
     window.addEventListener('resize', updateDeviceIndicator);
 
     // Add click animation to test cards
-    document.querySelectorAll('.test-card').forEach(card => {
-      card.addEventListener('click', function() {
-        this.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          this.style.transform = '';
-        }, 150);
+    document.querySelectorAll('article[onclick]').forEach(card => {
+      card.addEventListener('click', function(e) {
+        if (e.target === this || e.target.closest('article') === this) {
+          this.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            this.style.transform = '';
+          }, 150);
+        }
       });
     });
   </script>
