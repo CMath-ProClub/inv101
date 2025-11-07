@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notifications - Investment Playground</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="profile-styles.css">
+    <link rel="stylesheet" href="dist/main.css">
+    <link rel="stylesheet" href="dist/main.css">
     <script>
       // Theme initialization
       (function() {
@@ -249,7 +249,7 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar__header">
@@ -270,53 +270,53 @@
 
         <nav class="sidebar__nav">
             <a href="index.html" class="sidebar__link">
-                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__icon">ðŸ“Š</span>
                 <span class="sidebar__text">Dashboard</span>
             </a>
             <a href="lessons.html" class="sidebar__link">
-                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__icon">ðŸ“š</span>
                 <span class="sidebar__text">Lessons</span>
             </a>
             <a href="calculators.html" class="sidebar__link">
-                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__icon">ðŸ§®</span>
                 <span class="sidebar__text">Calculators</span>
             </a>
             <a href="simulator.html" class="sidebar__link">
-                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__icon">ðŸ’¹</span>
                 <span class="sidebar__text">Simulator</span>
             </a>
             <a href="profile.html" class="sidebar__link">
-                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__icon">ðŸ‘¤</span>
                 <span class="sidebar__text">Profile</span>
             </a>
             <a href="compare-portfolios.html" class="sidebar__link">
-                <span class="sidebar__icon">📈</span>
+                <span class="sidebar__icon">ðŸ“ˆ</span>
                 <span class="sidebar__text">Compare</span>
             </a>
             <a href="leaderboards.html" class="sidebar__link">
-                <span class="sidebar__icon">🏆</span>
+                <span class="sidebar__icon">ðŸ†</span>
                 <span class="sidebar__text">Leaderboards</span>
             </a>
             <a href="activity-feed.html" class="sidebar__link">
-                <span class="sidebar__icon">🌊</span>
+                <span class="sidebar__icon">ðŸŒŠ</span>
                 <span class="sidebar__text">Activity</span>
             </a>
             <a href="notifications.html" class="sidebar__link sidebar__link--active">
-                <span class="sidebar__icon">🔔</span>
+                <span class="sidebar__icon">ðŸ””</span>
                 <span class="sidebar__text">Notifications</span>
             </a>
             <a href="achievements.html" class="sidebar__link">
-                <span class="sidebar__icon">🏅</span>
+                <span class="sidebar__icon">ðŸ…</span>
                 <span class="sidebar__text">Achievements</span>
             </a>
         </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
         <div class="notifications-header">
             <div>
-                <h1>🔔 Notifications</h1>
+                <h1>ðŸ”” Notifications</h1>
                 <p style="color: var(--text-muted); margin: 8px 0 0;">Stay updated with your progress and friend activity</p>
             </div>
             <div class="notifications-header__actions">
@@ -343,16 +343,16 @@
                 All <span class="filter-btn__count">12</span>
             </button>
             <button class="filter-btn" onclick="filterNotifications('friends')">
-                👥 Friends <span class="filter-btn__count">5</span>
+                ðŸ‘¥ Friends <span class="filter-btn__count">5</span>
             </button>
             <button class="filter-btn" onclick="filterNotifications('achievements')">
-                🏆 Achievements <span class="filter-btn__count">3</span>
+                ðŸ† Achievements <span class="filter-btn__count">3</span>
             </button>
             <button class="filter-btn" onclick="filterNotifications('lessons')">
-                📚 Lessons <span class="filter-btn__count">2</span>
+                ðŸ“š Lessons <span class="filter-btn__count">2</span>
             </button>
             <button class="filter-btn" onclick="filterNotifications('portfolio')">
-                💰 Portfolio <span class="filter-btn__count">2</span>
+                ðŸ’° Portfolio <span class="filter-btn__count">2</span>
             </button>
         </div>
 
@@ -361,7 +361,7 @@
             <!-- Friend Request -->
             <div class="notification-item notification-item--unread" data-type="friends">
                 <div class="notification-item__unread-dot"></div>
-                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__icon notification-item__icon--friend">ðŸ‘¥</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">New Friend Request</h4>
@@ -384,7 +384,7 @@
             <!-- Achievement Unlocked -->
             <div class="notification-item notification-item--unread" data-type="achievements">
                 <div class="notification-item__unread-dot"></div>
-                <div class="notification-item__icon notification-item__icon--achievement">🏆</div>
+                <div class="notification-item__icon notification-item__icon--achievement">ðŸ†</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Achievement Unlocked!</h4>
@@ -404,7 +404,7 @@
             <!-- Portfolio Milestone -->
             <div class="notification-item notification-item--unread" data-type="portfolio">
                 <div class="notification-item__unread-dot"></div>
-                <div class="notification-item__icon notification-item__icon--portfolio">💰</div>
+                <div class="notification-item__icon notification-item__icon--portfolio">ðŸ’°</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Portfolio Milestone Reached</h4>
@@ -423,7 +423,7 @@
 
             <!-- Lesson Completed -->
             <div class="notification-item" data-type="lessons">
-                <div class="notification-item__icon notification-item__icon--lesson">📚</div>
+                <div class="notification-item__icon notification-item__icon--lesson">ðŸ“š</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Lesson Completed</h4>
@@ -442,7 +442,7 @@
 
             <!-- Friend Activity -->
             <div class="notification-item" data-type="friends">
-                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__icon notification-item__icon--friend">ðŸ‘¥</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Friend Activity</h4>
@@ -461,7 +461,7 @@
 
             <!-- Achievement Progress -->
             <div class="notification-item" data-type="achievements">
-                <div class="notification-item__icon notification-item__icon--achievement">🏆</div>
+                <div class="notification-item__icon notification-item__icon--achievement">ðŸ†</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Almost There!</h4>
@@ -475,7 +475,7 @@
 
             <!-- System Update -->
             <div class="notification-item" data-type="system">
-                <div class="notification-item__icon notification-item__icon--system">🔔</div>
+                <div class="notification-item__icon notification-item__icon--system">ðŸ””</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">New Features Available</h4>
@@ -494,7 +494,7 @@
 
             <!-- Friend Trade -->
             <div class="notification-item" data-type="friends">
-                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__icon notification-item__icon--friend">ðŸ‘¥</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Friend Made a Trade</h4>
@@ -508,7 +508,7 @@
 
             <!-- Lesson Reminder -->
             <div class="notification-item" data-type="lessons">
-                <div class="notification-item__icon notification-item__icon--lesson">📚</div>
+                <div class="notification-item__icon notification-item__icon--lesson">ðŸ“š</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Continue Your Learning</h4>
@@ -527,7 +527,7 @@
 
             <!-- Portfolio Alert -->
             <div class="notification-item" data-type="portfolio">
-                <div class="notification-item__icon notification-item__icon--portfolio">💰</div>
+                <div class="notification-item__icon notification-item__icon--portfolio">ðŸ’°</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Stock Price Alert</h4>
@@ -541,7 +541,7 @@
 
             <!-- Achievement Earned -->
             <div class="notification-item" data-type="achievements">
-                <div class="notification-item__icon notification-item__icon--achievement">🏆</div>
+                <div class="notification-item__icon notification-item__icon--achievement">ðŸ†</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Streak Achievement!</h4>
@@ -555,7 +555,7 @@
 
             <!-- Friend Accepted -->
             <div class="notification-item" data-type="friends">
-                <div class="notification-item__icon notification-item__icon--friend">👥</div>
+                <div class="notification-item__icon notification-item__icon--friend">ðŸ‘¥</div>
                 <div class="notification-item__content">
                     <div class="notification-item__header">
                         <h4 class="notification-item__title">Friend Request Accepted</h4>
@@ -611,7 +611,7 @@
         // Notification actions
         function acceptFriend() {
             event.stopPropagation();
-            showToast('Friend request accepted! 🎉', 'success');
+            showToast('Friend request accepted! ðŸŽ‰', 'success');
             event.target.closest('.notification-item').classList.remove('notification-item--unread');
         }
 

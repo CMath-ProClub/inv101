@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Friends - Investment Playground</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="profile-styles.css">
+    <link rel="stylesheet" href="dist/main.css">
+    <link rel="stylesheet" href="dist/main.css">
     <script>
       // Theme initialization
       (function() {
@@ -14,7 +14,7 @@
       })();
     </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar__header">
@@ -35,30 +35,30 @@
 
         <nav class="sidebar__nav">
             <a href="index.html" class="sidebar__link">
-                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__icon">ðŸ“Š</span>
                 <span class="sidebar__text">Dashboard</span>
             </a>
             <a href="lessons.html" class="sidebar__link">
-                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__icon">ðŸ“š</span>
                 <span class="sidebar__text">Lessons</span>
             </a>
             <a href="calculators.html" class="sidebar__link">
-                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__icon">ðŸ§®</span>
                 <span class="sidebar__text">Calculators</span>
             </a>
             <a href="simulator.html" class="sidebar__link">
-                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__icon">ðŸ’¹</span>
                 <span class="sidebar__text">Simulator</span>
             </a>
             <a href="profile.html" class="sidebar__link sidebar__link--active">
-                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__icon">ðŸ‘¤</span>
                 <span class="sidebar__text">Profile</span>
             </a>
         </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
         <div class="friends-header">
             <h1>Friends & Community</h1>
             <div class="friends-header__actions">
@@ -273,7 +273,7 @@
             <div class="modal__content">
                 <div class="modal__header">
                     <h2>Add Friend</h2>
-                    <button class="modal__close" onclick="closeAddFriendModal()">×</button>
+                    <button class="modal__close" onclick="closeAddFriendModal()">Ã—</button>
                 </div>
                 <div class="modal__body">
                     <p style="margin-bottom: 20px; color: var(--text-muted);">
@@ -284,7 +284,7 @@
                         <input type="text" id="friendIdInput" class="form-input" placeholder="e.g., INV101-JD-B8C4">
                     </div>
                     <div class="form-help">
-                        💡 You can find your User ID on your profile page
+                        ðŸ’¡ You can find your User ID on your profile page
                     </div>
                 </div>
                 <div class="modal__footer">
@@ -300,7 +300,7 @@
             <div class="modal__content modal__content--large">
                 <div class="modal__header">
                     <h2>Friend Requests</h2>
-                    <button class="modal__close" onclick="closeRequestsModal()">×</button>
+                    <button class="modal__close" onclick="closeRequestsModal()">Ã—</button>
                 </div>
                 <div class="modal__body">
                     <h3 style="margin-bottom: 16px;">Incoming Requests (3)</h3>
@@ -410,7 +410,7 @@
             }
             
             // TODO: Send to server
-            showToast(`Friend request sent to ${friendId}! 🎉`, 'success');
+            showToast(`Friend request sent to ${friendId}! ðŸŽ‰`, 'success');
             closeAddFriendModal();
         }
 
@@ -425,7 +425,7 @@
 
         function acceptRequest(userId) {
             // TODO: Send to server
-            showToast(`You are now friends with ${userId}! 🎉`, 'success');
+            showToast(`You are now friends with ${userId}! ðŸŽ‰`, 'success');
             // Remove from list
             event.target.closest('.friend-request-card').remove();
             // Update badge count

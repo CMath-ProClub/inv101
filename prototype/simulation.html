@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Market Simulation · Investing101</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Market Simulation Â· Investing101</title>
+  <link rel="stylesheet" href="dist/main.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -116,7 +116,7 @@
       Object.entries(ASSETS).forEach(([ticker, asset]) => {
         const option = document.createElement('option');
         option.value = ticker;
-        option.textContent = `${ticker} · ${asset.name} ($${asset.price.toFixed(2)})`;
+        option.textContent = `${ticker} Â· ${asset.name} ($${asset.price.toFixed(2)})`;
         assetSelect.appendChild(option);
       });
     }
@@ -193,9 +193,9 @@
 
       margin-bottom: 20px;
 
-      flex-wrap: wrap;  <nav class="tabbar" aria-label="Primary navigation">
+      flex-wrap: wrap;  <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
 
-      gap: 16px;    <a class="tabbar__btn" href="index.html">
+      gap: 16px;    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="index.html">
 
     }      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -211,7 +211,7 @@
 
     </a>
 
-    .stock-table {    <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
+    .stock-table {    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="simulator.html">
 
       background: var(--bg-card);      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -233,7 +233,7 @@
 
       padding: 16px 24px;    </a>
 
-      background: var(--bg-muted);    <a class="tabbar__btn" href="lessons.html">
+      background: var(--bg-muted);    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
 
       font-weight: 700;      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -249,7 +249,7 @@
 
     }    </a>
 
-    <a class="tabbar__btn" href="calculators.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
 
     .stock-row {      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -269,7 +269,7 @@
 
     }    </a>
 
-    <a class="tabbar__btn" href="profile.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
 
     .stock-row:hover {      <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 
@@ -568,7 +568,7 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
   
   <div class="app app--no-sidebar">
@@ -586,6 +586,7 @@
     <!-- Add navigation, user actions, etc. here -->
   </div>
 
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
       <div class="simulator-container">
         <!-- Search & Filter
+

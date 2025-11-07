@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Market Simulator - Investing101</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="device-detection.js"></script>
   <script>
@@ -338,9 +338,9 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
+  <div class="flex min-h-screen flex-col">
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
         <img src="assets/Investing101.png" alt="Investing 101">
@@ -393,13 +393,13 @@
       </nav>
     </aside>
 
-    <header class="app__header">
-      <button class="btn btn--secondary" onclick="showPortfolioModal()">📂 Portfolios</button>
+    <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+      <button class="btn btn--secondary" onclick="showPortfolioModal()">ðŸ“‚ Portfolios</button>
       <span id="portfolioName">My Portfolio</span>
-      <button class="btn btn--secondary" onclick="savePortfolio()">💾 Save</button>
+      <button class="btn btn--secondary" onclick="savePortfolio()">ðŸ’¾ Save</button>
     </header>
 
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
       <div class="sim-container">
         <!-- Stock Sidebar -->
         <div class="sim-sidebar">
@@ -473,8 +473,8 @@
       </div>
     </div>
 
-    <nav class="tabbar" aria-label="Primary navigation">
-      <a class="tabbar__btn" href="index.html">
+    <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="index.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 10.5L12 3l9 7.5" />
           <path d="M5 10.5V21h14V10.5" />
@@ -482,7 +482,7 @@
         </svg>
         <span>Main</span>
       </a>
-      <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="simulator.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="9" />
           <circle cx="12" cy="12" r="3" />
@@ -493,7 +493,7 @@
         </svg>
         <span>Simulator</span>
       </a>
-      <a class="tabbar__btn" href="lessons.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
           <path d="M4 12l8 3 8-3" />
@@ -501,7 +501,7 @@
         </svg>
         <span>Lessons</span>
       </a>
-      <a class="tabbar__btn" href="calculators.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="4" width="18" height="16" rx="2" />
           <path d="M7 8h10" />
@@ -511,7 +511,7 @@
         </svg>
         <span>Calc</span>
       </a>
-      <a class="tabbar__btn" href="profile.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="8" r="4" />
           <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -600,9 +600,9 @@
           saved: getSavedPortfolios()
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        alert('✅ Portfolio saved successfully!');
+        alert('âœ… Portfolio saved successfully!');
       } catch (e) {
-        alert('❌ Failed to save portfolio');
+        alert('âŒ Failed to save portfolio');
       }
     }
 
@@ -696,7 +696,7 @@
 
       if (type === 'buy') {
         if (currentPortfolio.cash < cost) {
-          alert('❌ Insufficient funds!');
+          alert('âŒ Insufficient funds!');
           return;
         }
 
@@ -716,11 +716,11 @@
         holding.avgPrice = ((holding.shares * holding.avgPrice) + cost) / totalShares;
         holding.shares = totalShares;
 
-        alert(`✅ Bought ${shares} shares of ${selectedStock.symbol} for $${cost.toFixed(2)}`);
+        alert(`âœ… Bought ${shares} shares of ${selectedStock.symbol} for $${cost.toFixed(2)}`);
       } else {
         const holding = currentPortfolio.holdings[selectedStock.symbol];
         if (!holding || holding.shares < shares) {
-          alert('❌ Insufficient shares to sell!');
+          alert('âŒ Insufficient shares to sell!');
           return;
         }
 
@@ -731,7 +731,7 @@
           delete currentPortfolio.holdings[selectedStock.symbol];
         }
 
-        alert(`✅ Sold ${shares} shares of ${selectedStock.symbol} for $${cost.toFixed(2)}`);
+        alert(`âœ… Sold ${shares} shares of ${selectedStock.symbol} for $${cost.toFixed(2)}`);
       }
 
       updateUI();
@@ -946,3 +946,4 @@
   </script>
 </body>
 </html>
+

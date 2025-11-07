@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CORE Calculator</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
   <script>
     (function(){
@@ -26,17 +26,17 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
+  <div class="flex min-h-screen flex-col">
     <!-- Desktop Sidebar Navigation (visible on desktop only) -->
-    <!-- sidebar removed — shared-ui provides navigation (keeps layout simpler). -->
-    <header class="app__header">
-      <a class="link-button" href="calculators.html">← Back to Calculators</a>
+    <!-- sidebar removed â€” shared-ui provides navigation (keeps layout simpler). -->
+    <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+      <a class="link-button" href="calculators.html">â† Back to Calculators</a>
       <span></span>
       <span></span>
     </header>
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
       <div style="padding: 12px 0; border-bottom: 2px solid var(--border); margin-bottom: 16px;">
         <h2 style="margin-bottom: 4px;">CORE Calculators</h2>
         <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Essential financial calculations for every investor</p>
@@ -44,30 +44,30 @@
 
       <section class="feature-links feature-links--rows">
         <a href="calc-core-compound.html" class="feature-link--row">
-          <span style="font-size: 1.5rem;">📈</span>
+          <span style="font-size: 1.5rem;">ðŸ“ˆ</span>
           Compound Interest
         </a>
         <a href="calc-core-roi.html" class="feature-link--row">
-          <span style="font-size: 1.5rem;">💰</span>
+          <span style="font-size: 1.5rem;">ðŸ’°</span>
           ROI Calculator
         </a>
         <a href="calc-core-annualized.html" class="feature-link--row">
-          <span style="font-size: 1.5rem;">📊</span>
+          <span style="font-size: 1.5rem;">ðŸ“Š</span>
           Annualized Return
         </a>
         <a href="calc-core-riskreward.html" class="feature-link--row">
-          <span style="font-size: 1.5rem;">⚖️</span>
+          <span style="font-size: 1.5rem;">âš–ï¸</span>
           Risk/Reward Ratio
         </a>
         <a href="calc-core-volatility.html" class="feature-link--row">
-          <span style="font-size: 1.5rem;">📉</span>
+          <span style="font-size: 1.5rem;">ðŸ“‰</span>
           Volatility
         </a>
       </section>
     </main>
   </div>
-  <nav class="tabbar" aria-label="Primary navigation">
-    <a class="tabbar__btn" href="index.html">
+  <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="index.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 10.5L12 3l9 7.5" />
         <path d="M5 10.5V21h14V10.5" />
@@ -75,7 +75,7 @@
       </svg>
       <span>Main</span>
     </a>
-    <a class="tabbar__btn" href="simulator.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="simulator.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <circle cx="12" cy="12" r="3" />
@@ -86,7 +86,7 @@
       </svg>
       <span>Sim/AI</span>
     </a>
-    <a class="tabbar__btn" href="lessons.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
         <path d="M4 12l8 3 8-3" />
@@ -94,7 +94,7 @@
       </svg>
       <span>Lessons</span>
     </a>
-    <a class="tabbar__btn" href="calculators.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M7 8h10" />
@@ -104,7 +104,7 @@
       </svg>
       <span>Calc</span>
     </a>
-    <a class="tabbar__btn" href="profile.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="8" r="4" />
         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -114,6 +114,7 @@
   </nav>
 </body>
 </html>
+
 
 
 

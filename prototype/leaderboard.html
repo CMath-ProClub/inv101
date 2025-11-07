@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Leaderboard - Investing101</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script>
     // Theme initialization
     (function(){
@@ -321,10 +321,10 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
   
-  <div class="app">
+  <div class="flex min-h-screen flex-col">
     <!-- Sidebar -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo">
@@ -377,7 +377,7 @@
   <div class="leaderboard-container">
     <!-- Header -->
     <div class="header">
-      <h1>🏆 Leaderboard</h1>
+      <h1>ðŸ† Leaderboard</h1>
       <p>Top traders in the Investing101 simulator</p>
     </div>
 
@@ -405,7 +405,7 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="btn btn-secondary" onclick="window.location.href='/'">← Home</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/'">â† Home</button>
       <button class="btn btn-secondary" onclick="window.location.href='/trading.html'">Trade Stocks</button>
       <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">My Profile</button>
     </div>
@@ -438,7 +438,7 @@
         console.error('Load leaderboard error:', error);
         document.getElementById('leaderboardContent').innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">⚠️</div>
+            <div class="empty-state-icon">âš ï¸</div>
             <p>Failed to load leaderboard</p>
             <button class="btn btn-secondary" style="margin-top: 20px;" onclick="loadLeaderboard()">Retry</button>
           </div>
@@ -452,7 +452,7 @@
       if (users.length === 0) {
         content.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">🏆</div>
+            <div class="empty-state-icon">ðŸ†</div>
             <p>No traders yet. Be the first to start trading!</p>
           </div>
         `;
@@ -475,9 +475,9 @@
             ${users.map((user, index) => {
               const rank = index + 1;
               const rankClass = rank <= 3 ? `rank-${rank}` : '';
-              const badge = rank === 1 ? '<span class="badge badge-gold">🥇 #1</span>' : 
-                           rank === 2 ? '<span class="badge badge-silver">🥈 #2</span>' :
-                           rank === 3 ? '<span class="badge badge-bronze">🥉 #3</span>' : '';
+              const badge = rank === 1 ? '<span class="badge badge-gold">ðŸ¥‡ #1</span>' : 
+                           rank === 2 ? '<span class="badge badge-silver">ðŸ¥ˆ #2</span>' :
+                           rank === 3 ? '<span class="badge badge-bronze">ðŸ¥‰ #3</span>' : '';
               
               const winRate = user.totalTrades > 0 ? 
                 ((user.stats?.winningTrades || 0) / user.totalTrades * 100).toFixed(1) : '0.0';
@@ -528,7 +528,7 @@
         // Show placeholder for now
         document.getElementById('activityContent').innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
+            <div class="empty-state-icon">ðŸ“Š</div>
             <p>Activity feed coming soon!</p>
             <p style="font-size: 0.9em; margin-top: 10px;">This will show recent trades from all users</p>
           </div>
@@ -542,7 +542,7 @@
       if (activities.length === 0) {
         content.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
+            <div class="empty-state-icon">ðŸ“Š</div>
             <p>No recent activity</p>
           </div>
         `;
@@ -553,7 +553,7 @@
         <div class="activity-feed">
           ${activities.map(activity => `
             <div class="activity-item">
-              <div class="activity-icon">${activity.type === 'BUY' ? '📈' : '📉'}</div>
+              <div class="activity-icon">${activity.type === 'BUY' ? 'ðŸ“ˆ' : 'ðŸ“‰'}</div>
               <div class="activity-content">
                 <div class="activity-action">
                   <span class="activity-user" onclick="viewProfile('${activity.username}')">${activity.displayName || activity.username}</span>
@@ -622,3 +622,4 @@
   </div> <!-- close app -->
 </body>
 </html>
+

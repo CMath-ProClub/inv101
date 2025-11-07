@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Simulator</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script>
     (function(){
       try {
@@ -25,9 +25,9 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
+  <div class="flex min-h-screen flex-col">
     <!-- Desktop Sidebar Navigation (visible on desktop only) -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
@@ -118,7 +118,7 @@
             <li>Risk dashboards track drawdown, win rate, and conviction bias.</li>
             <li>Weekly wraps summarize habits to keep or dial back.</li>
           </ul>
-          <span class="simulator-panel__cta">Enter the arena →</span>
+          <span class="simulator-panel__cta">Enter the arena â†’</span>
         </a>
 
         <a href="play-ai.html" class="simulator-panel simulator-panel--ai">
@@ -132,7 +132,7 @@
             <li>AI commentary surfaces blind spots in positioning and timing.</li>
             <li>Earn flair cards for creative strategies that outpace the bot.</li>
           </ul>
-          <span class="simulator-panel__cta">Challenge the AI →</span>
+          <span class="simulator-panel__cta">Challenge the AI â†’</span>
         </a>
       </section>
 
@@ -140,9 +140,9 @@
         <article class="simulator-card">
           <h3>Daily challenge lineup</h3>
           <ul>
-            <li><span>📈</span> Momentum Sprint — manage three momentum trades with capital at risk capped at 15%.</li>
-            <li><span>🛡️</span> Drawdown Guard — keep portfolio drawdown under 3% while news sentiment flips.</li>
-            <li><span>🧠</span> Mindset Reset — complete five trades using only fundamental catalysts.</li>
+            <li><span>ðŸ“ˆ</span> Momentum Sprint â€” manage three momentum trades with capital at risk capped at 15%.</li>
+            <li><span>ðŸ›¡ï¸</span> Drawdown Guard â€” keep portfolio drawdown under 3% while news sentiment flips.</li>
+            <li><span>ðŸ§ </span> Mindset Reset â€” complete five trades using only fundamental catalysts.</li>
           </ul>
         </article>
         <article class="simulator-card">
@@ -171,8 +171,8 @@
       </section>
     </main>
   </div>
-  <nav class="tabbar" aria-label="Primary navigation">
-    <a class="tabbar__btn" href="index.html">
+  <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="index.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 10.5L12 3l9 7.5" />
         <path d="M5 10.5V21h14V10.5" />
@@ -180,7 +180,7 @@
       </svg>
       <span>Sim/AI</span>
     </a>
-    <a class="tabbar__btn tabbar__btn--active" href="simulator.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="simulator.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <circle cx="12" cy="12" r="3" />
@@ -191,7 +191,7 @@
       </svg>
       <span>Sim/AI</span>
     </a>
-    <a class="tabbar__btn" href="lessons.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
         <path d="M4 12l8 3 8-3" />
@@ -199,7 +199,7 @@
       </svg>
       <span>Lessons</span>
     </a>
-    <a class="tabbar__btn" href="calculators.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M7 8h10" />
@@ -209,7 +209,7 @@
       </svg>
       <span>Calc</span>
     </a>
-    <a class="tabbar__btn" href="profile.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="8" r="4" />
         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -222,6 +222,7 @@
   <script src="theme-switcher.js"></script>
 </body>
 </html>
+
 
 
 

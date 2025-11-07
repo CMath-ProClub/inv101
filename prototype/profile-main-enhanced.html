@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Investment Playground</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="profile-styles.css">
+    <link rel="stylesheet" href="dist/main.css">
+    <link rel="stylesheet" href="dist/main.css">
     <script>
       // Theme initialization (must come before body loads)
       (function() {
@@ -14,7 +14,7 @@
       })();
     </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar__header">
@@ -35,30 +35,30 @@
 
         <nav class="sidebar__nav">
             <a href="index.html" class="sidebar__link">
-                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__icon">ðŸ“Š</span>
                 <span class="sidebar__text">Dashboard</span>
             </a>
             <a href="lessons.html" class="sidebar__link">
-                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__icon">ðŸ“š</span>
                 <span class="sidebar__text">Lessons</span>
             </a>
             <a href="calculators.html" class="sidebar__link">
-                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__icon">ðŸ§®</span>
                 <span class="sidebar__text">Calculators</span>
             </a>
             <a href="simulator.html" class="sidebar__link">
-                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__icon">ðŸ’¹</span>
                 <span class="sidebar__text">Simulator</span>
             </a>
             <a href="profile.html" class="sidebar__link sidebar__link--active">
-                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__icon">ðŸ‘¤</span>
                 <span class="sidebar__text">Profile</span>
             </a>
         </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
         <!-- Profile Header with Avatar & User ID -->
         <section class="profile-header">
             <div class="profile-header__container">
@@ -141,7 +141,7 @@
         <div class="profile-stats-grid">
             <!-- Education Progress -->
             <section class="card">
-                <h3>📚 Education Progress</h3>
+                <h3>ðŸ“š Education Progress</h3>
                 <div class="profile-progress">
                     <div class="profile-progress__header">
                         <span class="profile-progress__level">Level 3 - Intermediate</span>
@@ -156,7 +156,7 @@
 
             <!-- Portfolio Performance -->
             <section class="card">
-                <h3>💰 Portfolio Performance</h3>
+                <h3>ðŸ’° Portfolio Performance</h3>
                 <div class="profile-stat-large">
                     <div class="profile-stat-large__value">$52,450</div>
                     <div class="profile-stat-large__change profile-stat-large__change--positive">
@@ -170,7 +170,7 @@
 
             <!-- Badges & Achievements -->
             <section class="card">
-                <h3>🏆 Achievements</h3>
+                <h3>ðŸ† Achievements</h3>
                 <div class="badge-grid">
                     <div class="achievement-badge achievement-badge--earned">
                         <div class="achievement-badge__icon achievement-badge__icon--pink">
@@ -214,24 +214,24 @@
 
             <!-- High Scores -->
             <section class="card">
-                <h3>🎮 High Scores</h3>
+                <h3>ðŸŽ® High Scores</h3>
                 <div class="high-score-list">
                     <div class="high-score-item">
-                        <div class="high-score-item__icon">📈</div>
+                        <div class="high-score-item__icon">ðŸ“ˆ</div>
                         <div class="high-score-item__content">
                             <div class="high-score-item__name">Portfolio Simulator</div>
                             <div class="high-score-item__value">$52,450</div>
                         </div>
                     </div>
                     <div class="high-score-item">
-                        <div class="high-score-item__icon">🤖</div>
+                        <div class="high-score-item__icon">ðŸ¤–</div>
                         <div class="high-score-item__content">
                             <div class="high-score-item__name">Play the AI</div>
                             <div class="high-score-item__value">8 Wins</div>
                         </div>
                     </div>
                     <div class="high-score-item">
-                        <div class="high-score-item__icon">🔥</div>
+                        <div class="high-score-item__icon">ðŸ”¥</div>
                         <div class="high-score-item__content">
                             <div class="high-score-item__name">Quiz Streak</div>
                             <div class="high-score-item__value">5 Days</div>
@@ -247,7 +247,7 @@
             <div class="modal__content">
                 <div class="modal__header">
                     <h2>Edit Profile</h2>
-                    <button class="modal__close" onclick="closeEditProfileModal()">×</button>
+                    <button class="modal__close" onclick="closeEditProfileModal()">Ã—</button>
                 </div>
                 <div class="modal__body">
                     <div class="form-group">
@@ -294,7 +294,7 @@
                     avatarInitials.style.display = 'none';
                     
                     // TODO: Upload to server
-                    showToast('Profile picture updated! 📸', 'success');
+                    showToast('Profile picture updated! ðŸ“¸', 'success');
                 };
                 reader.readAsDataURL(file);
             }
@@ -304,7 +304,7 @@
         function copyUserId() {
             const userIdCode = document.getElementById('userIdCode').textContent;
             navigator.clipboard.writeText(userIdCode).then(() => {
-                showToast('User ID copied to clipboard! 📋', 'success');
+                showToast('User ID copied to clipboard! ðŸ“‹', 'success');
             }).catch(() => {
                 showToast('Failed to copy. Please try again.', 'error');
             });
@@ -323,7 +323,7 @@
                 }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(shareText).then(() => {
-                    showToast('Profile link copied to clipboard! 🔗', 'success');
+                    showToast('Profile link copied to clipboard! ðŸ”—', 'success');
                 });
             }
         }
@@ -348,7 +348,7 @@
             document.getElementById('userBio').textContent = newBio;
             
             // TODO: Save to server
-            showToast('Profile updated successfully! ✨', 'success');
+            showToast('Profile updated successfully! âœ¨', 'success');
             closeEditProfileModal();
         }
 

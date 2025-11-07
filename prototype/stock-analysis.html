@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,11 +6,11 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Specific Stock Analysis · Investing101</title>
+  <title>Specific Stock Analysis Â· Investing101</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
   <script>
     (function(){
@@ -32,16 +32,16 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
-    <header class="app__header">
-      <a class="link-button" href="index.html">← Main</a>
+  <div class="flex min-h-screen flex-col">
+    <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+      <a class="link-button" href="index.html">â† Main</a>
       <span>Specific Stock Analysis</span>
       <span class="chip">AI powered</span>
     </header>
 
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
       <section class="screen screen--active" aria-label="Stock analysis tool">
         <form class="card" id="analysisForm">
           <div class="grid grid--two">
@@ -90,14 +90,14 @@
         <div class="card" id="categoryStocksDisplay" style="display:none; max-height:250px; overflow-y:auto;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <h4 style="margin:0; font-size:0.9rem;" id="categoryTitle">Loading...</h4>
-            <button onclick="document.getElementById('categoryStocksDisplay').style.display='none'" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:#6b7280;">✕</button>
+            <button onclick="document.getElementById('categoryStocksDisplay').style.display='none'" style="background:none; border:none; font-size:1.1rem; cursor:pointer; color:#6b7280;">âœ•</button>
           </div>
           <div id="categoryStocksList"></div>
         </div>
 
         <article class="card" id="analysisOutput" aria-live="polite">
           <p style="text-align:center; padding:20px; color:#6b7280;">
-            🔍 Enter a ticker above or select a category<br>
+            ðŸ” Enter a ticker above or select a category<br>
             <span style="font-size:0.85rem; margin-top:6px; display:block; opacity:0.8;">Try: AAPL, MSFT, GOOGL, TSLA, JPM</span>
           </p>
         </article>
@@ -105,7 +105,7 @@
         <!-- Collapsible "How it works" section -->
         <details class="card" style="cursor:pointer;">
           <summary style="font-weight:600; font-size:0.9rem; padding:4px 0; user-select:none;">
-            ℹ️ How it works
+            â„¹ï¸ How it works
           </summary>
           <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e5e7eb;">
             <div style="display:grid; gap:12px;">
@@ -163,7 +163,7 @@
       document.documentElement.style.setProperty('--device-type', `"${deviceType}"`);
       
       // Log device info (helpful for debugging)
-      console.log(`📱 Device: ${deviceType} | Width: ${width}px | User Agent: ${isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'}`);
+      console.log(`ðŸ“± Device: ${deviceType} | Width: ${width}px | User Agent: ${isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'}`);
       
       return { deviceType, width, isMobile, isTablet, isDesktop };
     };
@@ -372,7 +372,7 @@
         console.error('Error fetching stock:', error);
         container.innerHTML = `
           <div class="card" style="background:#f8d7da; border-color:#f5c6cb; color:#721c24; padding:20px;">
-            <h3>⚠️ Unable to Load Stock Data</h3>
+            <h3>âš ï¸ Unable to Load Stock Data</h3>
             <p><strong>${ticker.toUpperCase()}</strong> could not be found or the API is unavailable.</p>
             <p style="margin-top:10px;">Please verify:</p>
             <ul style="margin-left:20px;">
@@ -389,43 +389,43 @@
     // Stock category definitions
     const STOCK_CATEGORIES = {
       'top10': {
-        title: '🏆 Top 10 Stocks by Market Cap',
+        title: 'ðŸ† Top 10 Stocks by Market Cap',
         tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'LLY', 'V']
       },
       'top100': {
-        title: '📈 Top 100 Stocks',
+        title: 'ðŸ“ˆ Top 100 Stocks',
         tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'LLY', 'V', 'UNH', 'JPM', 'XOM', 'JNJ', 'WMT', 'MA', 'PG', 'AVGO', 'HD', 'ORCL', 'CVX', 'ABBV', 'MRK', 'KO', 'COST', 'PEP', 'BAC', 'ADBE', 'CRM', 'TMO', 'NFLX', 'MCD', 'ACN', 'CSCO', 'LIN', 'AMD', 'CMCSA', 'ABT', 'NKE', 'DHR', 'WFC', 'TXN', 'INTC', 'DIS', 'VZ', 'PM', 'NEE', 'INTU', 'UPS', 'RTX']
       },
       'fast-riser': {
-        title: '🚀 Fast Rising Stocks',
+        title: 'ðŸš€ Fast Rising Stocks',
         tickers: ['NVDA', 'AMD', 'TSLA', 'META', 'COIN', 'SNOW', 'CRWD', 'PANW', 'NOW', 'DKNG', 'RIVN', 'ABNB', 'DASH', 'SHOP', 'SPOT', 'SQ', 'PLTR', 'RBLX', 'NET', 'DDOG']
       },
       'stable': {
-        title: '🛡️ Stable Blue Chip Stocks',
+        title: 'ðŸ›¡ï¸ Stable Blue Chip Stocks',
         tickers: ['AAPL', 'MSFT', 'JNJ', 'PG', 'KO', 'PEP', 'WMT', 'COST', 'MCD', 'HD', 'LOW', 'TGT', 'UNH', 'CVS', 'ABT', 'TMO', 'NEE', 'DUK', 'SO', 'AEP']
       },
       'dividend': {
-        title: '💰 High Dividend Yield Stocks',
+        title: 'ðŸ’° High Dividend Yield Stocks',
         tickers: ['T', 'VZ', 'XOM', 'CVX', 'PM', 'MO', 'KO', 'PEP', 'JNJ', 'PG', 'ABT', 'MMM', 'IBM', 'INTC', 'KMB', 'GIS', 'K', 'CAG', 'D', 'SO']
       },
       'tech': {
-        title: '💻 Technology Sector',
+        title: 'ðŸ’» Technology Sector',
         tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'ORCL', 'ADBE', 'CRM', 'NFLX', 'CSCO', 'INTC', 'AMD', 'QCOM', 'IBM', 'NOW', 'INTU', 'AVGO', 'TXN', 'PANW', 'CRWD', 'SNOW', 'DDOG', 'NET']
       },
       'finance': {
-        title: '🏦 Financial Sector',
+        title: 'ðŸ¦ Financial Sector',
         tickers: ['JPM', 'BAC', 'WFC', 'C', 'GS', 'MS', 'BLK', 'SCHW', 'AXP', 'USB', 'PNC', 'TFC', 'BK', 'STT', 'NTRS', 'COF', 'DFS', 'SYF', 'AIG', 'MET', 'PRU', 'ALL', 'TRV']
       },
       'healthcare': {
-        title: '⚕️ Healthcare Sector',
+        title: 'âš•ï¸ Healthcare Sector',
         tickers: ['JNJ', 'UNH', 'LLY', 'ABBV', 'MRK', 'TMO', 'ABT', 'DHR', 'BMY', 'AMGN', 'GILD', 'CVS', 'CI', 'HUM', 'ISRG', 'VRTX', 'REGN', 'ZTS', 'BSX', 'MDT', 'SYK', 'BDX', 'ELV']
       },
       'energy': {
-        title: '⚡ Energy Sector',
+        title: 'âš¡ Energy Sector',
         tickers: ['XOM', 'CVX', 'COP', 'SLB', 'EOG', 'PSX', 'VLO', 'MPC', 'OKE', 'WMB', 'KMI', 'HAL', 'DVN', 'FANG', 'HES', 'APA', 'MRO', 'OXY', 'BKR', 'NOV']
       },
       'consumer': {
-        title: '🛒 Consumer Goods',
+        title: 'ðŸ›’ Consumer Goods',
         tickers: ['WMT', 'COST', 'HD', 'LOW', 'TGT', 'TJX', 'ROST', 'NKE', 'SBUX', 'MCD', 'CMG', 'YUM', 'PG', 'KO', 'PEP', 'MDLZ', 'KHC', 'GIS', 'K', 'CAG']
       }
     };
@@ -614,10 +614,10 @@
 
       const profileNote =
         profile === 'conservative'
-          ? '🛡️ <strong>Conservative Strategy:</strong> Position sizing recommendation: starter weight with protective stop below 200dma. Focus on capital preservation with gradual accumulation on weakness.'
+          ? 'ðŸ›¡ï¸ <strong>Conservative Strategy:</strong> Position sizing recommendation: starter weight with protective stop below 200dma. Focus on capital preservation with gradual accumulation on weakness.'
           : profile === 'aggressive'
-          ? '🚀 <strong>Aggressive Strategy:</strong> Position sizing recommendation: full weight with tactical adds on pullbacks; consider call spreads for leverage. Capitalize on momentum with active management.'
-          : '⚖️ <strong>Balanced Strategy:</strong> Position sizing recommendation: maintain core allocation with optional overwrites to harvest premium. Blend growth and stability.';
+          ? 'ðŸš€ <strong>Aggressive Strategy:</strong> Position sizing recommendation: full weight with tactical adds on pullbacks; consider call spreads for leverage. Capitalize on momentum with active management.'
+          : 'âš–ï¸ <strong>Balanced Strategy:</strong> Position sizing recommendation: maintain core allocation with optional overwrites to harvest premium. Blend growth and stability.';
 
       // Enhanced viability badge with color coding
       const viabilityColor = record.viability === 'A' ? '#10b981' : 
@@ -642,7 +642,7 @@
           <p style="font-size:0.9rem; line-height:1.5; margin:0;">${record.outlook}</p>
           <details style="margin-top:10px;">
             <summary style="font-size:0.8rem; color:#1e40af; cursor:pointer; user-select:none; list-style:none; display:flex; align-items:center; gap:4px;">
-              <span style="font-size:0.7rem;">▶</span> ${profile.charAt(0).toUpperCase() + profile.slice(1)} Strategy Tips
+              <span style="font-size:0.7rem;">â–¶</span> ${profile.charAt(0).toUpperCase() + profile.slice(1)} Strategy Tips
             </summary>
             <p style="margin:8px 0 0 12px; font-style:italic; color:#1e40af; font-size:0.8rem; line-height:1.4;">${profileNote.replace(/^.*?<strong>.*?<\/strong>\s*/, '')}</p>
           </details>
@@ -653,24 +653,24 @@
           <!-- Sidebar Navigation (Desktop Only) -->
           <nav class="analysis-sidebar">
             <button class="sidebar-btn sidebar-btn--active" onclick="switchTab('overview')">
-              <span class="sidebar-btn__icon">📊</span>
+              <span class="sidebar-btn__icon">ðŸ“Š</span>
               <span class="sidebar-btn__text">Overview</span>
             </button>
             <button class="sidebar-btn" onclick="switchTab('fundamentals')">
-              <span class="sidebar-btn__icon">💼</span>
+              <span class="sidebar-btn__icon">ðŸ’¼</span>
               <span class="sidebar-btn__text">Fundamentals</span>
             </button>
             <button class="sidebar-btn" onclick="switchTab('sentiment')">
-              <span class="sidebar-btn__icon">📈</span>
+              <span class="sidebar-btn__icon">ðŸ“ˆ</span>
               <span class="sidebar-btn__text">Sentiment</span>
             </button>
             <button class="sidebar-btn" onclick="switchTab('risk')">
-              <span class="sidebar-btn__icon">⚠️</span>
+              <span class="sidebar-btn__icon">âš ï¸</span>
               <span class="sidebar-btn__text">Risk</span>
             </button>
             ${record.news.length > 0 ? `
               <button class="sidebar-btn" onclick="switchTab('news')">
-                <span class="sidebar-btn__icon">📰</span>
+                <span class="sidebar-btn__icon">ðŸ“°</span>
                 <span class="sidebar-btn__text">News</span>
               </button>
             ` : ''}
@@ -713,8 +713,8 @@
               <article style="margin-bottom:12px; padding:12px; background:white; border:1px solid #e5e7eb; border-radius:8px;">
                 <h3 style="margin:0 0 10px 0; font-size:1rem;">Valuation Snapshot</h3>
                 <p style="font-size:0.9rem; margin-bottom:10px;">
-                  Current: <strong>${formatCurrency(record.valuation.price)}</strong> · 
-                  Target: <strong>${formatCurrency(record.valuation.target)}</strong> · 
+                  Current: <strong>${formatCurrency(record.valuation.price)}</strong> Â· 
+                  Target: <strong>${formatCurrency(record.valuation.target)}</strong> Â· 
                   Upside: <strong style="color:#10b981;">${record.valuation.upside}</strong>
                 </p>
                 <div class="summary-grid">
@@ -745,8 +745,8 @@
                 <h3 style="margin:0 0 12px 0; font-size:1rem;">Fundamentals Dashboard</h3>
                 ${renderFundamentals(record.fundamentals)}
                 ${record.cached ? 
-                  '<p style="margin-top:10px; color:#6b7280; font-size:0.8rem;">📦 Data from cache</p>' : 
-                  '<p style="margin-top:10px; color:#10b981; font-size:0.8rem;">✨ Live data</p>'
+                  '<p style="margin-top:10px; color:#6b7280; font-size:0.8rem;">ðŸ“¦ Data from cache</p>' : 
+                  '<p style="margin-top:10px; color:#10b981; font-size:0.8rem;">âœ¨ Live data</p>'
                 }
               </article>
             </div>
@@ -774,7 +774,7 @@
             ${record.news.length > 0 ? `
               <div id="news-tab" class="tab-content" style="display:none;">
                 <article style="padding:20px; background:white; border:1px solid #e5e7eb; border-radius:12px;">
-                  <h3 style="margin:0 0 16px 0;">📰 Recent Coverage (${record.news.length} articles)</h3>
+                  <h3 style="margin:0 0 16px 0;">ðŸ“° Recent Coverage (${record.news.length} articles)</h3>
                   <div class="grid">${renderNews(record.news)}</div>
                 </article>
               </div>
@@ -785,7 +785,7 @@
 
         <div class="card" style="margin-top:20px; background:#f9fafb; border:2px dashed #d1d5db;">
           <p style="text-align:center; color:#6b7280; font-style:italic; margin:0;">
-            💡 <strong>Note:</strong> This analysis combines real-time market data from Yahoo Finance with ${record.articlesAnalyzed || 50}+ articles. 
+            ðŸ’¡ <strong>Note:</strong> This analysis combines real-time market data from Yahoo Finance with ${record.articlesAnalyzed || 50}+ articles. 
             Scores are calculated based on price momentum, market cap, volatility, and ${profile} investor profile preferences.
           </p>
         </div>
@@ -814,8 +814,8 @@
     });
   </script>
 
-  <nav class="tabbar" aria-label="Primary navigation">
-    <a class="tabbar__btn tabbar__btn--active" href="index.html">
+  <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="index.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 10.5L12 3l9 7.5" />
         <path d="M5 10.5V21h14V10.5" />
@@ -823,7 +823,7 @@
       </svg>
       <span>Main</span>
     </a>
-    <a class="tabbar__btn" href="simulator.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="simulator.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <circle cx="12" cy="12" r="3" />
@@ -834,7 +834,7 @@
       </svg>
       <span>Sim/AI</span>
     </a>
-    <a class="tabbar__btn" href="lessons.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
         <path d="M4 12l8 3 8-3" />
@@ -842,7 +842,7 @@
       </svg>
       <span>Lessons</span>
     </a>
-    <a class="tabbar__btn" href="calculators.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M7 8h10" />
@@ -852,7 +852,7 @@
       </svg>
       <span>Calc</span>
     </a>
-    <a class="tabbar__btn" href="profile.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="8" r="4" />
         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -862,5 +862,6 @@
   </nav>
 </body>
 </html>
+
 
 

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lessons</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script>
     (function(){
       try {
@@ -25,9 +25,9 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
+  <div class="flex min-h-screen flex-col">
     <!-- Desktop Sidebar Navigation (visible on desktop only) -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo" aria-label="Return to main page" style="text-decoration: none;">
@@ -109,10 +109,10 @@
       <section class="lessons-grid" aria-label="Lesson tracks">
         <a href="lesson-foundations.html" class="lesson-card lesson-card--foundations">
           <header>
-            <span class="lesson-icon">📚</span>
+            <span class="lesson-icon">ðŸ“š</span>
             <div>
               <h2>Foundations</h2>
-              <p>Start at level zero—mindset, money habits, and compounding power-ups.</p>
+              <p>Start at level zeroâ€”mindset, money habits, and compounding power-ups.</p>
             </div>
           </header>
           <ul>
@@ -120,12 +120,12 @@
             <li>Animated explainers for risk, reward, and diversification.</li>
             <li>Checkpoint quizzes with instant feedback.</li>
           </ul>
-          <span class="lesson-card__cta">Resume track →</span>
+          <span class="lesson-card__cta">Resume track â†’</span>
         </a>
 
         <a href="lesson-instruments.html" class="lesson-card lesson-card--instruments">
           <header>
-            <span class="lesson-icon">🔧</span>
+            <span class="lesson-icon">ðŸ”§</span>
             <div>
               <h2>Instruments & Accounts</h2>
               <p>Learn how IRAs, 401(k)s, ETFs, and options unlock flexibility.</p>
@@ -134,14 +134,14 @@
           <ul>
             <li>Account comparison builder.</li>
             <li>Interactive trade ticket walkthroughs.</li>
-            <li>“What would you do?” scenario polls.</li>
+            <li>â€œWhat would you do?â€ scenario polls.</li>
           </ul>
-          <span class="lesson-card__cta">Explore toolkit →</span>
+          <span class="lesson-card__cta">Explore toolkit â†’</span>
         </a>
 
         <a href="lesson-practical.html" class="lesson-card lesson-card--practical">
           <header>
-            <span class="lesson-icon">💼</span>
+            <span class="lesson-icon">ðŸ’¼</span>
             <div>
               <h2>Practical Investing</h2>
               <p>Portfolio rules, rebalance windows, and tax-aware execution.</p>
@@ -152,23 +152,23 @@
             <li>Playbook templates for momentum, value, and income.</li>
             <li>Community challenges to swap strategies.</li>
           </ul>
-          <span class="lesson-card__cta">Open lab →</span>
+          <span class="lesson-card__cta">Open lab â†’</span>
         </a>
 
         <a href="lesson-market.html" class="lesson-card lesson-card--market">
           <header>
-            <span class="lesson-icon">📊</span>
+            <span class="lesson-icon">ðŸ“Š</span>
             <div>
               <h2>Market Understanding</h2>
-              <p>Decode macro signals, global flows, and sentiment so you’re never surprised.</p>
+              <p>Decode macro signals, global flows, and sentiment so youâ€™re never surprised.</p>
             </div>
           </header>
           <ul>
             <li>Interactive yield curve visualizer.</li>
             <li>Macro bingo that links news to action.</li>
-            <li>Weekly “what changed?” recaps.</li>
+            <li>Weekly â€œwhat changed?â€ recaps.</li>
           </ul>
-          <span class="lesson-card__cta">Study the market →</span>
+          <span class="lesson-card__cta">Study the market â†’</span>
         </a>
       </section>
 
@@ -177,17 +177,17 @@
           <h3>Progress map</h3>
           <div class="progress-track">
             <div class="progress-track__node is-complete">
-              <span>✅</span>
+              <span>âœ…</span>
               <strong>Primer complete</strong>
               <small>5 quests done</small>
             </div>
             <div class="progress-track__node is-active">
-              <span>🚀</span>
+              <span>ðŸš€</span>
               <strong>Live drills</strong>
               <small>2 of 6 complete</small>
             </div>
             <div class="progress-track__node">
-              <span>🎓</span>
+              <span>ðŸŽ“</span>
               <strong>Certification</strong>
               <small>Unlocks when drills finish</small>
             </div>
@@ -196,14 +196,14 @@
         <article class="lesson-extra">
           <h3>Community spotlights</h3>
           <ul class="spotlight-feed">
-            <li><strong>@Alyssa</strong> built a risk-adjusted 401(k) allocation—downloaded 240 times.</li>
+            <li><strong>@Alyssa</strong> built a risk-adjusted 401(k) allocationâ€”downloaded 240 times.</li>
             <li><strong>@KJ</strong> shared an earnings-season checklist with audio summaries.</li>
             <li><strong>@Mina</strong> reached 100% streak on macro flash cards.</li>
           </ul>
         </article>
         <article class="lesson-extra lesson-extra--cta">
           <h3>Suggest a lesson</h3>
-          <p>Have a topic you’d love to see? Tell the curriculum team and we’ll add it to the roadmap.</p>
+          <p>Have a topic youâ€™d love to see? Tell the curriculum team and weâ€™ll add it to the roadmap.</p>
           <button type="button" id="submitIdeaBtn">Submit idea</button>
         </article>
       </section>
@@ -247,8 +247,8 @@
       </div>
     </main>
 
-    <nav class="tabbar" aria-label="Primary navigation">
-      <a class="tabbar__btn" href="index.html">
+    <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="index.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M3 10.5L12 3l9 7.5" />
           <path d="M5 10.5V21h14V10.5" />
@@ -256,7 +256,7 @@
         </svg>
         <span>Main</span>
       </a>
-      <a class="tabbar__btn" href="simulator.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="simulator.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="9" />
           <circle cx="12" cy="12" r="3" />
@@ -267,7 +267,7 @@
         </svg>
         <span>Sim/AI</span>
       </a>
-      <a class="tabbar__btn tabbar__btn--active" href="lessons.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="lessons.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
           <path d="M4 12l8 3 8-3" />
@@ -275,7 +275,7 @@
         </svg>
         <span>Lessons</span>
       </a>
-      <a class="tabbar__btn" href="calculators.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="4" width="18" height="16" rx="2" />
           <path d="M7 8h10" />
@@ -285,7 +285,7 @@
         </svg>
         <span>Calc</span>
       </a>
-      <a class="tabbar__btn" href="profile.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="12" cy="8" r="4" />
           <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -523,3 +523,4 @@
   </style>
 </body>
 </html>
+

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Market Simulator - Investing101</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
     // Theme initialization (must run before body renders)
@@ -439,10 +439,10 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
   
-  <div class="app">
+  <div class="flex min-h-screen flex-col">
     <!-- Sidebar -->
     <aside class="sidebar">
       <a href="index.html" class="sidebar__logo">
@@ -495,7 +495,7 @@
     <!-- Fixed Header -->
     <header class="sim-header">
       <div class="sim-header-top">
-        <h1 class="sim-title">📈 Market Simulator</h1>
+        <h1 class="sim-title">ðŸ“ˆ Market Simulator</h1>
       </div>
       <div class="portfolio-stats">
         <div class="stat-item">
@@ -552,7 +552,7 @@
       <div class="trading-grid">
         <!-- Positions -->
         <div class="positions-card">
-          <h2 class="card-title">📊 My Positions</h2>
+          <h2 class="card-title">ðŸ“Š My Positions</h2>
           <div id="positionsContainer">
             <p style="text-align: center; color: var(--text-muted); padding: 40px;">
               No positions yet. Start trading to build your portfolio!
@@ -562,7 +562,7 @@
 
         <!-- Trade Panel -->
         <div class="trade-card">
-          <h2 class="card-title">🔍 Trade Stocks</h2>
+          <h2 class="card-title">ðŸ” Trade Stocks</h2>
           
           <div class="search-box">
             <input 
@@ -1045,3 +1045,4 @@
   </script>
 </body>
 </html>
+

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Profile - Investing101</title>
-  <link rel="stylesheet" href="shared-ui.css">
+  <link rel="stylesheet" href="dist/main.css">
   <style>
     * {
       margin: 0;
@@ -320,7 +320,7 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <div class="profile-container">
     <div id="alertContainer"></div>
     <div id="profileContent" class="loading">
@@ -330,7 +330,7 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="btn btn-secondary" onclick="window.location.href='/'">← Home</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/'">â† Home</button>
       <button class="btn btn-secondary" onclick="window.location.href='/trading.html'">Trade Stocks</button>
       <button class="btn btn-secondary" onclick="window.location.href='/leaderboard.html'">Leaderboard</button>
     </div>
@@ -452,7 +452,7 @@
       document.getElementById('profileContent').innerHTML = `
         <div class="card">
           <div class="private-profile">
-            <div class="private-icon">🔒</div>
+            <div class="private-icon">ðŸ”’</div>
             <h2>Private Profile</h2>
             <p style="margin-top: 10px;">This user has chosen to keep their profile private.</p>
           </div>
@@ -464,7 +464,7 @@
       document.getElementById('profileContent').innerHTML = `
         <div class="card">
           <div class="empty-state">
-            <div class="empty-state-icon">⚠️</div>
+            <div class="empty-state-icon">âš ï¸</div>
             <h2>${message}</h2>
             <button class="btn btn-secondary" style="margin-top: 20px;" onclick="window.location.href='/leaderboard.html'">Go to Leaderboard</button>
           </div>
@@ -544,3 +544,4 @@
   </script>
 </body>
 </html>
+

@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboards - Investment Playground</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="profile-styles.css">
+    <link rel="stylesheet" href="dist/main.css">
+    <link rel="stylesheet" href="dist/main.css">
     <script>
       // Theme initialization
       (function() {
@@ -342,7 +342,7 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar__header">
@@ -363,68 +363,68 @@
 
         <nav class="sidebar__nav">
             <a href="index.html" class="sidebar__link">
-                <span class="sidebar__icon">📊</span>
+                <span class="sidebar__icon">ðŸ“Š</span>
                 <span class="sidebar__text">Dashboard</span>
             </a>
             <a href="lessons.html" class="sidebar__link">
-                <span class="sidebar__icon">📚</span>
+                <span class="sidebar__icon">ðŸ“š</span>
                 <span class="sidebar__text">Lessons</span>
             </a>
             <a href="calculators.html" class="sidebar__link">
-                <span class="sidebar__icon">🧮</span>
+                <span class="sidebar__icon">ðŸ§®</span>
                 <span class="sidebar__text">Calculators</span>
             </a>
             <a href="simulator.html" class="sidebar__link">
-                <span class="sidebar__icon">💹</span>
+                <span class="sidebar__icon">ðŸ’¹</span>
                 <span class="sidebar__text">Simulator</span>
             </a>
             <a href="profile.html" class="sidebar__link">
-                <span class="sidebar__icon">👤</span>
+                <span class="sidebar__icon">ðŸ‘¤</span>
                 <span class="sidebar__text">Profile</span>
             </a>
             <a href="compare-portfolios.html" class="sidebar__link">
-                <span class="sidebar__icon">📈</span>
+                <span class="sidebar__icon">ðŸ“ˆ</span>
                 <span class="sidebar__text">Compare</span>
             </a>
             <a href="leaderboards.html" class="sidebar__link sidebar__link--active">
-                <span class="sidebar__icon">🏆</span>
+                <span class="sidebar__icon">ðŸ†</span>
                 <span class="sidebar__text">Leaderboards</span>
             </a>
             <a href="activity-feed.html" class="sidebar__link">
-                <span class="sidebar__icon">🌊</span>
+                <span class="sidebar__icon">ðŸŒŠ</span>
                 <span class="sidebar__text">Activity</span>
             </a>
             <a href="notifications.html" class="sidebar__link">
-                <span class="sidebar__icon">🔔</span>
+                <span class="sidebar__icon">ðŸ””</span>
                 <span class="sidebar__text">Notifications</span>
             </a>
             <a href="achievements.html" class="sidebar__link">
-                <span class="sidebar__icon">🏅</span>
+                <span class="sidebar__icon">ðŸ…</span>
                 <span class="sidebar__text">Achievements</span>
             </a>
         </nav>
     </aside>
 
     <!-- Main Content -->
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
         <div class="leaderboard-header">
-            <h1>🏆 Leaderboards</h1>
+            <h1>ðŸ† Leaderboards</h1>
             <p style="color: var(--text-muted); margin: 8px 0 0;">Compete with friends and climb the ranks!</p>
         </div>
 
         <!-- Category Tabs -->
         <div class="leaderboard-tabs">
             <button class="leaderboard-tab active" onclick="switchLeaderboard('portfolio')">
-                💰 Portfolio Value
+                ðŸ’° Portfolio Value
             </button>
             <button class="leaderboard-tab" onclick="switchLeaderboard('returns')">
-                📈 Best Returns
+                ðŸ“ˆ Best Returns
             </button>
             <button class="leaderboard-tab" onclick="switchLeaderboard('lessons')">
-                📚 Lessons Completed
+                ðŸ“š Lessons Completed
             </button>
             <button class="leaderboard-tab" onclick="switchLeaderboard('streak')">
-                🔥 Learning Streak
+                ðŸ”¥ Learning Streak
             </button>
         </div>
 

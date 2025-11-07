@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Compound Interest Calculator</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
   <script>
     (function(){
@@ -26,15 +26,15 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
-    <header class="app__header">
-      <a class="link-button" href="calc-core.html">← Back to CORE</a>
+  <div class="flex min-h-screen flex-col">
+    <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+      <a class="link-button" href="calc-core.html">â† Back to CORE</a>
       <span>Compound Interest</span>
       <span></span>
     </header>
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
       <section class="card">
         <h2>Compound Interest Calculator</h2>
         <p>Calculate how your investment grows over time with compound interest.</p>
@@ -100,24 +100,24 @@
       </section>
     </main>
 
-    <nav class="tabbar" aria-label="Primary navigation">
-      <a class="tabbar__btn" href="index.html">
+    <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="index.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-home"></use></svg>
         <span>Main</span>
       </a>
-      <a class="tabbar__btn" href="simulator.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="simulator.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-sim"></use></svg>
         <span>Sim/AI</span>
       </a>
-      <a class="tabbar__btn" href="lessons.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-lessons"></use></svg>
         <span>Lessons</span>
       </a>
-      <a class="tabbar__btn tabbar__btn--active" href="calculators.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="calculators.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-calc"></use></svg>
         <span>Calc</span>
       </a>
-      <a class="tabbar__btn" href="profile.html">
+      <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
         <svg class="icon icon--tab" viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-profile"></use></svg>
         <span>Profile</span>
       </a>
@@ -164,4 +164,5 @@
   </script>
 </body>
 </html>
+
 

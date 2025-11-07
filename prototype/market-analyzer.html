@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Market Analyzer · Investing101</title>
+  <title>Market Analyzer Â· Investing101</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dist/main.css">
   <script src="device-detection.js"></script>
   <script>
     (function(){
@@ -29,11 +29,11 @@
     })();
   </script>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <script src="global-ui.js"></script>
-  <div class="app">
-    <header class="app__header">
-      <a class="link-button" href="index.html">← Main</a>
+  <div class="flex min-h-screen flex-col">
+    <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
+      <a class="link-button" href="index.html">â† Main</a>
       <span>Market Analyzer</span>
       <button class="icon-button" type="button" aria-label="Refresh insights" id="refreshButton">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -45,7 +45,7 @@
       </button>
     </header>
 
-    <main class="app__content">
+    <main class="flex-1 overflow-auto">
       <section class="screen screen--active" aria-label="Market analyzer overview">
         <div class="card card--summary">
           <h3>Holistic Market Pulse</h3>
@@ -278,7 +278,7 @@
               { name: 'Healthcare', change: 1.3 },
               { name: 'Telecom', change: 0.4 }
             ],
-            signals: ['ECB balance sheet shrinking £25B/mo', 'Japanese equities in 12w uptrend', 'UK fiscal policy remains tight']
+            signals: ['ECB balance sheet shrinking Â£25B/mo', 'Japanese equities in 12w uptrend', 'UK fiscal policy remains tight']
           },
           '30D': {
             growth: 2.6,
@@ -671,8 +671,8 @@
     renderRange(currentRange);
   </script>
 
-  <nav class="tabbar" aria-label="Primary navigation">
-    <a class="tabbar__btn tabbar__btn--active" href="index.html">
+  <nav class="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900" aria-label="Primary navigation">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green tabbar__btn--active" href="index.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M3 10.5L12 3l9 7.5" />
         <path d="M5 10.5V21h14V10.5" />
@@ -680,7 +680,7 @@
       </svg>
       <span>Main</span>
     </a>
-    <a class="tabbar__btn" href="simulator.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="simulator.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="12" r="9" />
         <circle cx="12" cy="12" r="3" />
@@ -691,7 +691,7 @@
       </svg>
       <span>Sim/AI</span>
     </a>
-    <a class="tabbar__btn" href="lessons.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="lessons.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M4 19V5l8-3 8 3v14l-8 3-8-3z" />
         <path d="M4 12l8 3 8-3" />
@@ -699,7 +699,7 @@
       </svg>
       <span>Lessons</span>
     </a>
-    <a class="tabbar__btn" href="calculators.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="calculators.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="3" y="4" width="18" height="16" rx="2" />
         <path d="M7 8h10" />
@@ -709,7 +709,7 @@
       </svg>
       <span>Calc</span>
     </a>
-    <a class="tabbar__btn" href="profile.html">
+    <a class="flex-1 flex flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-primary-green dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-primary-green" href="profile.html">
       <svg class="icon icon--tab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="12" cy="8" r="4" />
         <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
@@ -719,5 +719,6 @@
   </nav>
 </body>
 </html>
+
 
 

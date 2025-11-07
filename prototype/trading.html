@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stock Trading - Investing101</title>
-  <link rel="stylesheet" href="shared-ui.css">
+  <link rel="stylesheet" href="dist/main.css">
   <style>
     * {
       margin: 0;
@@ -428,11 +428,11 @@
     }
   </style>
 </head>
-<body>
+<body class="bg-white dark:bg-slate-950">
   <div class="trading-container">
     <!-- Header -->
     <div class="header">
-      <h1>📈 Stock Market Simulator</h1>
+      <h1>ðŸ“ˆ Stock Market Simulator</h1>
       <p>Practice trading with real market data - $100,000 virtual cash</p>
       
       <div class="portfolio-stats">
@@ -466,13 +466,13 @@
       <!-- Left: Positions -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h2 class="card-title">📊 My Positions</h2>
-          <button class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.9em;" onclick="refreshPortfolio()">↻ Refresh</button>
+          <h2 class="card-title">ðŸ“Š My Positions</h2>
+          <button class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 0.9em;" onclick="refreshPortfolio()">â†» Refresh</button>
         </div>
         
         <div id="positionsContainer">
           <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
+            <div class="empty-state-icon">ðŸ“Š</div>
             <p>No positions yet. Start trading to build your portfolio!</p>
           </div>
         </div>
@@ -481,7 +481,7 @@
       <!-- Right: Trading Panel -->
       <div>
         <div class="card">
-          <h2 class="card-title">🔍 Trade Stocks</h2>
+          <h2 class="card-title">ðŸ” Trade Stocks</h2>
           
           <div class="search-box">
             <input 
@@ -490,7 +490,7 @@
               placeholder="Search stocks (e.g., AAPL, TSLA, MSFT)"
               autocomplete="off"
             >
-            <span class="search-icon">🔍</span>
+            <span class="search-icon">ðŸ”</span>
           </div>
           <div class="search-results" id="searchResults"></div>
 
@@ -548,7 +548,7 @@
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button class="btn btn-secondary" onclick="window.location.href='/'">← Home</button>
+      <button class="btn btn-secondary" onclick="window.location.href='/'">â† Home</button>
       <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">Profile</button>
       <button class="btn btn-secondary" onclick="window.location.href='/leaderboard.html'">Leaderboard</button>
     </div>
@@ -609,7 +609,7 @@
       if (currentPortfolio.positions.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
+            <div class="empty-state-icon">ðŸ“Š</div>
             <p>No positions yet. Start trading!</p>
           </div>
         `;
@@ -843,3 +843,4 @@
   </script>
 </body>
 </html>
+
