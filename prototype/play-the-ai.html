@@ -418,15 +418,15 @@
     </aside>
 
     <header class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900">
-      <button class="btn btn--secondary" onclick="showSetup()">âš™ï¸ New Game</button>
+      <button class="btn btn--secondary" onclick="showSetup()"><span class="icon" data-icon="gear"></span> New Game</button>
       <span>Play the AI</span>
-      <button class="btn btn--secondary" onclick="window.location.href='market-simulator-new.html'">ðŸ“Š Market Simulator</button>
+      <button class="btn btn--secondary" onclick="window.location.href='market-simulator-new.html'"><span class="icon" data-icon="stats"></span> Market Simulator</button>
     </header>
 
     <main class="flex-1 overflow-auto">
       <!-- Setup Screen -->
       <div id="setupScreen" class="ai-setup-screen">
-        <h1>ðŸŽ¯ Challenge the AI</h1>
+        <h1> Challenge the AI</h1>
         <p>
           Test your trading skills against an AI opponent using real historical market data. 
           Choose your difficulty, select a time period, and see who can generate better returns!
@@ -436,17 +436,17 @@
           <label class="setup-label">AI Difficulty</label>
           <div class="difficulty-grid">
             <div class="difficulty-btn" data-difficulty="easy" onclick="selectDifficulty('easy')">
-              <div class="difficulty-icon">ðŸŸ¢</div>
+              <div class="difficulty-icon"><span class="icon" data-icon="status-good"></span></div>
               <div class="difficulty-name">Easy</div>
               <div class="difficulty-desc">Random trades, beginner strategy</div>
             </div>
             <div class="difficulty-btn selected" data-difficulty="medium" onclick="selectDifficulty('medium')">
-              <div class="difficulty-icon">ðŸŸ¡</div>
+              <div class="difficulty-icon">🟡</div>
               <div class="difficulty-name">Medium</div>
               <div class="difficulty-desc">Balanced approach, trend following</div>
             </div>
             <div class="difficulty-btn" data-difficulty="hard" onclick="selectDifficulty('hard')">
-              <div class="difficulty-icon">ðŸ”´</div>
+              <div class="difficulty-icon"><span class="icon" data-icon="journal"></span></div>
               <div class="difficulty-name">Hard</div>
               <div class="difficulty-desc">Advanced algorithms, optimal timing</div>
             </div>
@@ -476,7 +476,7 @@
         </div>
 
         <button class="start-game-btn" onclick="startGame()">
-          Start Game â†’
+          Start Game →
         </button>
       </div>
 
@@ -503,7 +503,7 @@
         <div class="game-main">
           <div class="game-controls">
             <div class="speed-controls">
-              <button class="speed-btn" data-speed="paused" onclick="setSpeed('paused')">â¸ï¸ Pause</button>
+              <button class="speed-btn" data-speed="paused" onclick="setSpeed('paused')">⏸️ Pause</button>
               <button class="speed-btn" data-speed="0.5" onclick="setSpeed(0.5)">0.5x</button>
               <button class="speed-btn active" data-speed="1" onclick="setSpeed(1)">1x</button>
               <button class="speed-btn" data-speed="2" onclick="setSpeed(2)">2x</button>
@@ -538,7 +538,7 @@
       <!-- Game Over Screen -->
       <div id="gameOverScreen" class="game-over-screen">
         <div class="game-over-content">
-          <div class="game-over-icon" id="resultIcon">ðŸ†</div>
+          <div class="game-over-icon" id="resultIcon"><span class="icon" data-icon="trophy"></span></div>
           <h2 class="game-over-title" id="resultTitle">You Win!</h2>
           <p id="resultMessage" style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 24px;"></p>
           
@@ -919,7 +919,7 @@
 
       if (type === 'buy') {
         if (gameState.playerCash < cost) {
-          alert('âŒ Insufficient funds!');
+          alert('✖ Insufficient funds!');
           return;
         }
 
@@ -939,11 +939,11 @@
         holding.shares = totalShares;
 
         gameState.tradeCount++;
-        alert(`âœ… Bought ${shares} shares of ${selectedStock}`);
+        alert(`✔ Bought ${shares} shares of ${selectedStock}`);
       } else {
         const holding = gameState.playerHoldings[selectedStock];
         if (!holding || holding.shares < shares) {
-          alert('âŒ Insufficient shares!');
+          alert('✖ Insufficient shares!');
           return;
         }
 
@@ -954,7 +954,7 @@
         }
 
         gameState.tradeCount++;
-        alert(`âœ… Sold ${shares} shares of ${selectedStock}`);
+        alert(`✔ Sold ${shares} shares of ${selectedStock}`);
       }
 
       selectGameStock(selectedStock);
@@ -1075,7 +1075,9 @@
       const aiValue = calculateAIValue();
       const playerWon = playerValue > aiValue;
 
-      document.getElementById('resultIcon').textContent = playerWon ? 'ðŸ†' : 'ðŸ˜”';
+      document.getElementById('resultIcon').innerHTML = playerWon 
+        ? '<span class="icon" data-icon="trophy"></span>' 
+        : '<span class="icon" data-icon="sad"></span>';
       document.getElementById('resultTitle').textContent = playerWon ? 'You Win!' : 'AI Wins!';
       document.getElementById('resultMessage').textContent = playerWon 
         ? `Congratulations! Your portfolio outperformed the AI by $${(playerValue - aiValue).toFixed(2)}`

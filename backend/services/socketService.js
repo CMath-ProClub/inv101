@@ -64,6 +64,21 @@ function initialize(server) {
       socket.on('unsubscribe_leaderboard', (category) => {
         socket.leave(`leaderboard_${category}`);
       });
+      
+      // Trading Battle events
+      socket.on('join_battle', (battleId) => {
+        socket.join(`battle_${battleId}`);
+        console.log(`User ${socket.userId} joined battle ${battleId}`);
+      });
+      
+      socket.on('leave_battle', (battleId) => {
+        socket.leave(`battle_${battleId}`);
+        console.log(`User ${socket.userId} left battle ${battleId}`);
+      });
+      
+      socket.on('battle_ready', (battleId) => {
+        socket.to(`battle_${battleId}`).emit('opponent_ready', { userId: socket.userId });
+      });
     });
     
     // Make io globally available
@@ -126,11 +141,76 @@ function isAvailable() {
   return io !== null;
 }
 
+/**
+ * Emit trade update to battle participants
+ * @param {String} battleId - Battle ID
+ * @param {String} playerId - Player who made the trade
+ * @param {Object} trade - Trade data
+ */
+function emitBattleTrade(battleId, playerId, trade) {
+  if (io) {
+    io.to(`battle_${battleId}`).emit('battle_trade', {
+      playerId,
+      trade,
+      timestamp: new Date()
+    });
+  }
+}
+
+/**
+ * Emit battle status update
+ * @param {String} battleId - Battle ID
+ * @param {Object} update - Battle update data
+ */
+function emitBattleUpdate(battleId, update) {
+  if (io) {
+    io.to(`battle_${battleId}`).emit('battle_update', update);
+  }
+}
+
+/**
+ * Emit matchmaking update to user
+ * @param {String} userId - User ID
+ * @param {Object} data - Matchmaking data (matched, opponent, etc.)
+ */
+function emitMatchmakingUpdate(userId, data) {
+  if (io) {
+    io.to(`user_${userId}`).emit('matchmaking_update', data);
+  }
+}
+
+/**
+ * Emit friend challenge notification
+ * @param {String} userId - User ID
+ * @param {Object} challenge - Challenge data
+ */
+function emitFriendChallenge(userId, challenge) {
+  if (io) {
+    io.to(`user_${userId}`).emit('friend_challenge', challenge);
+  }
+}
+
+/**
+ * Emit battle completion to both players
+ * @param {String} battleId - Battle ID
+ * @param {Object} results - Battle results
+ */
+function emitBattleComplete(battleId, results) {
+  if (io) {
+    io.to(`battle_${battleId}`).emit('battle_complete', results);
+  }
+}
+
 module.exports = {
   initialize,
   emitNotification,
   emitActivity,
   emitLeaderboardUpdate,
+  emitBattleTrade,
+  emitBattleUpdate,
+  emitMatchmakingUpdate,
+  emitFriendChallenge,
+  emitBattleComplete,
   isAvailable,
   get io() { return io; }
 };

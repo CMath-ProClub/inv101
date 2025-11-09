@@ -2,8 +2,232 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import battle-related styles */
+@import '../styles/battle.css';
+@import '../styles/matchmaking.css';
+@import '../styles/battle-history.css';
+
 /* Custom component classes - use sparingly, prefer utility classes in HTML */
 @layer components {
+  /* Semantic icon placeholders (replace emojis progressively) */
+  .icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -0.15em;
+    margin: 0 0.15em;
+    border-radius: 0.375rem;
+    background: #94a3b8; /* slate-400 default */
+    opacity: 0.95;
+  }
+
+  /* Shape variants by intent */
+  .icon[data-icon="trophy"],
+  .icon[data-icon="medal"],
+  .icon[data-icon="medal-gold"],
+  .icon[data-icon="medal-silver"],
+  .icon[data-icon="medal-bronze"] {
+    border-radius: 9999px; /* circular */
+  }
+
+  /* Color coding by category (simple, swappable with custom art later) */
+  .icon[data-icon="chart-up"],
+  .icon[data-icon="trend"],
+  .icon[data-icon="money"],
+  .icon[data-icon="cash"],
+  .icon[data-icon="card"] {
+    background: #10b981; /* primary green */
+  }
+  .icon[data-icon="chart-down"] { background: #ef4444; }
+  .icon[data-icon="stats"],
+  .icon[data-icon="folders"],
+  .icon[data-icon="folder"],
+  .icon[data-icon="save"],
+  .icon[data-icon="device"],
+  .icon[data-icon="news"] { background: #3b82f6; }
+  .icon[data-icon="books"],
+  .icon[data-icon="graduation"],
+  .icon[data-icon="note"],
+  .icon[data-icon="clipboard"] { background: #8b5cf6; }
+  .icon[data-icon="shield"],
+  .icon[data-icon="lock"],
+  .icon[data-icon="gear"],
+  .icon[data-icon="wrench"] { background: #64748b; }
+  .icon[data-icon="warning"],
+  .icon[data-icon="flame"],
+  .icon[data-icon="energy"] { background: #f59e0b; }
+  .icon[data-icon="rocket"],
+  .icon[data-icon="idea"],
+  .icon[data-icon="brain"] { background: #06b6d4; }
+  .icon[data-icon="lab"],
+  .icon[data-icon="health"] { background: #0ea5e9; }
+  .icon[data-icon="cart"],
+  .icon[data-icon="link"],
+  .icon[data-icon="email"],
+  .icon[data-icon="camera"] { background: #a855f7; }
+  .icon[data-icon="beach"],
+  .icon[data-icon="wave"] { background: #22c55e; }
+  .icon[data-icon="trophy"] { background: #fbbf24; }
+  .icon[data-icon="medal-gold"] { background: #f59e0b; }
+  .icon[data-icon="medal-silver"] { background: #9ca3af; }
+  .icon[data-icon="medal-bronze"] { background: #d97706; }
+
+  /* Dark theme slight lift */
+  .dark .icon { filter: brightness(1.1) saturate(1.05); }
+
+  /* Welcome Banner */
+  .welcome-banner {
+    @apply relative flex flex-col gap-3 p-6 rounded-2xl border shadow-lg;
+    background: linear-gradient(135deg, rgba(29, 209, 161, 0.12), rgba(0, 212, 255, 0.08));
+    border-color: rgba(29, 209, 161, 0.2);
+  }
+
+  .welcome-banner h2 {
+    @apply text-2xl font-bold m-0;
+  }
+
+  .welcome-banner p {
+    @apply text-base leading-relaxed m-0 opacity-90;
+  }
+
+  /* Feature Cards */
+  .feature-card {
+    @apply relative flex flex-col gap-3 p-6 h-full rounded-2xl border 
+           transition-all duration-200 no-underline shadow-lg;
+    background: white;
+    border-color: rgba(229, 231, 235, 1);
+  }
+
+  .dark .feature-card {
+    background: rgba(30, 41, 59, 1);
+    border-color: rgba(51, 65, 85, 1);
+  }
+
+  .feature-card h3 {
+    @apply text-xl font-bold m-0;
+  }
+
+  .feature-card p {
+    @apply text-base leading-relaxed m-0 opacity-80;
+  }
+
+  .feature-card__tag {
+    @apply inline-flex self-start px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
+    background: rgba(0, 212, 255, 0.16);
+    color: #0891b2;
+  }
+
+  .feature-card__cta {
+    @apply mt-auto text-sm font-semibold;
+    color: #1dd1a1;
+  }
+
+  .feature-card:hover,
+  .feature-card:focus {
+    @apply -translate-y-1 outline-none;
+    border-color: rgba(29, 209, 161, 0.35);
+    box-shadow: 0 18px 40px rgba(31, 42, 55, 0.12);
+  }
+
+  .feature-card--market {
+    background: linear-gradient(140deg, rgba(0, 212, 255, 0.16), rgba(0, 212, 255, 0.04));
+  }
+
+  .feature-card--recommendations {
+    background: linear-gradient(140deg, rgba(29, 209, 161, 0.18), rgba(29, 209, 161, 0.06));
+  }
+
+  .feature-card--analysis {
+    background: linear-gradient(140deg, rgba(231, 176, 253, 0.18), rgba(231, 176, 253, 0.04));
+  }
+
+  .feature-card--indexes {
+    background: linear-gradient(140deg, rgba(255, 193, 94, 0.18), rgba(255, 193, 94, 0.06));
+  }
+
+  .feature-card--politics {
+    border-style: dashed;
+    background: linear-gradient(160deg, rgba(148, 163, 184, 0.12), rgba(148, 163, 184, 0.04));
+  }
+
+  /* Feature Links */
+  .feature-link--split,
+  .feature-link--vertical,
+  .feature-link--row,
+  .feature-link--profile {
+    @apply flex flex-col items-center justify-center gap-4 p-8 rounded-2xl border
+           transition-all duration-200 no-underline font-semibold shadow-lg;
+    background: white;
+    border-color: rgba(229, 231, 235, 1);
+  }
+
+  .dark .feature-link--split,
+  .dark .feature-link--vertical,
+  .dark .feature-link--row,
+  .dark .feature-link--profile {
+    background: rgba(30, 41, 59, 1);
+    border-color: rgba(51, 65, 85, 1);
+  }
+
+  .feature-link--split:hover,
+  .feature-link--vertical:hover,
+  .feature-link--row:hover,
+  .feature-link--profile:hover {
+    @apply -translate-y-1;
+    border-color: rgba(29, 209, 161, 0.4);
+    box-shadow: 0 12px 32px rgba(31, 42, 55, 0.1);
+  }
+
+  /* Feature Link Containers */
+  .feature-links {
+    @apply grid gap-4 w-full;
+  }
+
+  .feature-links--split {
+    @apply grid-cols-2;
+  }
+
+  .feature-links--vertical {
+    @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-4;
+  }
+
+  .feature-links--rows {
+    @apply grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+  }
+
+  .feature-links--profile {
+    @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  /* Home Feature Grid */
+  .home-feature-grid {
+    @apply grid gap-6 w-full;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .home-feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .home-feature-grid {
+      grid-template-columns: 1.4fr 1fr;
+      grid-auto-rows: minmax(160px, auto);
+      grid-template-areas:
+        "market recommendations"
+        "analysis recommendations"
+        "indexes politics";
+    }
+
+    .feature-card--market { grid-area: market; min-height: 280px; }
+    .feature-card--recommendations { grid-area: recommendations; min-height: 280px; }
+    .feature-card--analysis { grid-area: analysis; }
+    .feature-card--indexes { grid-area: indexes; }
+    .feature-card--politics { grid-area: politics; }
+  }
+
   /* Button styles */
   .btn-primary {
     @apply px-6 py-3 bg-primary-green text-white rounded-lg font-semibold 
@@ -84,6 +308,25 @@
     @apply bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 
            border border-red-200 dark:border-red-800;
   }
+}
+
+/* Custom utilities to restore legacy design tokens lost during Tailwind migration */
+@layer utilities {
+  /* Brand colors */
+  .bg-primary-green { background-color: #10b981 !important; }
+  .text-primary-green { color: #10b981 !important; }
+  .ring-primary-green { --tw-ring-color: #10b981 !important; }
+
+  .bg-primary-red { background-color: #ef4444 !important; }
+  .text-primary-red { color: #ef4444 !important; }
+
+  /* Shadows matching previous cards */
+  .shadow-card { box-shadow: 0 8px 24px rgba(31, 42, 55, 0.08) !important; }
+  .shadow-card-hover { box-shadow: 0 16px 40px rgba(31, 42, 55, 0.14) !important; }
+
+  /* Smooth animations reused across components */
+  .animate-fade-in { animation: fadeIn 200ms ease-out both; }
+  .animate-slide-up { animation: slideUp 220ms ease-out both; }
 }
 
 /* Animations */

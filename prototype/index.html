@@ -127,14 +127,27 @@
         <!-- Welcome Message -->
         <div id="welcomeBanner" class="welcome-banner" role="region" aria-label="Welcome to Investing101">
           <div class="welcome-banner__text">
-            <h2>Welcome to Investing101 <span aria-hidden="true">ðŸ‘‹</span></h2>
+            <h2>Welcome to Investing101 <span class="icon" data-icon="wave" aria-hidden="true"></span></h2>
             <p>
               Your journey to confident investing starts here. Explore market analysis, learn fundamentals, test ideas, and see what the community is tracking.
             </p>
           </div>
           <button type="button" class="welcome-banner__close" aria-label="Dismiss welcome message">
-            <span aria-hidden="true">Ã—</span>
+            <span aria-hidden="true">×</span>
           </button>
+        </div>
+        <!-- Placement summary (ELO + Skill) -->
+        <div id="placementSummary" class="mt-4 hidden">
+          <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card dark:border-slate-800 dark:bg-slate-900 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div id="placementBadge" class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold"></div>
+              <div class="text-slate-500">•</div>
+              <div class="text-sm text-slate-700 dark:text-slate-300" id="placementElo"></div>
+            </div>
+            <button id="placementJump" class="btn btn--ghost btn--with-icon" type="button" style="display:none;">
+              <span>Go to your start</span>
+            </button>
+          </div>
         </div>
 
         <section class="home-feature-grid" aria-label="Main feature links">
@@ -142,31 +155,31 @@
             <span class="feature-card__tag">Market</span>
             <h3>Market Analyzer</h3>
             <p>Live market breadth, sector momentum, and macro status banners sized for your main cockpit.</p>
-            <span class="feature-card__cta">Launch analyzer â†’</span>
+            <span class="feature-card__cta">Launch analyzer →</span>
           </a>
           <a class="feature-card feature-card--recommendations" href="stock-recommendations.html">
             <span class="feature-card__tag">Signals</span>
             <h3>Stock Recommendations</h3>
             <p>Daily AI screeners that spotlight opportunity zones and conviction scores across the Invest101 universe.</p>
-            <span class="feature-card__cta">View signals â†’</span>
+            <span class="feature-card__cta">View signals →</span>
           </a>
           <a class="feature-card feature-card--analysis" href="stock-analysis.html">
             <span class="feature-card__tag">Deep Dive</span>
             <h3>Specific Stock Analysis</h3>
             <p>Go ticker-first with valuation breakdowns, fundamentals, and risk overlays tailored to your strategy.</p>
-            <span class="feature-card__cta">Analyze a ticker â†’</span>
+            <span class="feature-card__cta">Analyze a ticker →</span>
           </a>
           <a class="feature-card feature-card--indexes" href="comparison.html">
             <span class="feature-card__tag">Perspective</span>
             <h3>Compare to Indexes</h3>
             <p>Frame performance versus the S&amp;P, Nasdaq, and global benchmarks with adaptive chart layouts.</p>
-            <span class="feature-card__cta">Compare indexes â†’</span>
+            <span class="feature-card__cta">Compare indexes →</span>
           </a>
           <a class="feature-card feature-card--politics" href="politician-portfolio.html">
             <span class="feature-card__tag">Watchlist</span>
             <h3>Politician Portfolio</h3>
             <p>Track headline moves from public disclosures without overwhelming the primary analysis surface.</p>
-            <span class="feature-card__cta">Open tracker â†’</span>
+            <span class="feature-card__cta">Open tracker →</span>
           </a>
         </section>
       </section>
@@ -174,11 +187,11 @@
       <section id="simulator" class="screen" aria-label="Simulation and AI challenges">
         <section class="feature-links feature-links--split" aria-label="Simulator links">
           <a class="feature-link--split" href="simulator.html">
-            <span style="font-size: 2.5rem;">ðŸŽ¯</span>
+            <span style="font-size: 2.5rem;"><span class="icon" data-icon="target"></span></span>
             <span>Market Simulation</span>
           </a>
           <a class="feature-link--split" href="play-ai.html">
-            <span style="font-size: 2.5rem;">ðŸ¤–</span>
+            <span style="font-size: 2.5rem;"><span class="icon" data-icon="robot"></span></span>
             <span>Play the AI</span>
           </a>
         </section>
@@ -187,19 +200,19 @@
       <section id="lessons" class="screen" aria-label="Lessons and curriculum">
         <section class="feature-links feature-links--vertical" aria-label="Lesson links">
           <a class="feature-link--vertical" href="lessons-foundations.html">
-            <span style="font-size: 2rem;">ðŸ“š</span>
+            <span style="font-size: 2rem;"><span class="icon" data-icon="books"></span></span>
             <span>Foundations</span>
           </a>
           <a class="feature-link--vertical" href="lessons-instruments.html">
-            <span style="font-size: 2rem;">ðŸ”§</span>
+            <span style="font-size: 2rem;"><span class="icon" data-icon="tools"></span></span>
             <span>Instruments & Accounts</span>
           </a>
           <a class="feature-link--vertical" href="lessons-practical.html">
-            <span style="font-size: 2rem;">ðŸ’¼</span>
+            <span style="font-size: 2rem;"><span class="icon" data-icon="toolbox"></span></span>
             <span>Practical Investing</span>
           </a>
           <a class="feature-link--vertical" href="lessons-market.html">
-            <span style="font-size: 2rem;">ðŸ“Š</span>
+            <span style="font-size: 2rem;"><span class="icon" data-icon="stats"></span></span>
             <span>Market Understanding</span>
           </a>
         </section>
@@ -208,31 +221,31 @@
       <section id="calculators" class="screen" aria-label="Calculator suite">
         <section class="feature-links feature-links--rows" aria-label="Calculator links">
           <a class="feature-link--row" href="calculator-core.html">
-            <span style="font-size: 1.5rem;">ðŸ’°</span>
+            <span style="font-size: 1.5rem;"><span class="icon" data-icon="money"></span></span>
             <span>CORE</span>
           </a>
           <a class="feature-link--row" href="calculator-risk.html">
-            <span style="font-size: 1.5rem;">âš ï¸</span>
+            <span style="font-size: 1.5rem;"><span class="icon" data-icon="warning"></span></span>
             <span>RISK</span>
           </a>
           <a class="feature-link--row" href="calculator-stock.html">
-            <span style="font-size: 1.5rem;">ðŸ“ˆ</span>
+            <span style="font-size: 1.5rem;"><span class="icon" data-icon="chart-up"></span></span>
             <span>STOCK</span>
           </a>
           <a class="feature-link--row" href="calculator-asset.html">
-            <span style="font-size: 1.5rem;">ðŸ¦</span>
+            <span style="font-size: 1.5rem;"><span class="icon" data-icon="bank"></span></span>
             <span>ASSET</span>
           </a>
           <a class="feature-link--row" href="calculator-retire.html">
-            <span style="font-size: 1.5rem;">ðŸ–ï¸</span>
+            <span style="font-size: 1.5rem;"><span class="icon" data-icon="beach"></span></span>
             <span>RETIRE</span>
           </a>
           <a class="feature-link--row" href="calculator-tax.html">
-            <span style="font-size: 1.5rem;">ðŸ“‹</span>
+            <span style="font-size: 1.5rem;"><span class="icon" data-icon="clipboard"></span></span>
             <span>TAX</span>
           </a>
           <a class="feature-link--row" href="calculator-crypto.html">
-            <span style="font-size: 1.5rem;">â‚¿</span>
+            <span style="font-size: 1.5rem;">₿</span>
             <span>CRYPTO</span>
           </a>
         </section>
@@ -241,23 +254,23 @@
       <section id="profile" class="screen" aria-label="Profile and progression">
         <section class="feature-links feature-links--profile" aria-label="Profile links">
           <a class="feature-link--profile" href="profile.html">
-            <span style="font-size: 3rem;">ðŸ‘¤</span>
+            <span style="font-size: 3rem;"><span class="icon" data-icon="user"></span></span>
             <span>Profile</span>
           </a>
           <a class="feature-link--profile" href="friends.html">
-            <span style="font-size: 3rem;">ðŸ‘¥</span>
+            <span style="font-size: 3rem;"><span class="icon" data-icon="users"></span></span>
             <span>Friends</span>
           </a>
           <a class="feature-link--profile" href="settings.html">
-            <span style="font-size: 3rem;">âš™ï¸</span>
+            <span style="font-size: 3rem;"><span class="icon" data-icon="gear"></span></span>
             <span>Settings</span>
           </a>
           <a class="feature-link--profile" href="subscription.html">
-            <span style="font-size: 3rem;">ðŸ’³</span>
+            <span style="font-size: 3rem;"><span class="icon" data-icon="card"></span></span>
             <span>Subscription</span>
           </a>
           <a class="feature-link--profile" href="newsletter.html">
-            <span style="font-size: 3rem;">ðŸ“§</span>
+            <span style="font-size: 3rem;"><span class="icon" data-icon="email"></span></span>
             <span>Newsletter</span>
           </a>
         </section>
@@ -326,6 +339,44 @@
   </script>
   <script src="global-ui.js"></script>
   <script src="theme-switcher.js"></script>
+  <script>
+    // Placement summary hydration
+    (function(){
+      try {
+        var skill = localStorage.getItem('inv101_skillLevel');
+        var elo = Number(localStorage.getItem('inv101_elo')) || null;
+        var section = localStorage.getItem('inv101_recommendedSection');
+        if (!skill && !elo) return;
+        var wrap = document.getElementById('placementSummary');
+        var badge = document.getElementById('placementBadge');
+        var eloEl = document.getElementById('placementElo');
+        var jump = document.getElementById('placementJump');
+        var label = skill ? (skill.charAt(0).toUpperCase() + skill.slice(1)) : 'Placement';
+        var badgeCls = {
+          new: 'bg-indigo-100 text-indigo-800',
+          beginner: 'bg-blue-100 text-blue-800',
+          intermediate: 'bg-emerald-100 text-emerald-800',
+          advanced: 'bg-amber-100 text-amber-800',
+          expert: 'bg-pink-100 text-pink-800'
+        }[skill || 'beginner'];
+        badge.className = 'inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ' + badgeCls;
+        badge.innerHTML = '<span class="icon" data-icon="star"></span>' + label;
+        eloEl.textContent = elo ? ('ELO: ' + elo) : '';
+        wrap.classList.remove('hidden');
+        if (section) {
+          jump.style.display = '';
+          jump.onclick = function(){
+            try {
+              if (section === 'lessons') window.location.href = 'lessons.html';
+              else if (section === 'simulator') window.location.href = 'simulator.html';
+              else if (section === 'profile') window.location.href = 'friends.html';
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {}
+          };
+        }
+      } catch (e) {}
+    })();
+  </script>
 </body>
 </html>
 

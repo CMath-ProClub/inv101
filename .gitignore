@@ -45,3 +45,7 @@ mongodb-binaries/
 # Local data/backups - avoid committing exported DB snapshots
 backend/data/*
 !backend/data/tickerUniverse.js
+
+# Editor/automation backup files
+*.emoji.bak
+*.bak
