@@ -76,7 +76,20 @@ mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/investing101?retr
 - **Key:** `NODE_ENV`
 - **Value:** `production`
 
-(Add your API keys too if you have them configured)
+**Variable 3:**
+- **Key:** `JWT_SECRET`
+- **Value:** (a long random string you generate locally)
+
+**Variable 4:**
+- **Key:** `SESSION_SECRET`
+- **Value:** (a different long random string)
+
+Optional (if using Clerk auth):
+- `CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `CLERK_WEBHOOK_SECRET` (for /webhooks/clerk)
+
+(Add your other API keys too: news providers, market data, email SMTP)
 
 **Note:** Render automatically sets the `PORT` environment variable - you don't need to set it manually!
 
