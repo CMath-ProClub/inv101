@@ -24,12 +24,13 @@ const {
   buildStockInsight,
   buildStockRecommendations
 } = require('./lib/stockInsights');
-const oauthRouter = require('./routes/auth');
+// Legacy OAuth router disabled; Clerk is the active auth provider
+// const oauthRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
 const preferencesRouter = require('./routes/preferences');
 const metricsRouter = require('./routes/metrics');
 const session = require('express-session');
-const passport = require('passport');
+// const passport = require('passport'); // Deprecated in favor of Clerk
 const apiAuthRouter = require('./routes/apiAuth');
 const portfolioRouter = require('./routes/portfolio');
 const aiToolkitRouter = require('./routes/aiToolkit');
@@ -144,6 +145,30 @@ const apiLimiter = rateLimit({
 });
 
 app.use(cors(corsOptions));
+
+// Clerk Webhook verification (mounted before express.json for raw body)
+let SvixWebhook;
+try { SvixWebhook = require('svix').Webhook; } catch (_) { SvixWebhook = null; }
+app.post('/webhooks/clerk', express.raw({ type: 'application/json' }), async (req, res) => {
+  try {
+    const secret = process.env.CLERK_WEBHOOK_SECRET || process.env.SVIX_SECRET || process.env.CLERK_SIGNING_SECRET;
+    if (!secret || !SvixWebhook) return res.status(204).end();
+    const headers = {
+      'svix-id': req.header('svix-id'),
+      'svix-timestamp': req.header('svix-timestamp'),
+      'svix-signature': req.header('svix-signature'),
+    };
+    const payload = req.body?.toString('utf8') || '';
+    const wh = new SvixWebhook(secret);
+    const evt = wh.verify(payload, headers);
+    console.log('Clerk webhook:', evt.type);
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    console.error('Clerk webhook verification failed:', err?.message || err);
+    return res.status(400).json({ error: 'invalid webhook' });
+  }
+});
+
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
@@ -193,12 +218,13 @@ async function ensureAuthenticatedSession(req, res) {
 }
 
 app.use(session({
-  secret: process.env.JWT_SECRET || 'keyboardcat',
+  secret: process.env.SESSION_SECRET || process.env.JWT_SECRET || 'keyboardcat',
   resave: false,
   saveUninitialized: false
 }));
-app.use(passport.initialize());
-app.use(passport.session());
+// Clerk replaces Passport session usage
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 app.get('/', async (req, res) => {
   try {
@@ -250,7 +276,8 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/achievements', achievementsRouter);
 app.use('/api/activity', activityRouter);
 app.use('/api/leaderboards', leaderboardsRouter);
-app.use('/auth', oauthRouter);
+// Legacy OAuth routes removed in favor of Clerk-only auth
+// app.use('/auth', oauthRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/preferences', preferencesRouter);
 app.use('/api/metrics', metricsRouter);
@@ -282,10 +309,7 @@ app.get('/health', (req, res) => {
   const envPresence = {
     MONGODB_URI: !!process.env.MONGODB_URI,
     JWT_SECRET: !!process.env.JWT_SECRET,
-    GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET: !!process.env.GOOGLE_CLIENT_SECRET,
-    FACEBOOK_APP_ID: !!process.env.FACEBOOK_APP_ID,
-    FACEBOOK_APP_SECRET: !!process.env.FACEBOOK_APP_SECRET,
+  // Legacy OAuth variables intentionally omitted
     APP_URL: !!process.env.APP_URL,
     ADMIN_TOKEN: !!process.env.ADMIN_TOKEN
   };
