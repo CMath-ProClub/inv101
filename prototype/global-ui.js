@@ -1,3 +1,95 @@
+(function bootstrapShellAssets(){
+  try {
+    const doc = document;
+    const head = doc.head || doc.getElementsByTagName('head')[0];
+    if (head && !doc.getElementById('inv101-theme-refresh')) {
+      const link = doc.createElement('link');
+      link.id = 'inv101-theme-refresh';
+      link.rel = 'stylesheet';
+      link.href = 'styles/ui-refresh.css';
+      head.appendChild(link);
+    }
+
+    const hasAuthWidget = Array.from(doc.scripts || []).some(script => /auth-widget\.js(?:$|\?)/.test(script.src)) || doc.getElementById('inv101-auth-widget');
+    if (head && !hasAuthWidget) {
+      const script = doc.createElement('script');
+      script.id = 'inv101-auth-widget';
+      script.src = 'auth-widget.js';
+      script.defer = true;
+      head.appendChild(script);
+    }
+
+    function markShell(){
+      doc.documentElement.classList.add('app-shell-root');
+      if (doc.body) doc.body.classList.add('app-shell');
+    }
+
+    if (doc.readyState !== 'loading') {
+      markShell();
+    } else {
+      doc.addEventListener('DOMContentLoaded', markShell, { once: true });
+    }
+  } catch (err) {
+    console.warn('Shell bootstrap failed', err);
+  }
+})();
+
+const CP1252_EXTENDED = [
+  0x20AC, 0xFFFD, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+  0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0xFFFD, 0x017D, 0xFFFD,
+  0xFFFD, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+  0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0xFFFD, 0x017E, 0x0178
+];
+
+const CP1252_REVERSE = (() => {
+  const map = {};
+  CP1252_EXTENDED.forEach((code, index) => {
+    if (code !== 0xFFFD) map[code] = 0x80 + index;
+  });
+  return map;
+})();
+
+const UTF8_DECODER = typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8') : null;
+
+function decodeLikelyMisencoded(text){
+  if (!UTF8_DECODER || typeof text !== 'string') return text;
+  if (!/[ÂâðŸ]/.test(text)) return text;
+  const bytes = [];
+  let mutated = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const code = text.charCodeAt(i);
+    if (code <= 0xFF) {
+      if (code >= 0x80) mutated = true;
+      bytes.push(code);
+    } else {
+      const mapped = CP1252_REVERSE[code];
+      if (mapped === undefined) return text;
+      bytes.push(mapped);
+      mutated = true;
+    }
+  }
+  if (!mutated) return text;
+  try {
+    return UTF8_DECODER.decode(new Uint8Array(bytes));
+  } catch (err) {
+    return text;
+  }
+}
+
+function sanitizeTextNodes(root){
+  if (!root || !UTF8_DECODER) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const pattern = /[ÂâðŸ]/;
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node || !node.nodeValue) continue;
+    const value = node.nodeValue;
+    if (!pattern.test(value)) continue;
+    const decoded = decodeLikelyMisencoded(value);
+    if (decoded !== value) node.nodeValue = decoded;
+  }
+}
+
 const SUPPORTED_THEMES = [
   'light',
   'dark',
@@ -117,8 +209,65 @@ function humanizeTheme(theme){
   }
 
   ready(async function(){
-    const sidebar = document.querySelector('.sidebar');
+    sanitizeTextNodes(document.body);
+    const currentTitle = document.title;
+    const decodedTitle = decodeLikelyMisencoded(currentTitle);
+    if (decodedTitle !== currentTitle) document.title = decodedTitle;
+
+    const shellRoot = document.querySelector('body > .flex.min-h-screen.flex-col');
+    let headerCandidate = shellRoot ? shellRoot.querySelector(':scope > header') : document.querySelector('.app__header') || document.querySelector('.global-header');
+    if (!headerCandidate && shellRoot) {
+      headerCandidate = document.createElement('header');
+      headerCandidate.className = 'app__header global-header';
+      headerCandidate.innerHTML = '' +
+        '<div class="brand">' +
+          '<img src="assets/Investing101.png" alt="Investing101 logo" class="app__logo" />' +
+          '<div class="brand-copy"><span>Investing101</span><small>Terminal</small></div>' +
+        '</div>' +
+        '<div class="app__header-actions">' +
+          '<button class="icon-button" type="button" aria-label="Notifications">' +
+            '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+              '<path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" />' +
+              '<path d="M13.73 21a2 2 0 01-3.46 0" />' +
+            '</svg>' +
+          '</button>' +
+          '<button class="btn btn--ghost btn--with-icon" type="button"><span>Share</span></button>' +
+        '</div>';
+      const aside = shellRoot.querySelector(':scope > aside');
+      if (aside && aside.nextSibling) {
+        shellRoot.insertBefore(headerCandidate, aside.nextSibling);
+      } else if (aside) {
+        shellRoot.appendChild(headerCandidate);
+      } else {
+        shellRoot.insertBefore(headerCandidate, shellRoot.firstChild || null);
+      }
+    }
+    if (headerCandidate) {
+      headerCandidate.classList.add('global-header');
+      if (!headerCandidate.classList.contains('app__header') && headerCandidate.querySelector('.app__logo')) {
+        headerCandidate.classList.add('app__header');
+      }
+    }
+
+    let sidebar = document.querySelector('.sidebar');
+    if (!sidebar) {
+      const logoAside = document.querySelector('aside .sidebar__logo');
+      if (logoAside) sidebar = logoAside.closest('aside');
+      else sidebar = shellRoot ? shellRoot.querySelector(':scope > aside') : document.querySelector('aside');
+    }
     if (!sidebar) return;
+    if (!sidebar.classList.contains('sidebar')) sidebar.classList.add('sidebar');
+
+    const nav = sidebar.querySelector('nav');
+    if (nav && !nav.classList.contains('sidebar__nav')) nav.classList.add('sidebar__nav');
+    if (nav) {
+      nav.querySelectorAll('a').forEach(link => {
+        if (!link.classList.contains('sidebar__btn')) link.classList.add('sidebar__btn');
+        if (link.getAttribute('aria-current') === 'page') {
+          link.classList.add('sidebar__btn--active');
+        }
+      });
+    }
 
     // Apply persisted state (default: not collapsed). If no local preference, try server-side preference.
     const localPref = localStorage.getItem('inv101_sidebar_collapsed');

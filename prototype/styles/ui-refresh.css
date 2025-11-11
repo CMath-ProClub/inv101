@@ -1,0 +1,324 @@
+:root {
+  --shell-accent: #2dd4bf;
+  --shell-surface-light: rgba(255, 255, 255, 0.94);
+  --shell-border-light: rgba(15, 23, 42, 0.08);
+  --shell-shadow: 0 18px 48px rgba(2, 12, 22, 0.18);
+  --shell-card-radius: 18px;
+}
+
+body.app-shell {
+  background-color: #020a13;
+  background-image:
+    radial-gradient(120% 120% at 20% 0%, rgba(45, 212, 191, 0.18), transparent 55%),
+    radial-gradient(110% 120% at 100% 15%, rgba(56, 189, 248, 0.18), transparent 52%),
+    linear-gradient(140deg, #02070d 0%, #03111d 45%, #060f1c 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+body.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: -160px;
+  z-index: -1;
+  background:
+    radial-gradient(240px at 15% 20%, rgba(56, 189, 248, 0.25), transparent 60%),
+    radial-gradient(280px at 80% 10%, rgba(45, 212, 191, 0.22), transparent 65%),
+    radial-gradient(200px at 50% 90%, rgba(34, 211, 238, 0.18), transparent 70%);
+  opacity: 0.8;
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+body.app-shell > .flex.min-h-screen.flex-col {
+  background: transparent;
+}
+
+body.app-shell .sidebar {
+  background: var(--shell-surface-light);
+  backdrop-filter: blur(24px);
+  border-right: 1px solid var(--shell-border-light);
+  box-shadow: var(--shell-shadow);
+  padding-bottom: 32px;
+}
+
+body.app-shell.sidebar-collapsed .sidebar {
+  box-shadow: none;
+}
+
+body.app-shell .sidebar__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px auto 24px;
+}
+
+body.app-shell .sidebar__logo img {
+  width: 48px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(2, 12, 22, 0.25);
+}
+
+body.app-shell .sidebar__btn {
+  border-radius: 14px;
+  padding: 12px 16px;
+  transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+  color: rgba(15, 23, 42, 0.62) !important;
+}
+
+body.app-shell .sidebar__btn svg {
+  color: inherit;
+}
+
+body.app-shell .sidebar__btn:hover,
+body.app-shell .sidebar__btn:focus-visible {
+  background: rgba(45, 212, 191, 0.12);
+  color: #0f172a !important;
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.32);
+}
+
+body.app-shell .sidebar__btn--active {
+  background: rgba(45, 212, 191, 0.18);
+  color: #0f172a !important;
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.4);
+}
+
+body.app-shell .sidebar-toggle {
+  top: 18px;
+  right: -18px;
+  border-radius: 999px;
+  background: var(--shell-surface-light);
+  box-shadow: 0 14px 22px rgba(2, 12, 22, 0.22);
+}
+
+body.app-shell .global-header,
+body.app-shell .app__header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--shell-surface-light);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--shell-border-light);
+  box-shadow: var(--shell-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 28px;
+}
+
+body.app-shell .global-header .brand,
+body.app-shell .app__header .brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #0f172a;
+}
+
+body.app-shell .brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+body.app-shell .brand-copy small {
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+body.app-shell .global-header .brand img,
+body.app-shell .app__header .brand img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(2, 12, 22, 0.25);
+}
+
+body.app-shell .app__header-actions,
+body.app-shell .global-header .actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+body.app-shell .app__header-actions .icon-button,
+body.app-shell .global-header .icon-button,
+body.app-shell .app__header-actions .btn,
+body.app-shell .global-header .btn {
+  border-radius: 999px;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  background: rgba(45, 212, 191, 0.14);
+  color: #0f172a;
+  transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+body.app-shell .app__header-actions .icon-button svg {
+  color: currentColor;
+}
+
+body.app-shell .app__header-actions .icon-button:hover,
+body.app-shell .global-header .icon-button:hover,
+body.app-shell .app__header-actions .btn:hover,
+body.app-shell .global-header .btn:hover {
+  transform: translateY(-1px);
+  background: rgba(45, 212, 191, 0.2);
+  box-shadow: 0 14px 24px rgba(13, 148, 136, 0.25);
+}
+
+body.app-shell nav[aria-label="Primary navigation"] {
+  background: var(--shell-surface-light);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--shell-border-light);
+  box-shadow: 0 -18px 40px rgba(2, 12, 22, 0.16);
+}
+
+body.app-shell nav[aria-label="Primary navigation"] a {
+  color: rgba(15, 23, 42, 0.62) !important;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+body.app-shell nav[aria-label="Primary navigation"] a.tabbar__btn--active {
+  color: #0f172a !important;
+}
+
+body.app-shell nav[aria-label="Primary navigation"] a:hover {
+  color: #0f172a !important;
+  background: rgba(45, 212, 191, 0.12);
+}
+
+body.app-shell .feature-card,
+body.app-shell .simulator-panel,
+body.app-shell .simulator-card,
+body.app-shell .lesson-card,
+body.app-shell .lesson-extra,
+body.app-shell .calculator-card,
+body.app-shell .card,
+body.app-shell .welcome-banner,
+body.app-shell .profile-card,
+body.app-shell .glass-card {
+  border-radius: var(--shell-card-radius);
+  box-shadow: 0 24px 50px rgba(2, 12, 22, 0.14);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+body.theme-dark.app-shell .sidebar,
+body.theme-ultradark.app-shell .sidebar,
+body.theme-carbon-edge.app-shell .sidebar,
+body.theme-quantum-violet.app-shell .sidebar {
+  background: rgba(6, 18, 27, 0.88);
+  border-right: 1px solid rgba(45, 212, 191, 0.24);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+}
+
+body.theme-dark.app-shell .sidebar__btn,
+body.theme-ultradark.app-shell .sidebar__btn,
+body.theme-carbon-edge.app-shell .sidebar__btn,
+body.theme-quantum-violet.app-shell .sidebar__btn {
+  color: rgba(226, 243, 238, 0.72) !important;
+}
+
+body.theme-dark.app-shell .sidebar__btn--active,
+body.theme-ultradark.app-shell .sidebar__btn--active,
+body.theme-carbon-edge.app-shell .sidebar__btn--active,
+body.theme-quantum-violet.app-shell .sidebar__btn--active {
+  color: #f0fdfa !important;
+}
+
+body.theme-dark.app-shell .global-header,
+body.theme-dark.app-shell .app__header,
+body.theme-ultradark.app-shell .global-header,
+body.theme-ultradark.app-shell .app__header,
+body.theme-carbon-edge.app-shell .global-header,
+body.theme-carbon-edge.app-shell .app__header,
+body.theme-quantum-violet.app-shell .global-header,
+body.theme-quantum-violet.app-shell .app__header {
+  background: rgba(6, 18, 27, 0.9);
+  border-bottom: 1px solid rgba(45, 212, 191, 0.24);
+  box-shadow: 0 24px 56px rgba(2, 12, 22, 0.48);
+  color: rgba(226, 243, 238, 0.86);
+}
+
+body.theme-dark.app-shell .brand-copy,
+body.theme-ultradark.app-shell .brand-copy,
+body.theme-carbon-edge.app-shell .brand-copy,
+body.theme-quantum-violet.app-shell .brand-copy {
+  color: rgba(226, 243, 238, 0.86);
+}
+
+body.theme-dark.app-shell .brand-copy small,
+body.theme-ultradark.app-shell .brand-copy small,
+body.theme-carbon-edge.app-shell .brand-copy small,
+body.theme-quantum-violet.app-shell .brand-copy small {
+  opacity: 0.68;
+}
+
+body.theme-dark.app-shell .app__header-actions .icon-button,
+body.theme-dark.app-shell .app__header-actions .btn,
+body.theme-ultradark.app-shell .app__header-actions .icon-button,
+body.theme-ultradark.app-shell .app__header-actions .btn,
+body.theme-carbon-edge.app-shell .app__header-actions .icon-button,
+body.theme-carbon-edge.app-shell .app__header-actions .btn,
+body.theme-quantum-violet.app-shell .app__header-actions .icon-button,
+body.theme-quantum-violet.app-shell .app__header-actions .btn {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: rgba(45, 212, 191, 0.28);
+  color: rgba(231, 250, 245, 0.92);
+}
+
+body.theme-dark.app-shell nav[aria-label="Primary navigation"],
+body.theme-ultradark.app-shell nav[aria-label="Primary navigation"],
+body.theme-carbon-edge.app-shell nav[aria-label="Primary navigation"],
+body.theme-quantum-violet.app-shell nav[aria-label="Primary navigation"] {
+  background: rgba(6, 18, 27, 0.9);
+  border-top: 1px solid rgba(45, 212, 191, 0.24);
+}
+
+body.theme-dark.app-shell nav[aria-label="Primary navigation"] a,
+body.theme-ultradark.app-shell nav[aria-label="Primary navigation"] a,
+body.theme-carbon-edge.app-shell nav[aria-label="Primary navigation"] a,
+body.theme-quantum-violet.app-shell nav[aria-label="Primary navigation"] a {
+  color: rgba(226, 243, 238, 0.7) !important;
+}
+
+body.theme-dark.app-shell nav[aria-label="Primary navigation"] a.tabbar__btn--active,
+body.theme-ultradark.app-shell nav[aria-label="Primary navigation"] a.tabbar__btn--active,
+body.theme-carbon-edge.app-shell nav[aria-label="Primary navigation"] a.tabbar__btn--active,
+body.theme-quantum-violet.app-shell nav[aria-label="Primary navigation"] a.tabbar__btn--active {
+  color: #f0fdfa !important;
+}
+
+body.theme-dark.app-shell .feature-card,
+body.theme-ultradark.app-shell .feature-card,
+body.theme-carbon-edge.app-shell .feature-card,
+body.theme-quantum-violet.app-shell .feature-card,
+body.theme-dark.app-shell .simulator-panel,
+body.theme-ultradark.app-shell .simulator-panel,
+body.theme-dark.app-shell .simulator-card,
+body.theme-ultradark.app-shell .simulator-card,
+body.theme-dark.app-shell .lesson-card,
+body.theme-ultradark.app-shell .lesson-card,
+body.theme-dark.app-shell .lesson-extra,
+body.theme-ultradark.app-shell .lesson-extra,
+body.theme-dark.app-shell .calculator-card,
+body.theme-ultradark.app-shell .calculator-card,
+body.theme-dark.app-shell .card,
+body.theme-ultradark.app-shell .card,
+body.theme-carbon-edge.app-shell .card,
+body.theme-quantum-violet.app-shell .card {
+  background: rgba(6, 18, 27, 0.88);
+  border-color: rgba(45, 212, 191, 0.24);
+  color: rgba(226, 243, 238, 0.88);
+}
+
+@media (max-width: 1024px) {
+  body.app-shell .global-header,
+  body.app-shell .app__header {
+    position: relative;
+    border-radius: 0 0 18px 18px;
+  }
+}

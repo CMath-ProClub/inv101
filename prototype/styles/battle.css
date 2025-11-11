@@ -1,0 +1,166 @@
+/* Battle Page Tailwind Styles */
+
+.battle-container {
+  @apply max-w-7xl mx-auto p-5;
+}
+
+.battle-header {
+  @apply bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-5 text-white mb-5 flex justify-between items-center;
+}
+
+.battle-timer {
+  @apply text-4xl font-bold font-mono;
+}
+
+.game-mode-badge {
+  @apply bg-white bg-opacity-20 px-4 py-2 rounded-full font-bold;
+}
+
+.battle-grid {
+  @apply grid grid-cols-[1fr_400px_1fr] gap-5 mb-5;
+}
+
+.player-panel {
+  @apply bg-white rounded-2xl p-5 shadow-lg;
+}
+
+.player-panel.you {
+  @apply border-4 border-green-500;
+}
+
+.player-panel.opponent {
+  @apply border-4 border-red-500;
+}
+
+.player-header {
+  @apply flex justify-between items-center mb-4 pb-4 border-b-2 border-gray-100;
+}
+
+.player-name {
+  @apply text-xl font-bold;
+}
+
+.player-elo {
+  @apply text-gray-500 text-sm;
+}
+
+.portfolio-stats {
+  @apply bg-gray-50 rounded-xl p-4 mb-4;
+}
+
+.stat-row {
+  @apply flex justify-between mb-2;
+}
+
+.stat-label {
+  @apply text-gray-500 text-sm;
+}
+
+.stat-value {
+  @apply font-bold text-base;
+}
+
+.stat-value.positive {
+  @apply text-green-500;
+}
+
+.stat-value.negative {
+  @apply text-red-500;
+}
+
+.trade-feed {
+  @apply max-h-[300px] overflow-y-auto bg-gray-50 rounded-xl p-2;
+}
+
+.trade-item {
+  @apply bg-white rounded-lg p-2 mb-2 border-l-4 border-blue-500 text-sm;
+}
+
+.trade-item.buy {
+  @apply border-l-green-500;
+}
+
+.trade-item.sell {
+  @apply border-l-red-500;
+}
+
+.trade-time {
+  @apply text-gray-400 text-xs;
+}
+
+.center-panel {
+  @apply bg-white rounded-2xl p-5 shadow-lg;
+}
+
+.chart-container {
+  @apply w-full h-96 bg-gray-50 rounded-xl mb-5 flex items-center justify-center text-gray-400;
+}
+
+.trade-controls {
+  @apply grid grid-cols-2 gap-2 mt-5;
+}
+
+.trade-input-group {
+  @apply mb-4;
+}
+
+.trade-input-group label {
+  @apply block mb-1 font-semibold text-gray-700;
+}
+
+.trade-input-group input,
+.trade-input-group select {
+  @apply w-full p-2 border-2 border-gray-200 rounded-lg text-base;
+}
+
+.trade-btn {
+  @apply p-4 border-none rounded-xl text-base font-bold cursor-pointer transition-transform hover:-translate-y-0.5;
+}
+
+.trade-btn.buy {
+  @apply bg-green-500 text-white;
+}
+
+.trade-btn.sell {
+  @apply bg-red-500 text-white;
+}
+
+.battle-status {
+  @apply bg-amber-50 border-2 border-amber-500 rounded-xl p-4 mb-5 text-center font-bold text-amber-900;
+}
+
+.battle-results {
+  @apply bg-white rounded-2xl p-8 text-center shadow-xl;
+}
+
+.winner-badge {
+  @apply text-5xl mb-5;
+}
+
+.result-title {
+  @apply text-3xl font-bold mb-5;
+}
+
+.result-stats {
+  @apply grid grid-cols-2 gap-5 mt-8;
+}
+
+.result-card {
+  @apply bg-gray-50 rounded-xl p-5;
+}
+
+.elo-change {
+  @apply text-3xl font-bold mt-2;
+}
+
+.elo-change.positive {
+  @apply text-green-500;
+}
+
+.elo-change.negative {
+  @apply text-red-500;
+}
+
+.back-btn {
+  @apply mt-8 px-10 py-4 bg-indigo-500 text-white border-none rounded-xl text-base font-bold cursor-pointer;
+}

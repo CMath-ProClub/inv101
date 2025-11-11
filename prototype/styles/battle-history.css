@@ -1,0 +1,127 @@
+/* Battle History Page Tailwind Styles */
+
+.history-container {
+  @apply max-w-6xl mx-auto p-5;
+}
+
+.page-header {
+  @apply text-center mb-10;
+}
+
+.page-title {
+  @apply text-5xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent mb-2;
+}
+
+.filters {
+  @apply bg-white rounded-2xl p-5 shadow-lg mb-8 flex gap-4 flex-wrap items-center;
+}
+
+.filter-group {
+  @apply flex flex-col gap-1;
+}
+
+.filter-label {
+  @apply text-xs font-semibold text-gray-500 uppercase;
+}
+
+.filter-select {
+  @apply px-4 py-2 border-2 border-gray-200 rounded-lg text-sm cursor-pointer;
+}
+
+.battle-card {
+  @apply bg-white rounded-2xl p-6 shadow-lg mb-5 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl;
+}
+
+.battle-header {
+  @apply flex justify-between items-center mb-5 pb-4 border-b-2 border-gray-100;
+}
+
+.battle-mode {
+  @apply flex items-center gap-2 text-lg font-bold;
+}
+
+.battle-date {
+  @apply text-gray-400 text-sm;
+}
+
+.battle-result {
+  @apply text-3xl font-bold text-center mb-5;
+}
+
+.result-win {
+  @apply text-green-500;
+}
+
+.result-loss {
+  @apply text-red-500;
+}
+
+.result-draw {
+  @apply text-amber-500;
+}
+
+.battle-stats {
+  @apply grid grid-cols-2 gap-5;
+}
+
+.player-stats {
+  @apply bg-gray-50 rounded-xl p-4;
+}
+
+.player-stats.you {
+  @apply border-2 border-green-500;
+}
+
+.player-stats.opponent {
+  @apply border-2 border-red-500;
+}
+
+.player-name {
+  @apply text-base font-bold mb-2;
+}
+
+.stat-row {
+  @apply flex justify-between mb-2 text-sm;
+}
+
+.stat-label {
+  @apply text-gray-500;
+}
+
+.stat-value {
+  @apply font-bold;
+}
+
+.elo-change {
+  @apply text-lg font-bold text-center mt-2 px-2 py-2 rounded-lg bg-gray-100;
+}
+
+.elo-change.positive {
+  @apply text-green-500 bg-green-100;
+}
+
+.elo-change.negative {
+  @apply text-red-500 bg-red-100;
+}
+
+.no-history {
+  @apply text-center py-16 px-5 text-gray-400;
+}
+
+.no-history-icon {
+  @apply text-6xl mb-5;
+}
+
+.loading {
+  @apply text-center py-16 px-5 text-gray-500;
+}
+
+.spinner {
+  @apply inline-block w-10 h-10 border-4 border-gray-100 border-t-indigo-500 rounded-full animate-spin mb-5;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

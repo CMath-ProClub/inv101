@@ -1,6 +1,8 @@
 "use client";
 
+import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "next-themes";
+import type { ReactNode } from "react";
 
 const themes = [
   "light",
@@ -13,15 +15,23 @@ const themes = [
   "carbon-edge",
 ];
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="data-theme"
-      defaultTheme="dark"
-      enableSystem={false}
-      themes={themes}
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "rgb(var(--accent-primary))",
+        },
+      }}
     >
-      {children}
-    </ThemeProvider>
+      <ThemeProvider
+        attribute="data-theme"
+        defaultTheme="dark"
+        enableSystem={false}
+        themes={themes}
+      >
+        {children}
+      </ThemeProvider>
+    </ClerkProvider>
   );
 }

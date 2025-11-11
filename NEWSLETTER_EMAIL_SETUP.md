@@ -20,11 +20,11 @@ You need to fill in a few secret codes (they are just long words the mail server
 2. Find the place where you can set **Environment Variables**. This is usually in the settings panel of the backend service.
 3. Add these items (use your real values instead of the example words):
    - `EMAIL_TRANSPORT = smtp`
-   - `EMAIL_HOST = your-mail-server.com`
-   - `EMAIL_PORT = 587`
-   - `EMAIL_USER = your-mail-username`
-   - `EMAIL_PASS = your-mail-password`
-   - `EMAIL_FROM = "Investing101 Newsletter" <newsletter@your-mail-server.com>`
+   - `EMAIL_HOST = smtp-relay.brevo.com` (for Brevo / Sendinblue)
+   - `EMAIL_PORT = 587` (use 465 if you prefer SSL)
+   - `EMAIL_USER = your-brevo-smtp-username` (often your Brevo login)
+   - `EMAIL_PASS = your-brevo-smtp-key` (generate in Brevo: SMTP & API > SMTP)
+   - `EMAIL_FROM = "Investing101 Newsletter" <newsletter@your-verified-domain.com>`
    - If you want the email to send at a different time, change `NEWSLETTER_DAILY_CRON` (leave it alone if you are not sure).
 4. Save the settings. The dashboard will make sure the new values are stored.
 
@@ -36,8 +36,9 @@ You need to fill in a few secret codes (they are just long words the mail server
 
 ## Part 4: (Optional) Send A Test Email Right Now
 
-1. If the dashboard has a way to run a command, run this one:
-   - `node -e "require('./services/newsletterService').sendDailyNewsletter().then(console.log).catch(console.error)"`
+1. If the dashboard has a way to run a command, run one of these:
+   - Quick test to a single address: `node scripts/test-brevo-email.js you@example.com`
+   - Or run the full daily newsletter once: `node -e "require('./services/newsletterService').sendDailyNewsletter().then(console.log).catch(console.error)"`
 2. Check the logs. If you see messages about emails being sent, the test worked.
 3. If the test fails, read the error message. Most of the time it means the username or password was typed wrong, or the mail server blocked the request.
 
@@ -48,3 +49,13 @@ You need to fill in a few secret codes (they are just long words the mail server
 - You can come back later and change the schedule or the mail settings whenever you want.
 
 Great job! 🎉
+
+---
+
+### Brevo (Sendinblue) Quick Notes
+
+- Host: `smtp-relay.brevo.com`
+- Port: `587` (TLS) or `465` (SSL)
+- Username: your Brevo login (or SMTP user)
+- Password: your SMTP key (generate under SMTP & API > SMTP)
+- Make sure your `EMAIL_FROM` matches a verified sender or domain in Brevo (Senders & Domains), otherwise messages may be rejected or land in spam.

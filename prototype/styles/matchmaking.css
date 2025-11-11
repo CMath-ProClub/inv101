@@ -1,0 +1,170 @@
+/* Matchmaking Page Tailwind Styles */
+
+.matchmaking-container {
+  @apply max-w-6xl mx-auto p-5;
+}
+
+.page-header {
+  @apply text-center mb-10;
+}
+
+.page-title {
+  @apply text-5xl font-bold bg-gradient-to-br from-indigo-500 to-purple-600 bg-clip-text text-transparent mb-2;
+}
+
+.page-subtitle {
+  @apply text-lg text-gray-500;
+}
+
+.game-modes {
+  @apply grid grid-cols-3 gap-5 mb-10;
+}
+
+.game-mode-card {
+  @apply bg-white rounded-2xl p-8 shadow-lg cursor-pointer transition-all border-4 border-transparent hover:-translate-y-1 hover:shadow-xl;
+}
+
+.game-mode-card.selected {
+  @apply border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50;
+}
+
+.mode-icon {
+  @apply text-5xl mb-4;
+}
+
+.mode-name {
+  @apply text-2xl font-bold mb-2;
+}
+
+.mode-duration {
+  @apply text-gray-500 text-base mb-2;
+}
+
+.mode-description {
+  @apply text-gray-400 text-sm mb-4;
+}
+
+.mode-elo {
+  @apply bg-gray-100 p-2 rounded-lg font-bold text-gray-700;
+}
+
+.matchmaking-panel {
+  @apply bg-white rounded-2xl p-10 shadow-lg text-center mb-10;
+}
+
+.find-match-btn {
+  @apply bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-none px-16 py-5 text-xl font-bold rounded-xl cursor-pointer transition-transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none;
+}
+
+.queue-status {
+  @apply hidden mt-8;
+}
+
+.queue-status.active {
+  @apply block;
+}
+
+.spinner {
+  @apply inline-block w-16 h-16 border-8 border-gray-100 border-t-indigo-500 rounded-full animate-spin mb-5;
+}
+
+.queue-text {
+  @apply text-lg text-gray-500 mb-2;
+}
+
+.queue-time {
+  @apply text-2xl font-bold text-gray-700 mb-5;
+}
+
+.cancel-search-btn {
+  @apply bg-red-500 text-white border-none px-8 py-3 text-base font-bold rounded-lg cursor-pointer;
+}
+
+.match-found {
+  @apply hidden bg-gradient-to-br from-green-500 to-green-600 text-white p-8 rounded-2xl mt-8;
+}
+
+.match-found.active {
+  @apply block animate-slideIn;
+}
+
+@keyframes slideIn {
+  from {
+    @apply -translate-y-5 opacity-0;
+  }
+  to {
+    @apply translate-y-0 opacity-100;
+  }
+}
+
+.match-found h2 {
+  @apply text-3xl mb-5;
+}
+
+.opponent-info {
+  @apply flex justify-center items-center gap-5 mb-5;
+}
+
+.opponent-name {
+  @apply text-2xl font-bold;
+}
+
+.friend-challenges {
+  @apply bg-white rounded-2xl p-8 shadow-lg;
+}
+
+.section-title {
+  @apply text-2xl font-bold mb-5;
+}
+
+.challenge-list {
+  @apply flex flex-col gap-4;
+}
+
+.challenge-card {
+  @apply bg-gray-50 rounded-xl p-5 flex justify-between items-center;
+}
+
+.challenge-info {
+  @apply flex-1;
+}
+
+.challenger-name {
+  @apply text-lg font-bold mb-1;
+}
+
+.challenge-mode {
+  @apply text-gray-500 text-sm;
+}
+
+.challenge-actions {
+  @apply flex gap-2;
+}
+
+.accept-btn {
+  @apply bg-green-500 text-white border-none px-5 py-2 rounded-lg font-bold cursor-pointer;
+}
+
+.decline-btn {
+  @apply bg-red-500 text-white border-none px-5 py-2 rounded-lg font-bold cursor-pointer;
+}
+
+.no-challenges {
+  @apply text-center text-gray-400 p-10;
+}
+
+.stats-grid {
+  @apply grid grid-cols-3 gap-5 mb-10;
+}
+
+.stat-card {
+  @apply bg-white rounded-2xl p-5 shadow-lg text-center;
+}
+
+.stat-value {
+  @apply text-3xl font-bold text-indigo-500 mb-1;
+}
+
+.stat-label {
+  @apply text-gray-500 text-sm;
+}

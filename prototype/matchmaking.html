@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matchmaking - Inv101</title>
+  <link rel="stylesheet" href="dist/main.css">
+  <link rel="stylesheet" href="styles/matchmaking.css">
+</head>
+<body>
+  <div class="matchmaking-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">1v1 Trading Battles</h1>
+      <p class="page-subtitle">Compete against real players in real-time trading simulations</p>
+    </div>
+    
+    <!-- User Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalBattles">0</div>
+        <div class="stat-label">Total Battles</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="winRate">0%</div>
+        <div class="stat-label">Win Rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="currentStreak">0</div>
+        <div class="stat-label">Current Streak</div>
+      </div>
+    </div>
+    
+    <!-- Game Mode Selection -->
+    <div class="game-modes">
+      <div class="game-mode-card" data-mode="sprint" onclick="selectGameMode('sprint')">
+        <div class="mode-icon"><span class="icon" data-icon="energy"></span></div>
+        <div class="mode-name">Sprint</div>
+        <div class="mode-duration">5 Minutes</div>
+        <div class="mode-description">Fast-paced trading sprint</div>
+        <div class="mode-elo">Your Elo: <span id="sprintElo">1200</span></div>
+      </div>
+      
+      <div class="game-mode-card selected" data-mode="standard" onclick="selectGameMode('standard')">
+        <div class="mode-icon"><span class="icon" data-icon="target"></span></div>
+        <div class="mode-name">Standard</div>
+        <div class="mode-duration">15 Minutes</div>
+        <div class="mode-description">Classic trading battle</div>
+        <div class="mode-elo">Your Elo: <span id="standardElo">1200</span></div>
+      </div>
+      
+      <div class="game-mode-card" data-mode="marathon" onclick="selectGameMode('marathon')">
+        <div class="mode-icon"><span class="icon" data-icon="runner"></span></div>
+        <div class="mode-name">Marathon</div>
+        <div class="mode-duration">30 Minutes</div>
+        <div class="mode-description">Endurance trading challenge</div>
+        <div class="mode-elo">Your Elo: <span id="marathonElo">1200</span></div>
+      </div>
+    </div>
+    
+    <!-- Matchmaking Panel -->
+    <div class="matchmaking-panel">
+      <button id="findMatchBtn" class="find-match-btn" onclick="findMatch()">
+        <span class="icon" data-icon="game"></span> FIND MATCH
+      </button>
+      
+      <!-- Queue Status -->
+      <div id="queueStatus" class="queue-status">
+        <div class="spinner"></div>
+        <div class="queue-text">Searching for opponent...</div>
+        <div class="queue-time" id="queueTime">0:00</div>
+        <div style="color: #9ca3af; margin-bottom: 20px;">
+          Matching players with similar Elo rating
+        </div>
+        <button class="cancel-search-btn" onclick="cancelSearch()">Cancel Search</button>
+      </div>
+      
+      <!-- Match Found -->
+      <div id="matchFound" class="match-found">
+        <h2><span class="icon" data-icon="celebration"></span> Match Found!</h2>
+        <div class="opponent-info">
+          <div>
+            <div class="opponent-name" id="opponentName">Player</div>
+            <div id="opponentElo" style="font-size: 18px;">Elo: 1200</div>
+          </div>
+        </div>
+        <div style="font-size: 18px; margin-bottom: 20px;">
+          Battle starting in <span id="startingIn" style="font-weight: bold;">3</span> seconds...
+        </div>
+      </div>
+    </div>
+    
+    <!-- Friend Challenges -->
+    <div class="friend-challenges">
+      <h2 class="section-title">Friend Challenges</h2>
+      
+      <div id="challengesList" class="challenge-list">
+        <div class="no-challenges">
+          No pending challenges. Challenge your friends to a battle!
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="matchmaking.js"></script>
+</body>
+</html>

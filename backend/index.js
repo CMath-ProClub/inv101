@@ -32,6 +32,7 @@ const metricsRouter = require('./routes/metrics');
 const session = require('express-session');
 // const passport = require('passport'); // Deprecated in favor of Clerk
 const apiAuthRouter = require('./routes/apiAuth');
+const clerkRouter = require('./routes/clerkAuth');
 const portfolioRouter = require('./routes/portfolio');
 const aiToolkitRouter = require('./routes/aiToolkit');
 const dataProvidersRouter = require('./routes/dataProviders');
@@ -46,9 +47,15 @@ const pingerService = require('./services/pingerService');
 const User = require('./models/User');
 const { JWT_SECRET } = require('./middleware/auth');
 const { issueTokens, clearAuthCookies } = require('./services/authTokens');
+const { initializeClerk, optionalClerkUser } = require('./clerkAuth');
 
 const app = express();
 const mongoose = require('mongoose');
+
+const clerkReady = initializeClerk();
+if (!clerkReady) {
+  console.warn('Clerk is not fully configured. Falling back to legacy session checks.');
+}
 
 // Prevent process from exiting on validation errors
 const originalExit = process.exit;
@@ -169,6 +176,7 @@ app.post('/webhooks/clerk', express.raw({ type: 'application/json' }), async (re
   }
 });
 
+app.use('/auth', clerkRouter);
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api/', apiLimiter); // Apply rate limiting to all API routes
@@ -249,6 +257,24 @@ app.get('/index.html', async (req, res) => {
     return res.sendFile(path.join(staticDir, 'index.html'));
   } catch (error) {
     console.error('Index route auth enforcement error:', error);
+    clearAuthCookies(res);
+    return res.redirect('/signin.html');
+  }
+});
+
+app.get('/auth/callback', optionalClerkUser, async (req, res) => {
+  try {
+    if (!req.auth || !req.auth.userId || !req.user) {
+      return res.redirect('/signin.html');
+    }
+
+    await issueTokens(res, req.user, { rememberMe: true });
+
+    const rawTarget = typeof req.query.target === 'string' ? req.query.target : 'index.html';
+    const sanitized = rawTarget.startsWith('http') ? 'index.html' : rawTarget.replace(/^[\/\\]+/, '');
+    return res.redirect(`/${sanitized || 'index.html'}`);
+  } catch (error) {
+    console.error('Clerk auth callback failed:', error);
     clearAuthCookies(res);
     return res.redirect('/signin.html');
   }

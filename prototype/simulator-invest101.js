@@ -108,11 +108,20 @@ function renderHoldingsRows(rows) {
 }
 
 // Authentication helpers (UI + fetch)
-function showAuthModal() {
-  document.getElementById('authModal').style.display = 'block';
+function showAuthModal(targetPath) {
+  const target = targetPath || 'simulator.html';
+  if (typeof window.showAuthModal === 'function') {
+    window.showAuthModal(target);
+    return;
+  }
+
+  window.location.href = '/signin.html?target=' + encodeURIComponent(target);
 }
 
-function hideAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+function hideAuthModal() {
+  const modal = document.getElementById('authModal');
+  if (modal) modal.style.display = 'none';
+}
 
 async function doAuth(action) {
   const email = document.getElementById('authEmail').value;

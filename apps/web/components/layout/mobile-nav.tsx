@@ -31,6 +31,10 @@ const navItems: NavItem[] = [
 export function MobileNav() {
   const pathname = usePathname();
 
+  if (pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up")) {
+    return null;
+  }
+
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex h-20 items-center justify-around border-t border-outline/30 bg-surface-elevated/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur lg:hidden">
       {navItems.map((item) => {

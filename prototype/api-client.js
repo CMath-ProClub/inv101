@@ -30,6 +30,19 @@
       console.warn('Refresh attempt failed', e);
     }
 
+    // Attempt to sync Clerk session into legacy tokens before showing auth prompt
+    try {
+      const syncResp = await fetch('/api/auth/clerk/sync', { method: 'POST', credentials: 'include' });
+      if (syncResp.ok) {
+        resp = await fetch(url, opts);
+        if (resp.status !== 401) {
+          return resp;
+        }
+      }
+    } catch (err) {
+      console.warn('Clerk sync attempt failed', err);
+    }
+
     // If refresh failed, show auth modal if available
     if (typeof window.showAuthModal === 'function') window.showAuthModal();
     return resp;

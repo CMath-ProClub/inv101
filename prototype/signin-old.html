@@ -316,61 +316,6 @@
 			font-size: clamp(0.95rem, 1.2vw, 1.05rem);
 		}
 
-		/* Clerk container + status */
-		.signin-clerk {
-			display: flex;
-			flex-direction: column;
-			gap: 16px;
-		}
-
-		#clerk-signin {
-			margin: 24px 0;
-		}
-
-		.signin-footer {
-			text-align: center;
-			margin-top: 24px;
-			padding-top: 24px;
-			border-top: 1px solid rgba(255, 255, 255, 0.08);
-		}
-
-		.signin-footer-text {
-			color: rgba(224, 236, 231, 0.72);
-			font-size: 14px;
-		}
-
-		.signin-footer-link {
-			color: #2dd4bf;
-			text-decoration: none;
-			font-weight: 600;
-			transition: color 0.2s;
-		}
-
-		.signin-footer-link:hover {
-			color: #5eead4;
-		}
-
-		.loading {
-			text-align: center;
-			padding: 40px;
-			color: rgba(224, 236, 231, 0.72);
-		}
-
-		.loading-spinner {
-			display: inline-block;
-			width: 40px;
-			height: 40px;
-			border: 4px solid rgba(45, 212, 191, 0.3);
-			border-top-color: #2dd4bf;
-			border-radius: 50%;
-			animation: spin 1s linear infinite;
-			margin-bottom: 16px;
-		}
-
-		@keyframes spin {
-			to { transform: rotate(360deg); }
-		}
-
 		form#signinForm {
 			display: grid;
 			gap: 20px;
@@ -629,14 +574,14 @@
 				<h1>Sign in to continue tracking smarter financial moves.</h1>
 				<div class="signin-summary">
 					<div class="signin-summary-item">
-						<span class="signin-summary-icon" aria-hidden="true">&#9650;</span>
+						<span class="signin-summary-icon" aria-hidden="true">▲</span>
 						<div class="signin-summary-text">
 							<strong>Live Market Signals</strong>
 							<span>Stay ahead with curated movers and projections delivered daily.</span>
 						</div>
 					</div>
 					<div class="signin-summary-item">
-						<span class="signin-summary-icon" aria-hidden="true">&#9733;</span>
+						<span class="signin-summary-icon" aria-hidden="true">★</span>
 						<div class="signin-summary-text">
 							<strong>Personalized Insights</strong>
 							<span>Sync preferences and pick up right where you left off.</span>
@@ -651,63 +596,56 @@
 				<h2>Welcome back</h2>
 				<p>Log in to access your dashboard, newsletter preferences, and saved simulations.</p>
 			</header>
-			<div class="signin-status" id="signinStatus" aria-live="polite"></div>
-			<div class="signin-clerk">
-				<div id="clerk-signin">
-					<div class="loading">
-						<div class="loading-spinner"></div>
-						<p>Loading secure sign in...</p>
-					</div>
+			<form id="signinForm" novalidate>
+				<div class="signin-field">
+					<label for="signin-email">Email</label>
+					<input id="signin-email" type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
 				</div>
+				<div class="signin-field">
+					<label for="signin-password">Password</label>
+					<input id="signin-password" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+				</div>
+				<div class="signin-controls">
+					<label class="signin-remember">
+						<input type="checkbox" name="remember" value="1">
+						<span>Keep me logged in</span>
+					</label>
+					<button class="signin-button" type="submit">Continue</button>
+				</div>
+				<p class="signin-status" id="signinStatus" aria-live="polite"></p>
+			</form>
+			<div class="signin-divider">or continue with</div>
+			<div class="signin-socials">
+				<button type="button" onclick="window.location.href='/auth/google'">
+					<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+						<path fill="#EA4335" d="M9 7.2v3.6h5.1c-.2 1.2-.9 2.3-1.9 3l3.1 2.4c1.8-1.7 2.8-4.1 2.8-6.8 0-.7-.1-1.3-.2-1.9H9z"/>
+						<path fill="#34A853" d="M4.3 10.7l-.7.5-2.5 1.9C2.8 15.9 5.7 17.7 9 17.7c2.4 0 4.4-.8 5.9-2.3l-3.1-2.4c-.8.5-1.8.8-2.8.8-2.1 0-3.8-1.4-4.4-3.2z"/>
+						<path fill="#4285F4" d="M16.9 5.4l-3.1 2.4c-.4-1.1-1.2-2-2.3-2.5-.9-.4-1.8-.6-2.8-.6-3.3 0-6.2 1.8-7.7 4.5l3.2 2.4c.6-1.8 2.3-3.2 4.4-3.2 1 0 1.9.3 2.8.8.8.5 1.5 1.2 1.9 2.1l3.1-2.4z"/>
+						<path fill="#FBBC05" d="M1.6 5.9l3.2 2.4c-.2.5-.3 1-.3 1.5s.1 1 .3 1.5l-3.2 2.4C.9 12.6.6 11.3.6 9.8c0-1.5.3-2.8 1-3.9z"/>
+					</svg>
+					Google
+				</button>
+				<button type="button" onclick="window.location.href='/auth/facebook'">
+					<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+						<path fill="#1877F2" d="M22 12.1C22 6.6 17.5 2 12 2S2 6.6 2 12.1c0 5 3.7 9.1 8.5 9.9v-7H8v-3h2.5V9.9c0-2.5 1.5-3.9 3.7-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.3c-1.3 0-1.7.8-1.7 1.6v1.9H18l-.4 3h-2.9v7c4.8-.8 8.3-4.9 8.3-9.9z"/>
+					</svg>
+					Facebook
+				</button>
 			</div>
-			<div class="signin-footer">
-				<p class="signin-footer-text">
-					Don't have an account?
-					<a id="signinSignupLink" class="signin-footer-link" href="signup.html">Sign up</a>
-				</p>
-			</div>
-			<button type="button" class="signin-guest" id="guestButton">
-				<span>&#128640; Continue as Guest</span>
+			<button type="button" class="signin-guest" onclick="continueAsGuest()">
+				<span><span class="icon" data-icon="rocket"></span> Continue as Guest</span>
 			</button>
 			<div class="signin-alt">
 				<span>Prefer to explore first?</span>
-				<a id="returnLink" href="/">Return to overview</a>
+				<a href="/">Return to overview</a>
 			</div>
 		</section>
 	</div>
 
-	<!-- Clerk JavaScript SDK -->
-	<script
-		async
-		crossorigin="anonymous"
-		data-clerk-publishable-key="pk_test_Y2FzdWFsLXBvcnBvaXNlLTEzLmNsZXJrLmFjY291bnRzLmRldiQ"
-		src="https://casual-porpoise-13.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-		type="text/javascript"
-	></script>
-
 	<script>
 		(function () {
-			const params = new URLSearchParams(window.location.search);
-			const rawTarget = params.get('target') || 'index.html';
-			let target = rawTarget.startsWith('http') ? 'index.html' : rawTarget.replace(/^\/+/, '');
-			if (target.includes('..')) {
-				target = 'index.html';
-			}
+			const form = document.getElementById('signinForm');
 			const statusEl = document.getElementById('signinStatus');
-			const guestButton = document.getElementById('guestButton');
-			const returnLink = document.getElementById('returnLink');
-			const signupLink = document.getElementById('signinSignupLink');
-
-			if (returnLink) {
-				returnLink.href = '/' + target;
-			}
-			if (signupLink) {
-				signupLink.href = '/signup.html?target=' + encodeURIComponent(target);
-			}
-
-			if (guestButton) {
-				guestButton.addEventListener('click', continueAsGuest);
-			}
 
 			function setStatus(message, state) {
 				if (!statusEl) return;
@@ -719,96 +657,118 @@
 				}
 			}
 
-			async function continueAsGuest() {
-				try {
-					const guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-					const guestSession = {
-						id: guestId,
-						displayName: 'Guest User',
-						email: null,
-						isGuest: true,
-						createdAt: new Date().toISOString(),
-						portfolio: {
-							totalValue: 10000,
-							cash: 10000,
-							holdings: []
-						}
-					};
-					localStorage.setItem('inv101_guest_session', JSON.stringify(guestSession));
-					localStorage.setItem('inv101_guest_mode', 'true');
-					alert("Welcome! You're browsing as a guest. Your progress will be saved locally.\n\nCreate an account later to access your data across devices and unlock social features!");
-					window.location.href = '/' + target;
-				} catch (error) {
-					console.error('Guest mode error:', error);
-					alert('Unable to continue as guest. Please try again.');
-				}
-			}
-
-			async function redirectIfLegacySession() {
+			async function checkExistingSession() {
 				try {
 					const response = await fetch('/api/auth/me', { credentials: 'include' });
 					if (!response.ok) return;
-					const payload = await response.json().catch(() => null);
-					if (payload && payload.success) {
-						window.location.href = '/' + target;
+					const payload = await response.json();
+					if (payload?.success) {
+						window.location.href = '/profile.html';
 					}
 				} catch (error) {
 					console.warn('Session check failed:', error);
 				}
 			}
 
-			window.addEventListener('load', async function () {
-				await redirectIfLegacySession();
+			// Check for OAuth errors in URL
+			function checkOAuthErrors() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const error = urlParams.get('error');
+				
+				if (error) {
+					let errorMessage = 'Authentication failed. Please try again.';
+					if (error === 'google_auth_failed') {
+						errorMessage = 'Google sign-in failed. Please check your Google account and try again.';
+					} else if (error === 'facebook_auth_failed') {
+						errorMessage = 'Facebook sign-in failed. Please check your Facebook account and try again.';
+					} else if (error === 'oauth_failed') {
+						errorMessage = 'OAuth sign-in failed. Please try a different method.';
+					}
+					
+					setStatus(errorMessage, 'error');
+					
+					// Clean up URL
+					window.history.replaceState({}, document.title, window.location.pathname);
+				}
+			}
 
-				if (!window.Clerk) {
-					setStatus('Unable to load authentication. Please refresh and try again.', 'error');
+			form.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				const formData = new FormData(form);
+				const email = String(formData.get('email') || '').trim();
+				const password = String(formData.get('password') || '');
+				const rememberMe = formData.get('remember') === '1';
+
+				if (!email || !password) {
+					setStatus('Email and password are required.', 'error');
 					return;
 				}
+
+				setStatus('Signing in...', 'info');
 
 				try {
-					await window.Clerk.load();
-					if (window.Clerk.session) {
-						try {
-							await fetch('/api/auth/clerk/sync', { method: 'POST', credentials: 'include' });
-						} catch (syncError) {
-							console.warn('Clerk session sync failed', syncError);
-						}
-						window.location.href = '/' + target;
-						return;
-					}
-				} catch (loadError) {
-					console.error('Clerk failed to load', loadError);
-					setStatus('Failed to load Clerk authentication. Please refresh.', 'error');
-					return;
-				}
-
-				const signInDiv = document.getElementById('clerk-signin');
-				if (!signInDiv) return;
-
-				window.Clerk.mountSignIn(signInDiv, {
-					appearance: {
-						elements: {
-							rootBox: { width: '100%' },
-							card: {
-								backgroundColor: 'transparent',
-								border: 'none',
-								boxShadow: 'none'
-							}
+					const response = await fetch('/api/auth/login', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
 						},
-						variables: {
-							colorPrimary: '#2dd4bf',
-							colorBackground: 'transparent',
-							colorText: '#f2fbf7',
-							colorTextSecondary: 'rgba(224, 236, 231, 0.72)',
-							colorInputBackground: 'rgba(8, 21, 28, 0.75)',
-							colorInputText: '#f2fbf7'
-						}
-					},
-					afterSignInUrl: '/auth/callback?target=' + encodeURIComponent(target),
-					signUpUrl: '/signup.html?target=' + encodeURIComponent(target)
-				});
+						credentials: 'include',
+						body: JSON.stringify({ email, password, rememberMe })
+					});
+
+					const payload = await response.json().catch(() => ({}));
+					if (!response.ok || !payload?.success) {
+						throw new Error(payload?.error || 'Unable to sign in. Check your credentials and try again.');
+					}
+
+					setStatus('Signed in! Redirecting...', 'success');
+					// Redirect to profile page after successful login
+					setTimeout(() => {
+						window.location.href = '/profile.html';
+					}, 500);
+				} catch (error) {
+					console.error('Sign in failed:', error);
+					setStatus(error.message || 'Unable to sign in right now.', 'error');
+				}
 			});
+
+			checkExistingSession();
+			checkOAuthErrors();
 		})();
+
+		// Guest mode functionality
+		function continueAsGuest() {
+			try {
+				// Create a guest user ID
+				const guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+				
+				// Store guest session in localStorage
+				const guestSession = {
+					id: guestId,
+					displayName: 'Guest User',
+					email: null,
+					isGuest: true,
+					createdAt: new Date().toISOString(),
+					portfolio: {
+						totalValue: 10000, // Starting balance
+						cash: 10000,
+						holdings: []
+					}
+				};
+				
+				localStorage.setItem('inv101_guest_session', JSON.stringify(guestSession));
+				localStorage.setItem('inv101_guest_mode', 'true');
+				
+				// Show a welcome message
+				alert('Welcome! You\'re browsing as a guest. Your progress will be saved locally.\n\nCreate an account later to access your data across devices and unlock social features!');
+				
+				// Redirect to main page
+				window.location.href = '/index.html';
+			} catch (error) {
+				console.error('Guest mode error:', error);
+				alert('Unable to continue as guest. Please try again.');
+			}
+		}
 	</script>
 </body>
 </html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Battle - Inv101</title>
+  <link rel="stylesheet" href="dist/main.css">
+  <link rel="stylesheet" href="styles/battle.css">
+</head>
+<body>
+  <div class="battle-container">
+    <!-- Battle Header -->
+    <div class="battle-header">
+      <div>
+        <div class="game-mode-badge" id="gameModeDisplay"><span class="icon" data-icon="energy"></span> SPRINT</div>
+        <div style="margin-top: 10px; font-size: 14px; opacity: 0.9;" id="battleIdDisplay">Battle ID: Loading...</div>
+      </div>
+      <div class="battle-timer" id="battleTimer">5:00</div>
+      <div style="text-align: right;">
+        <div style="font-size: 14px; opacity: 0.9;">Market</div>
+        <div style="font-size: 24px; font-weight: bold;" id="marketSymbol">SPY</div>
+      </div>
+    </div>
+    
+    <!-- Status Messages -->
+    <div id="statusMessage" class="battle-status" style="display: none;"></div>
+    
+    <!-- Battle Grid -->
+    <div id="battleGrid" class="battle-grid">
+      <!-- Your Panel -->
+      <div class="player-panel you">
+        <div class="player-header">
+          <div>
+            <div class="player-name" id="yourName">You</div>
+            <div class="player-elo" id="yourElo">Elo: 1200</div>
+          </div>
+          <div style="font-size: 24px;"><span class="icon" data-icon="user"></span></div>
+        </div>
+        
+        <div class="portfolio-stats">
+          <div class="stat-row">
+            <span class="stat-label">Portfolio Value</span>
+            <span class="stat-value" id="yourPortfolioValue">$100,000</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Cash</span>
+            <span class="stat-value" id="yourCash">$100,000</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Return</span>
+            <span class="stat-value" id="yourReturn">+$0 (0.00%)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Trades</span>
+            <span class="stat-value" id="yourTrades">0</span>
+          </div>
+        </div>
+        
+        <h3 style="margin-bottom: 10px;">Your Trades</h3>
+        <div class="trade-feed" id="yourTradeFeed">
+          <div style="color: #9ca3af; text-align: center; padding: 20px;">
+            No trades yet
+          </div>
+        </div>
+      </div>
+      
+      <!-- Center Panel - Chart & Trading -->
+      <div class="center-panel">
+        <div class="chart-container" id="chartContainer">
+          <span class="icon" data-icon="chart-up"></span> Price Chart Loading...
+        </div>
+        
+        <div class="trade-controls">
+          <div>
+            <div class="trade-input-group">
+              <label>Symbol</label>
+              <input type="text" id="tradeSymbol" value="SPY" placeholder="SPY">
+            </div>
+            
+            <div class="trade-input-group">
+              <label>Shares</label>
+              <input type="number" id="tradeShares" min="1" value="10" placeholder="10">
+            </div>
+            
+            <button class="trade-btn buy" onclick="executeTrade('buy')">
+              <span class="icon" data-icon="chart-up"></span> BUY
+            </button>
+          </div>
+          
+          <div>
+            <div class="trade-input-group">
+              <label>Current Price</label>
+              <input type="text" id="currentPrice" value="$450.00" readonly>
+            </div>
+            
+            <div class="trade-input-group">
+              <label>Est. Cost</label>
+              <input type="text" id="estimatedCost" value="$4,500" readonly>
+            </div>
+            
+            <button class="trade-btn sell" onclick="executeTrade('sell')">
+              <span class="icon" data-icon="chart-down"></span> SELL
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Opponent Panel -->
+      <div class="player-panel opponent">
+        <div class="player-header">
+          <div>
+            <div class="player-name" id="opponentName">Opponent</div>
+            <div class="player-elo" id="opponentElo">Elo: 1200</div>
+          </div>
+          <div style="font-size: 24px;"><span class="icon" data-icon="robot"></span></div>
+        </div>
+        
+        <div class="portfolio-stats">
+          <div class="stat-row">
+            <span class="stat-label">Portfolio Value</span>
+            <span class="stat-value" id="opponentPortfolioValue">$100,000</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Cash</span>
+            <span class="stat-value" id="opponentCash">$100,000</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Return</span>
+            <span class="stat-value" id="opponentReturn">+$0 (0.00%)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Trades</span>
+            <span class="stat-value" id="opponentTrades">0</span>
+          </div>
+        </div>
+        
+        <h3 style="margin-bottom: 10px;">Opponent Trades</h3>
+        <div class="trade-feed" id="opponentTradeFeed">
+          <div style="color: #9ca3af; text-align: center; padding: 20px;">
+            No trades yet
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Battle Results (hidden initially) -->
+    <div id="battleResults" class="battle-results" style="display: none;">
+      <div class="winner-badge" id="resultEmoji"><span class="icon" data-icon="trophy"></span></div>
+      <div class="result-title" id="resultTitle">Victory!</div>
+      <div id="resultSubtitle" style="font-size: 18px; color: #6b7280; margin-bottom: 20px;">
+        You outperformed your opponent!
+      </div>
+      
+      <div class="result-stats">
+        <div class="result-card">
+          <h3>Your Performance</h3>
+          <div style="font-size: 24px; font-weight: bold; margin: 10px 0;" id="yourFinalReturn">
+            +$5,000 (5.00%)
+          </div>
+          <div style="color: #6b7280;">
+            <div id="yourFinalTrades">15 trades executed</div>
+            <div id="yourFinalSharpe">Sharpe Ratio: 1.5</div>
+          </div>
+          <div class="elo-change positive" id="yourEloChange">+24</div>
+          <div style="color: #6b7280; margin-top: 5px;">New Elo: <span id="yourNewElo">1224</span></div>
+        </div>
+        
+        <div class="result-card">
+          <h3>Opponent Performance</h3>
+          <div style="font-size: 24px; font-weight: bold; margin: 10px 0;" id="opponentFinalReturn">
+            +$3,000 (3.00%)
+          </div>
+          <div style="color: #6b7280;">
+            <div id="opponentFinalTrades">12 trades executed</div>
+            <div id="opponentFinalSharpe">Sharpe Ratio: 1.2</div>
+          </div>
+          <div class="elo-change negative" id="opponentEloChange">-24</div>
+          <div style="color: #6b7280; margin-top: 5px;">New Elo: <span id="opponentNewElo">1176</span></div>
+        </div>
+      </div>
+      
+      <button class="back-btn" onclick="window.location.href='matchmaking.html'">
+        Return to Matchmaking
+      </button>
+    </div>
+  </div>
+  
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="battle.js"></script>
+</body>
+</html>

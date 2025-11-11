@@ -69,34 +69,6 @@ type RecommendationResponse = {
   recommendations: Recommendation[];
 };
 
-const AUTH_BASE =
-  process.env.NEXT_PUBLIC_AUTH_BASE_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  process.env.API_BASE_URL ??
-  "";
-
-function buildAuthUrl(path: string) {
-  if (!path) return path;
-  if (!path.startsWith("/")) return path;
-  if (!AUTH_BASE) return path;
-  return `${AUTH_BASE.replace(/\/$/, "")}${path}`;
-}
-
-const authProviders = [
-  {
-    key: "google",
-    label: "Continue with Google",
-    description: "Sync watchlists, saves, and simulator progress instantly.",
-    href: buildAuthUrl("/auth/google"),
-  },
-  {
-    key: "facebook",
-    label: "Continue with Facebook",
-    description: "Find friends, compare portfolios, and share playbooks.",
-    href: buildAuthUrl("/auth/facebook"),
-  },
-];
-
 const spotlightCards = [
   {
     title: "Daily Market Pulse",
@@ -163,7 +135,8 @@ const defaultStories = [
   },
 ];
 
-const signupRoute = "/signup" as Route;
+const signUpRoute = "/sign-up" as Route;
+const signInRoute = "/sign-in" as Route;
 const demoRoute = "/demo" as Route;
 const lessonsRoute = "/lessons" as Route;
 
@@ -276,9 +249,9 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-center gap-3">
             <Link
               className="inline-flex items-center gap-2 rounded-full border border-accent-primary/40 bg-accent-primary/10 px-5 py-2 text-sm font-semibold text-accent-primary outline outline-2 outline-transparent transition hover:outline-black"
-              href={signupRoute}
+              href={signUpRoute}
             >
-              Create account with email
+              Create your account
               <ArrowUpRight className="h-4 w-4" />
             </Link>
             <Link
@@ -293,45 +266,29 @@ export default async function HomePage() {
         <div className="space-y-6">
           <div className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-6 shadow-inner">
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-text-primary">Sign in to your cockpit</h2>
+              <h2 className="text-xl font-semibold text-text-primary">Sign in with Clerk</h2>
               <p className="text-sm text-text-secondary">
-                Pick a provider below to unlock synced preferences, saved workspaces, and multiplayer features.
+                Securely authenticate with Clerk to resume saved workspaces, simulator runs, and personalized alerts on any device.
               </p>
             </div>
-            <div className="space-y-3">
-              {authProviders.map((provider) => (
-                <a
-                  key={provider.key}
-                  href={provider.href}
-                  className="group flex items-center justify-between gap-4 rounded-xl border border-outline/30 bg-surface-base/80 px-4 py-3 transition hover:border-accent-primary/60 hover:bg-accent-primary/10"
-                >
-                  <span className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-outline/20 bg-surface-muted text-sm font-semibold uppercase text-text-primary">
-                      {provider.key === "google" ? "G" : "F"}
-                    </span>
-                    <span className="flex flex-col">
-                      <span className="text-sm font-semibold text-text-primary transition group-hover:text-accent-primary">
-                        {provider.label}
-                      </span>
-                      <span className="text-xs font-medium text-text-secondary">
-                        {provider.description}
-                      </span>
-                    </span>
-                  </span>
-                  <ArrowUpRight className="h-4 w-4 text-text-muted transition group-hover:text-accent-primary" />
-                </a>
-              ))}
-            </div>
-            <div className="mt-4 rounded-xl border border-dashed border-outline/30 bg-surface-muted/80 p-4 text-xs text-text-secondary">
-              Prefer a classic password? {" "}
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Link
-                className="font-semibold text-accent-primary transition hover:text-accent-secondary"
-                href={signupRoute}
+                href={signInRoute}
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-accent-primary/40 bg-accent-primary/10 px-4 py-3 text-sm font-semibold text-accent-primary outline outline-2 outline-transparent transition hover:border-accent-primary hover:bg-accent-primary/20 hover:outline-black"
               >
-                Create an Invest101 account
+                Access your account
+                <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
               </Link>
-              .
+              <Link
+                href={signUpRoute}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-outline/30 bg-surface-base/90 px-4 py-3 text-sm font-semibold text-text-primary outline outline-2 outline-transparent transition hover:border-accent-primary/60 hover:bg-accent-primary/10 hover:outline-black"
+              >
+                Create an account
+              </Link>
             </div>
+            <p className="mt-4 rounded-xl border border-dashed border-outline/30 bg-surface-muted/80 p-4 text-xs text-text-secondary">
+              Clerk handles passwordless links, passkeys, and MFA for you. You can always manage sessions and devices from your Clerk profile after signing in.
+            </p>
           </div>
           <dl className="grid gap-4 sm:grid-cols-2">
             {metrics.map((metric) => (

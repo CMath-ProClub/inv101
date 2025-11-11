@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const { authMiddleware } = require('../middleware/auth');
 const { issueTokens, clearAuthCookies } = require('../services/authTokens');
+const { optionalClerkUser } = require('../clerkAuth');
 
 const router = express.Router();
 
@@ -127,6 +128,22 @@ router.get('/me', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Me endpoint error:', error);
     return res.status(500).json({ success: false, error: 'Unable to load account.' });
+  }
+});
+
+router.post('/clerk/sync', optionalClerkUser, async (req, res) => {
+  try {
+    if (!req.auth || !req.auth.userId || !req.user) {
+      return res.status(401).json({ success: false, error: 'Clerk session not found.' });
+    }
+
+    const user = req.user;
+    await issueTokens(res, user, { rememberMe: true });
+    return res.json({ success: true, user: sanitizeUser(user) });
+  } catch (error) {
+    console.error('Clerk sync error:', error);
+    clearAuthCookies(res);
+    return res.status(500).json({ success: false, error: 'Unable to sync Clerk session.' });
   }
 });
 

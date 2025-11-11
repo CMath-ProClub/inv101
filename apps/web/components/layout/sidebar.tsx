@@ -38,6 +38,7 @@ const storageKey = "invest101:sidebar-collapsed";
 export function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const isAuthRoute = pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -51,6 +52,10 @@ export function Sidebar() {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(storageKey, String(collapsed));
   }, [collapsed]);
+
+  if (isAuthRoute) {
+    return null;
+  }
 
   const TAB_WIDTH_REM = 1.75;
   const EXPANDED_WIDTH_REM = 18;

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sign Up - Investing101</title>
+	<link rel="stylesheet" href="dist/main.css">
+	<style>
+		:root {
+			--signup-bg: linear-gradient(135deg, #04131d, #0f4c3a 58%, #0fa36b);
+			--signup-card-bg: rgba(10, 21, 28, 0.92);
+			--signup-hero-glow: rgba(53, 235, 178, 0.35);
+		}
+
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			height: 100%;
+			margin: 0;
+		}
+
+		body.signup-page {
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: var(--signup-bg);
+			color: #f2fbf7;
+			font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			position: relative;
+			overflow: hidden;
+		}
+
+		body.signup-page::before,
+		body.signup-page::after {
+			content: "";
+			position: absolute;
+			width: 420px;
+			height: 420px;
+			border-radius: 50%;
+			background: radial-gradient(circle at center, var(--signup-hero-glow), rgba(5, 24, 34, 0));
+			z-index: 0;
+		}
+
+		body.signup-page::before {
+			top: -120px;
+			left: -140px;
+		}
+
+		body.signup-page::after {
+			bottom: -160px;
+			right: -140px;
+		}
+
+		.signup-shell {
+			position: relative;
+			z-index: 1;
+			width: 100%;
+			max-width: 450px;
+			padding: 20px;
+		}
+
+		.signup-card {
+			background: var(--signup-card-bg);
+			backdrop-filter: blur(12px);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 24px;
+			padding: 48px 40px;
+			box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+		}
+
+		.signup-header {
+			text-align: center;
+			margin-bottom: 32px;
+		}
+
+		.signup-logo {
+			font-size: 2.5rem;
+			margin-bottom: 12px;
+		}
+
+		.signup-title {
+			font-size: 28px;
+			font-weight: 700;
+			margin-bottom: 8px;
+			color: #fff;
+		}
+
+		.signup-subtitle {
+			color: rgba(224, 236, 231, 0.72);
+			font-size: 15px;
+		}
+
+		/* Clerk component container */
+		#clerk-signup {
+			margin: 24px 0;
+		}
+
+		.signup-footer {
+			text-align: center;
+			margin-top: 24px;
+			padding-top: 24px;
+			border-top: 1px solid rgba(255, 255, 255, 0.08);
+		}
+
+		.signup-footer-text {
+			color: rgba(224, 236, 231, 0.72);
+			font-size: 14px;
+		}
+
+		.signup-footer-link {
+			color: #2dd4bf;
+			text-decoration: none;
+			font-weight: 600;
+			transition: color 0.2s;
+		}
+
+		.signup-footer-link:hover {
+			color: #5eead4;
+		}
+
+		/* Loading state */
+		.loading {
+			text-align: center;
+			padding: 40px;
+			color: rgba(224, 236, 231, 0.72);
+		}
+
+		.loading-spinner {
+			display: inline-block;
+			width: 40px;
+			height: 40px;
+			border: 4px solid rgba(45, 212, 191, 0.3);
+			border-top-color: #2dd4bf;
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+			margin-bottom: 16px;
+		}
+
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+	</style>
+</head>
+<body class="signup-page">
+	<div class="signup-shell">
+		<div class="signup-card">
+			<div class="signup-header">
+				<div class="signup-logo"><span class="icon" data-icon="chart-up"></span></div>
+				<h1 class="signup-title">Start Your Journey</h1>
+				<p class="signup-subtitle">Create an account to begin learning</p>
+			</div>
+
+			<!-- Clerk Sign Up Component -->
+			<div id="clerk-signup">
+				<div class="loading">
+					<div class="loading-spinner"></div>
+					<p>Loading sign up...</p>
+				</div>
+			</div>
+
+			<div class="signup-footer">
+				<p class="signup-footer-text">
+					Already have an account?
+					<a href="/signin.html" class="signup-footer-link">Sign in</a>
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Clerk JavaScript SDK -->
+	<script
+		async
+		crossorigin="anonymous"
+		data-clerk-publishable-key="pk_test_Y2FzdWFsLXBvcnBvaXNlLTEzLmNsZXJrLmFjY291bnRzLmRldiQ"
+		src="https://casual-porpoise-13.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+		type="text/javascript"
+	></script>
+
+	<script>
+		window.addEventListener("load", async function () {
+			// Wait for Clerk to load
+			if (window.Clerk) {
+				await window.Clerk.load();
+
+				// Mount the sign-up component
+				const signUpDiv = document.getElementById("clerk-signup");
+				window.Clerk.mountSignUp(signUpDiv, {
+					appearance: {
+						elements: {
+							rootBox: {
+								width: "100%",
+							},
+							card: {
+								backgroundColor: "transparent",
+								border: "none",
+								boxShadow: "none",
+							},
+						},
+						variables: {
+							colorPrimary: "#2dd4bf",
+							colorBackground: "transparent",
+							colorText: "#f2fbf7",
+							colorTextSecondary: "rgba(224, 236, 231, 0.72)",
+							colorInputBackground: "rgba(8, 21, 28, 0.75)",
+							colorInputText: "#f2fbf7",
+						},
+					},
+					// Redirect to onboarding after successful sign up
+					afterSignUpUrl: "/onboarding.html",
+					// Redirect to sign in if user already has an account
+					signInUrl: "/signin.html",
+				});
+			} else {
+				console.error("Clerk failed to load");
+				document.getElementById("clerk-signup").innerHTML = 
+					'<p style="color: #ff6b6b; text-align: center;">Failed to load authentication. Please refresh the page.</p>';
+			}
+		});
+	</script>
+</body>
+</html>

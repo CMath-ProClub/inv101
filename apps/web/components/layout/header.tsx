@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShareButton } from "../ui/share-button";
 import { ThemeSwitcher } from "../ui/theme-switcher";
 
 export function Header() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up")) {
+    return null;
+  }
+
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-outline/30 bg-surface-elevated/80 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
       <div className="flex h-[var(--header-height)] w-full items-center gap-6 px-4 sm:px-6 lg:px-10">
