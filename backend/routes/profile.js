@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { authMiddleware } = require('../middleware/auth');
+const { getClerkUser, optionalClerkUser } = require('../clerkAuth');
 
 // Get current user's profile
-router.get('/me', authMiddleware, async (req, res) => {
+router.get('/me', ...getClerkUser, async (req, res) => {
   try {
     const user = await User.findById(req.userId)
       .select('-passwordHash -refreshTokens')
@@ -33,7 +33,19 @@ router.get('/me', authMiddleware, async (req, res) => {
         portfolioValue: user.portfolioValue,
         performancePercent: user.performancePercent,
         rank: user.rank,
-        badges: user.badges,
+  badges: user.badges,
+  level: user.level,
+  xp: user.xp,
+  skillLevel: user.skillLevel,
+  streak: user.streak,
+  longestStreak: user.longestStreak,
+  onboardingCompleted: user.onboardingCompleted,
+  onboardingScore: user.onboardingScore,
+  preferredTopics: user.preferredTopics,
+  learningGoals: user.learningGoals,
+  riskTolerance: user.riskTolerance,
+  subscriptionTier: user.subscriptionTier,
+  calculationsRun: user.calculationsRun,
         following: user.following,
         followers: user.followers,
         followingCount: user.following.length,
@@ -47,7 +59,7 @@ router.get('/me', authMiddleware, async (req, res) => {
 });
 
 // Update current user's profile
-router.put('/me', authMiddleware, async (req, res) => {
+router.put('/me', ...getClerkUser, async (req, res) => {
   try {
     const {
       displayName,
@@ -93,7 +105,7 @@ router.put('/me', authMiddleware, async (req, res) => {
 });
 
 // Get any user's public profile
-router.get('/:username', async (req, res) => {
+router.get('/:username', ...optionalClerkUser, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username })
       .select('-passwordHash -refreshTokens -email')
@@ -137,7 +149,7 @@ router.get('/:username', async (req, res) => {
 });
 
 // Follow a user
-router.post('/:username/follow', authMiddleware, async (req, res) => {
+router.post('/:username/follow', ...getClerkUser, async (req, res) => {
   try {
     const targetUser = await User.findOne({ username: req.params.username });
     const currentUser = await User.findById(req.userId);
@@ -169,7 +181,7 @@ router.post('/:username/follow', authMiddleware, async (req, res) => {
 });
 
 // Unfollow a user
-router.post('/:username/unfollow', authMiddleware, async (req, res) => {
+router.post('/:username/unfollow', ...getClerkUser, async (req, res) => {
   try {
     const targetUser = await User.findOne({ username: req.params.username });
     const currentUser = await User.findById(req.userId);

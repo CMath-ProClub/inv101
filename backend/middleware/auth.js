@@ -46,8 +46,9 @@ function authMiddleware(req, res, next) {
   if (!token) return res.status(401).json({ success: false, error: 'Authorization token missing' });
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    req.user = { id: payload.sub, email: payload.email };
+  const payload = jwt.verify(token, JWT_SECRET);
+  req.user = { id: payload.sub, email: payload.email, _id: payload.sub };
+  req.userId = payload.sub;
     next();
   } catch (e) {
     return res.status(401).json({ success: false, error: 'Invalid or expired token' });

@@ -89,6 +89,11 @@ async function syncClerkUser(req, res, next) {
     
     // Attach user to request for downstream middleware
     req.user = user;
+    req.userId = user._id ? user._id.toString() : undefined;
+    req.authUser = user;
+    if (res && res.locals) {
+      res.locals.user = user;
+    }
     next();
   } catch (error) {
     console.error('Error syncing Clerk user:', error);

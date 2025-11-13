@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const Achievement = require('../models/Achievement');
 const UserAchievement = require('../models/UserAchievement');
-const { authMiddleware } = require('../middleware/auth');
+const { getClerkUser } = require('../clerkAuth');
 
 // Get all achievements with user progress
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', ...getClerkUser, async (req, res) => {
   try {
+    const userId = req.userId || req.user?._id || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { category } = req.query;
     
     const query = { isActive: true };
@@ -18,7 +23,7 @@ router.get('/', authMiddleware, async (req, res) => {
     
     // Get user's progress for these achievements
     const userAchievements = await UserAchievement.find({
-      userId: req.user.id,
+      userId,
       achievementId: { $in: achievements.map(a => a._id) }
     });
     
@@ -66,8 +71,13 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // Get specific achievement with progress
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:id', ...getClerkUser, async (req, res) => {
   try {
+    const userId = req.userId || req.user?._id || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const achievement = await Achievement.findById(req.params.id);
     
     if (!achievement) {
@@ -78,7 +88,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
     }
     
     const userAchievement = await UserAchievement.findOne({
-      userId: req.user.id,
+      userId,
       achievementId: achievement._id
     });
     
@@ -101,8 +111,13 @@ router.get('/:id', authMiddleware, async (req, res) => {
 });
 
 // Update achievement progress (internal use, could be protected)
-router.post('/:id/progress', authMiddleware, async (req, res) => {
+router.post('/:id/progress', ...getClerkUser, async (req, res) => {
   try {
+    const userId = req.userId || req.user?._id || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { progress } = req.body;
     
     if (typeof progress !== 'number') {
@@ -122,13 +137,13 @@ router.post('/:id/progress', authMiddleware, async (req, res) => {
     }
     
     let userAchievement = await UserAchievement.findOne({
-      userId: req.user.id,
+      userId,
       achievementId: achievement._id
     });
     
     if (!userAchievement) {
       userAchievement = new UserAchievement({
-        userId: req.user.id,
+        userId,
         achievementId: achievement._id,
         progress: 0
       });
@@ -144,7 +159,7 @@ router.post('/:id/progress', authMiddleware, async (req, res) => {
       // Create notification
       const Notification = require('../models/Notification');
       await Notification.createNotification(
-        req.user.id,
+        userId,
         'achievement',
         'Achievement Unlocked!',
         `You've unlocked the "${achievement.title}" achievement!`,
@@ -154,7 +169,7 @@ router.post('/:id/progress', authMiddleware, async (req, res) => {
       // Create activity
       const Activity = require('../models/Activity');
       await Activity.createActivity(
-        req.user.id,
+        userId,
         'achievement',
         `Unlocked the "${achievement.title}" achievement`,
         { achievementId: achievement._id, rarity: achievement.rarity }
@@ -176,12 +191,17 @@ router.post('/:id/progress', authMiddleware, async (req, res) => {
 });
 
 // Get recently unlocked achievements
-router.get('/recent/unlocked', authMiddleware, async (req, res) => {
+router.get('/recent/unlocked', ...getClerkUser, async (req, res) => {
   try {
+    const userId = req.userId || req.user?._id || req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
     const { limit = 10 } = req.query;
     
     const recentAchievements = await UserAchievement.find({
-      userId: req.user.id,
+      userId,
       isUnlocked: true
     })
       .sort({ unlockedAt: -1 })

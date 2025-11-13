@@ -4,10 +4,10 @@ const Portfolio = require('../models/Portfolio');
 const Trade = require('../models/Trade');
 const User = require('../models/User');
 const marketData = require('../services/marketDataAggregator');
-const { authMiddleware } = require('../middleware/auth');
+const { getClerkUser } = require('../clerkAuth');
 
-// All routes require authentication
-router.use(authMiddleware);
+// All routes require authentication via Clerk
+router.use(...getClerkUser);
 
 /**
  * GET /api/simulator/portfolio
