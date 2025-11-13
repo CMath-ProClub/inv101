@@ -5,8 +5,7 @@ const {
   listProviderMetadata,
   fetchSample,
   getProviderConfig,
-  isProviderConfigured,
-  googleWorkspace
+  isProviderConfigured
 } = require('../services/external');
 const { ExternalApiError, MissingApiConfigurationError } = require('../services/external/errors');
 
@@ -91,7 +90,7 @@ router.get('/:providerId/sample', async (req, res) => {
 router.get('/google/workspace/status', (req, res) => {
   res.json({
     success: true,
-    gmailDependencyLoaded: googleWorkspace.dependencyLoaded
+     gmailDependencyLoaded: false
   });
 });
 

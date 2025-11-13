@@ -9,7 +9,6 @@ const sec = require('./sec');
 const stockdataOrg = require('./stockdataOrg');
 const nasdaqDataLink = require('./nasdaqDataLink');
 const yahooFinance = require('./yahooFinance');
-const googleWorkspace = require('./googleWorkspace');
 
 const SAMPLE_HANDLERS = {
   marketstack: async (options = {}) => {
@@ -86,5 +85,4 @@ module.exports = {
   fetchSample,
   getProviderConfig,
   isProviderConfigured,
-  googleWorkspace
 };

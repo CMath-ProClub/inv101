@@ -152,3 +152,64 @@ body {
 * {
   border-color: rgb(var(--outline-color) / 0.2);
 }
+
+@keyframes orb-drift-slow {
+  0% {
+    transform: translate3d(-14%, -12%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8%, 6%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-10%, 14%, 0) scale(1);
+  }
+}
+
+@keyframes orb-drift-medium {
+  0% {
+    transform: translate3d(10%, 4%, 0) scale(0.92);
+  }
+  50% {
+    transform: translate3d(-12%, -10%, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(8%, 8%, 0) scale(0.94);
+  }
+}
+
+@keyframes orb-drift-fast {
+  0% {
+    transform: translate3d(-8%, 10%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, -6%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-4%, 12%, 0) scale(0.98);
+  }
+}
+
+@layer utilities {
+  .animate-orb-slow {
+    animation: orb-drift-slow 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .animate-orb-medium {
+    animation: orb-drift-medium 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .animate-orb-fast {
+    animation: orb-drift-fast 18s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-orb-slow,
+  .animate-orb-medium,
+  .animate-orb-fast {
+    animation: none;
+  }
+}

@@ -108,15 +108,14 @@
 			<li><strong>Password</strong> - Securely hashed (we never store plaintext passwords)</li>
 		</ul>
 		
-		<h3>1.2 OAuth Authentication</h3>
-		<p>If you sign in with Google or Facebook, we receive:</p>
+		<h3>1.2 Clerk Authentication</h3>
+		<p>When you authenticate through Clerk&mdash;whether by email, magic links, or social providers such as Google or Apple&mdash;we receive:</p>
 		<ul>
 			<li><strong>Email address</strong></li>
-			<li><strong>Name</strong></li>
-			<li><strong>Profile picture</strong> (optional)</li>
-			<li><strong>Unique OAuth ID</strong> - To link your account</li>
+			<li><strong>Name and profile image</strong> (if shared by Clerk)</li>
+			<li><strong>Clerk user ID</strong> and provider metadata to link your Investing101 profile</li>
 		</ul>
-		<p>We do not receive your Google/Facebook password.</p>
+		<p>Clerk never shares your passwords with us. Social providers interact directly with Clerk; we only receive the verified identity payload Clerk forwards.</p>
 		
 		<h3>1.3 Usage Data</h3>
 		<p>We automatically collect:</p>
@@ -149,7 +148,7 @@
 			<tbody>
 				<tr>
 					<td><strong>Account Management</strong></td>
-					<td>Email, password hash, OAuth ID</td>
+					<td>Email, password hash (if applicable), Clerk user ID</td>
 				</tr>
 				<tr>
 					<td><strong>Service Delivery</strong></td>
@@ -221,8 +220,7 @@
 		
 		<h3>4.2 Authentication Providers</h3>
 		<ul>
-			<li><strong>Google OAuth</strong> - <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
-			<li><strong>Facebook OAuth</strong> - <a href="https://www.facebook.com/privacy/policy/" target="_blank">Facebook Privacy Policy</a></li>
+			<li><strong>Clerk</strong> - <a href="https://clerk.com/legal/privacy" target="_blank">Clerk Privacy Policy</a><br><small>Clerk may interact with providers such as Google or Apple when you opt into social sign-in. Those providers process your credentials directly and return verified identity tokens to Clerk.</small></li>
 		</ul>
 		
 		<h3>4.3 News Providers</h3>

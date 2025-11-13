@@ -77,24 +77,12 @@ const providers = {
     docs: 'https://docs.data.nasdaq.com/',
     notes: 'Financial and economic datasets (formerly Quandl). Many free endpoints.'
   },
-  gmailApi: {
-    id: 'gmailApi',
-    name: 'Gmail API',
-    category: 'productivity',
-    baseUrl: 'https://gmail.googleapis.com/gmail/v1',
-    authType: 'oauth2',
-    clientId: process.env.GMAIL_CLIENT_ID,
-    clientSecret: process.env.GMAIL_CLIENT_SECRET,
-    redirectUri: process.env.GMAIL_REDIRECT_URI,
-    docs: 'https://developers.google.com/gmail/api',
-    notes: 'Requires Google Cloud project, OAuth consent screen, and delegated scopes.'
-  },
   googleSheets: {
     id: 'googleSheets',
     name: 'Google Sheets API',
     category: 'productivity',
     baseUrl: 'https://sheets.googleapis.com/v4',
-    authType: 'oauth2',
+    authType: 'serviceAccount',
     clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     privateKey: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
     docs: 'https://developers.google.com/workspace/sheets/api/reference/rest',
@@ -128,10 +116,7 @@ function isProviderConfigured(id) {
   switch (provider.authType) {
     case 'apiKey':
       return Boolean(provider.apiKey);
-    case 'oauth2':
-      if (id === 'gmailApi') {
-        return Boolean(provider.clientId && provider.clientSecret && provider.redirectUri);
-      }
+    case 'serviceAccount':
       if (id === 'googleSheets') {
         return Boolean(provider.clientEmail && provider.privateKey);
       }

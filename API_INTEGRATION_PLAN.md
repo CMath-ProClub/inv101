@@ -381,7 +381,7 @@ class RealtimeUpdater {
 
 **Week 1-2: Authentication & Profiles** ✅ (Done)
 - Sign up/sign in with email
-- Google/Facebook OAuth
+- Clerk-managed social sign-in (Google, Apple, etc.)
 - User profiles with avatars, bios
 - Follow/unfollow system
 

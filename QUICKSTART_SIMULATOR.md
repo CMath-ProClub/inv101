@@ -240,8 +240,8 @@ For each stock you own:
 
 ### Authentication
 - Sign up with email
-- Sign in with Google OAuth
-- Secure JWT-based sessions
+- Sign in with Clerk-managed social providers (Google, Apple, etc.)
+- Secure Clerk session management
 - Remember me option
 
 ### Profile Privacy

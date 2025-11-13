@@ -351,7 +351,7 @@
 
 		.signup-divider {
 			position: relative;
-			margin: 24px 0;
+			margin: 24px 0 16px;
 			text-align: center;
 		}
 
@@ -362,6 +362,8 @@
 			z-index: 1;
 			color: var(--signin-muted);
 			font-size: 0.9rem;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
 		}
 
 		.signup-divider::before {
@@ -374,31 +376,37 @@
 			background: var(--signin-border);
 		}
 
-		.signup-oauth {
+		.signup-clerk-info {
 			display: flex;
+			flex-direction: column;
 			gap: 12px;
+			padding: 18px 20px;
+			background: rgba(45, 212, 191, 0.08);
+			border: 1px solid rgba(45, 212, 191, 0.25);
+			border-radius: 12px;
+			color: rgba(173, 241, 226, 0.9);
+			font-size: 0.9rem;
 		}
 
-		.signup-oauth-btn {
-			flex: 1;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 10px;
-			padding: 13px 20px;
-			background: rgba(255, 255, 255, 0.05);
-			border: 1px solid var(--signin-border);
+		.signup-clerk-info strong {
+			color: #2dd4bf;
+			font-weight: 600;
+		}
+
+		.signup-clerk-link {
+			align-self: flex-start;
+			padding: 12px 18px;
+			background: linear-gradient(135deg, var(--signin-primary), var(--signin-primary-dark));
 			border-radius: 10px;
-			color: #f2fbf7;
-			font-size: 0.95rem;
-			font-weight: 500;
-			cursor: pointer;
-			transition: all 180ms ease;
+			color: #051821;
+			font-weight: 600;
+			text-decoration: none;
+			transition: transform 0.2s ease, box-shadow 0.2s ease;
 		}
 
-		.signup-oauth-btn:hover {
-			background: rgba(255, 255, 255, 0.08);
-			border-color: rgba(255, 255, 255, 0.15);
+		.signup-clerk-link:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 12px 24px rgba(45, 212, 191, 0.3);
 		}
 
 		.signup-footer {
@@ -534,25 +542,13 @@
 			</form>
 			
 			<div class="signup-divider">
-				<span>or sign up with</span>
+				<span>Secured by Clerk</span>
 			</div>
-			
-			<div class="signup-oauth">
-				<button class="signup-oauth-btn" type="button" onclick="window.location.href='/auth/google'">
-					<svg width="18" height="18" viewBox="0 0 18 18">
-						<path fill="#EA4335" d="M9 7.2v3.6h5.1c-.2 1.2-.9 2.3-1.9 3l3.1 2.4c1.8-1.7 2.8-4.1 2.8-6.8 0-.7-.1-1.3-.2-1.9H9z"/>
-						<path fill="#34A853" d="M4.3 10.7l-.7.5-2.5 1.9C2.8 15.9 5.7 17.7 9 17.7c2.4 0 4.4-.8 5.9-2.3l-3.1-2.4c-.8.5-1.8.8-2.8.8-2.1 0-3.8-1.4-4.4-3.2z"/>
-						<path fill="#4285F4" d="M16.9 5.4l-3.1 2.4c-.4-1.1-1.2-2-2.3-2.5-.9-.4-1.8-.6-2.8-.6-3.3 0-6.2 1.8-7.7 4.5l3.2 2.4c.6-1.8 2.3-3.2 4.4-3.2 1 0 1.9.3 2.8.8.8.5 1.5 1.2 1.9 2.1l3.1-2.4z"/>
-						<path fill="#FBBC05" d="M1.6 5.9l3.2 2.4c-.2.5-.3 1-.3 1.5s.1 1 .3 1.5l-3.2 2.4C.9 12.6.6 11.3.6 9.8c0-1.5.3-2.8 1-3.9z"/>
-					</svg>
-					Google
-				</button>
-				<button class="signup-oauth-btn" type="button" onclick="window.location.href='/auth/facebook'">
-					<svg width="18" height="18" viewBox="0 0 24 24" fill="#1877f2">
-						<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-					</svg>
-					Facebook
-				</button>
+
+			<div class="signup-clerk-info">
+				<p><strong>Clerk handles every login for Investing101.</strong> Use the main web app for social providers or passwordless links.</p>
+				<p>Need to finish account creation with Google or Apple? Launch the Next.js experience and complete the flow directly inside Clerk.</p>
+				<a class="signup-clerk-link" href="http://localhost:3000/sign-up">Open Clerk Sign-Up</a>
 			</div>
 			
 			<button type="button" class="signup-guest" onclick="continueAsGuest()">
@@ -564,8 +560,6 @@
 			</div>
 		</main>
 	</div>
-		</section>
-	</main>
 	
 	<script>
 		(function () {

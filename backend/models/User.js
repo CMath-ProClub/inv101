@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true, sparse: true, lowercase: true },
   passwordHash: { type: String }, // Only for Investing101 accounts
   provider: { type: String, enum: ['investing101', 'google', 'facebook', 'microsoft'], default: 'investing101' },
-  providerId: { type: String }, // For OAuth accounts
+  providerId: { type: String }, // Reserved for legacy social logins
   createdAt: { type: Date, default: Date.now },
   // Profile features
   bio: { type: String, maxlength: 500 },

@@ -3,11 +3,11 @@
 ## What We Just Built
 
 ### 1. Fixed Authentication System
-- ✅ **Sign In Page** - Fully functional with backend integration
-- ✅ **Sign Up Page** - Create accounts with email/password
-- ✅ **OAuth Integration** - Google and Facebook login ready
-- ✅ **Session Management** - JWT tokens with refresh mechanism
-- ✅ **Auto-redirect** - Already logged-in users skip sign-in page
+- ✅ **Sign In Page** - Fully functional via Clerk-hosted UI
+- ✅ **Sign Up Page** - Create accounts with email/password or social providers
+- ✅ **Clerk Integration** - Clerk handles identity, sessions, and social login toggles
+- ✅ **Session Management** - Clerk session cookies bridged to backend middleware
+- ✅ **Auto-redirect** - Clerk components skip auth pages for active sessions
 
 ### 2. User Profile System
 - ✅ **Profile Model** - Extended with social features:
@@ -26,11 +26,11 @@
   - `GET /api/profile/leaderboard/top` - Rankings
   - `GET /api/profile/search/users` - Find users
 
-### 3. OAuth Configuration
-- ✅ **Google OAuth** - Production-ready setup
-- ✅ **Facebook OAuth** - Production-ready setup
-- ✅ **Account Linking** - OAuth accounts link to existing emails
-- ✅ **Documentation** - Complete setup guide in `OAUTH_SETUP.md`
+### 3. Clerk Configuration
+- ✅ **Clerk Dashboard** - Production and development instances configured
+- ✅ **Environment Variables** - `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, optional webhooks
+- ✅ **Account Linking** - Social identities managed centrally in Clerk
+- ✅ **Documentation** - See `CLERK_MIGRATION_GUIDE.md` and `CLERK_SETUP_QUICK.md`
 
 ### 4. Database Enhancements
 - ✅ **User Model** - Added profile fields
@@ -44,32 +44,25 @@
 
 ### 1. Sign Up for a New Account
 
-1. Navigate to `http://localhost:4000/signup.html`
-2. Fill in email, display name, password
-3. Click "Create Account"
-4. You'll be redirected to `/profile.html` (to be built)
+1. Navigate to the Next.js `/sign-up` route or `http://localhost:4000/signup-clerk.html` prototype.
+2. Complete the Clerk form (email/password or enabled social provider).
+3. Approve the verification email and finish onboarding.
+4. Confirm the app routes back to the dashboard/profile experience.
 
 ### 2. Sign In with Email
 
-1. Navigate to `http://localhost:4000/signin.html`
-2. Enter your email and password
-3. Click "Continue"
-4. Redirected to profile page
+1. Navigate to `/sign-in` (Next.js) or `http://localhost:4000/signin-clerk.html`.
+2. Enter your credentials.
+3. Clerk should restore the session and redirect to the authenticated area.
 
-### 3. Test OAuth (After Setup)
+### 3. Validate Clerk Session Bridge
 
-1. Get OAuth credentials from Google/Facebook
-2. Add to `.env` file:
-   ```bash
-   GOOGLE_CLIENT_ID=your-id
-   GOOGLE_CLIENT_SECRET=your-secret
-   FACEBOOK_APP_ID=your-id
-   FACEBOOK_APP_SECRET=your-secret
-   APP_URL=http://localhost:4000
-   ```
-3. Click "Sign in with Google/Facebook"
-4. Authorize the app
-5. Redirected back to your app, logged in
+1. Run the session probe from a signed-in browser:
+  ```powershell
+  curl http://localhost:4000/auth/session -UseBasicParsing
+  ```
+2. Confirm `{ "authenticated": true, ... }` while signed in.
+3. Sign out with the `<UserButton>` control and re-run the probe; it should return `{ "authenticated": false }`.
 
 ### 4. Test Profile API
 
@@ -151,16 +144,15 @@ Your `.env` file needs:
 # MongoDB (required)
 MONGODB_URI=mongodb://localhost:27017/investing101
 
-# OAuth (optional but recommended)
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-FACEBOOK_APP_ID=
-FACEBOOK_APP_SECRET=
+# Clerk (required)
+CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+CLERK_WEBHOOK_SECRET=optional
 
 # JWT (required)
 JWT_SECRET=your-random-secret-key
 
-# App URL (required for OAuth)
+# App URL (used for redirect handling)
 APP_URL=http://localhost:4000
 
 # External APIs (needed for market data)
@@ -170,11 +162,12 @@ STOCKDATA_API_KEY=
 YAHOO_FINANCE=already-integrated
 ```
 
-### 2. Setup OAuth Credentials
+### 2. Configure Clerk Dashboard
 
-Follow the detailed guide in `OAUTH_SETUP.md`:
-- Google: https://console.cloud.google.com/
-- Facebook: https://developers.facebook.com/apps/
+Follow `CLERK_MIGRATION_GUIDE.md`:
+- Add allowed origins and redirect URLs for local + production environments
+- Enable desired social providers (Google, Apple, etc.)
+- Create test users for QA in the Clerk Dashboard
 
 ### 3. Get Market Data API Keys
 
@@ -200,7 +193,7 @@ Follow the detailed guide in `OAUTH_SETUP.md`:
 │                   BACKEND (Express)                      │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │ Routes:                                          │   │
-│  │ • /api/auth (login, signup, OAuth callbacks)    │   │
+│  │ • /api/auth (session probe, logout bridge)      │   │
 │  │ • /api/profile (user profiles, follow/unfollow) │   │
 │  │ • /api/simulator (trading, portfolios)          │   │
 │  │ • /api/market (quotes, charts, search)          │   │
@@ -243,10 +236,10 @@ External APIs (via HTTP):
 ### Backend
 - ✅ `backend/models/User.js` - Enhanced with profile fields
 - ✅ `backend/routes/profile.js` - NEW - Profile management
-- ✅ `backend/routes/apiAuth.js` - Already existed, works correctly
-- ✅ `backend/passport.js` - Enhanced OAuth with email linking
-- ✅ `backend/index.js` - Mounted profile router
-- ✅ `backend/.env.example` - Added OAuth variables
+- ✅ `backend/routes/auth.js` - Bridges Clerk sessions to Express
+- ✅ `backend/clerkAuth.js` - Centralizes Clerk middleware and helpers
+- ✅ `backend/index.js` - Mounted profile router and Clerk middleware
+- ✅ `backend/.env.example` - Documents Clerk variables
 
 ### Frontend
 - ✅ `prototype/signin.html` - NEW - Beautiful sign-in page
@@ -255,8 +248,8 @@ External APIs (via HTTP):
 - 🔲 `prototype/user-profile.html` - TO DO - Public profile viewer
 
 ### Documentation
-- ✅ `OAUTH_SETUP.md` - NEW - OAuth configuration guide
-- ✅ `API_INTEGRATION_PLAN.md` - NEW - Complete implementation roadmap
+- ✅ `CLERK_MIGRATION_GUIDE.md` - End-to-end Clerk rollout plan
+- ✅ `API_INTEGRATION_PLAN.md` - Complete implementation roadmap
 - ✅ `IMPLEMENTATION_SUMMARY.md` - THIS FILE
 
 ---
@@ -275,30 +268,30 @@ Server will run on `http://localhost:4000`
 
 ### Test Authentication Flow
 
-1. Open browser: `http://localhost:4000/signup.html`
-2. Create an account
-3. Sign out (endpoint: `GET /api/auth/logout`)
-4. Sign back in at `http://localhost:4000/signin.html`
+1. Open browser: `http://localhost:3000/sign-up` (Next.js) or `http://localhost:4000/signup-clerk.html` (prototype).
+2. Complete a sign-up.
+3. Sign out using the Clerk `<UserButton>` (or open `http://localhost:4000/signin-clerk.html` and choose **Sign out** within the widget).
+4. Sign back in at `/sign-in` or `http://localhost:4000/signin-clerk.html`.
 
 ### Check Logs
 
 Monitor the console for:
 - ✅ MongoDB connection: "Connected to MongoDB"
-- ✅ OAuth status: "Google OAuth enabled" or warning if not set up
-- ⚠️ Errors: Check for "Sign up failed" or "Session check failed"
+- ✅ Clerk status messages from `clerkAuth.js`
+- ⚠️ Errors: Check for "Session check failed" or webhook signature warnings
 
 ---
 
 ## Common Issues & Solutions
 
 ### Issue: "User not found" when signing in
-**Solution:** Make sure you created an account first via `/signup.html`
+**Solution:** Make sure you created an account first via Clerk sign-up (`/sign-up`).
 
-### Issue: OAuth not working
-**Solution:** 
-1. Check `.env` has correct CLIENT_ID and CLIENT_SECRET
-2. Verify callback URLs match in Google/Facebook console
-3. Ensure `APP_URL` is set correctly
+### Issue: Clerk components fail to render
+**Solution:**
+1. Ensure `CLERK_PUBLISHABLE_KEY` is exposed via Next.js (prefixed with `NEXT_PUBLIC_`).
+2. Confirm the key matches the active Clerk instance environment.
+3. Restart the dev server after env changes.
 
 ### Issue: Can't create account (409 error)
 **Solution:** Email already exists. Try a different email or sign in.
@@ -317,7 +310,7 @@ Monitor the console for:
 ## Next Steps Checklist
 
 ### Immediate (This Week)
-- [ ] Set up OAuth credentials (optional but recommended)
+- [ ] Verify Clerk keys in all environments
 - [ ] Test sign up/sign in flow
 - [ ] Get API keys for Polygon, Marketstack
 - [ ] Create profile edit page (`profile.html`)
@@ -349,13 +342,12 @@ Monitor the console for:
 ## Support & Resources
 
 ### Documentation
-- **OAuth Setup**: See `OAUTH_SETUP.md`
+- **Clerk Setup**: See `CLERK_SETUP_QUICK.md`
 - **API Plan**: See `API_INTEGRATION_PLAN.md`
 - **Environment Variables**: See `backend/.env.example`
 
 ### External Resources
-- [Google OAuth Docs](https://developers.google.com/identity/protocols/oauth2)
-- [Facebook Login Docs](https://developers.facebook.com/docs/facebook-login/web)
+- [Clerk Docs](https://clerk.com/docs)
 - [Polygon API Docs](https://polygon.io/docs/stocks)
 - [Yahoo Finance2 NPM](https://www.npmjs.com/package/yahoo-finance2)
 - [Mongoose Docs](https://mongoosejs.com/docs/guide.html)
@@ -369,8 +361,7 @@ Open an issue or check the implementation plan for detailed specs!
 ## 🎉 Congratulations!
 
 You now have:
-- ✅ Working authentication system
-- ✅ OAuth integration (Google + Facebook)
+- ✅ Working authentication system powered by Clerk
 - ✅ User profiles with social features
 - ✅ Follow/unfollow system
 - ✅ Leaderboard API

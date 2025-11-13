@@ -24,13 +24,12 @@ const {
   buildStockInsight,
   buildStockRecommendations
 } = require('./lib/stockInsights');
-// Legacy OAuth router disabled; Clerk is the active auth provider
-// const oauthRouter = require('./routes/auth');
+// Legacy internal auth router disabled; Clerk is the active auth provider
+// const legacyAuthRouter = require('./routes/auth');
 const adminRouter = require('./routes/admin');
 const preferencesRouter = require('./routes/preferences');
 const metricsRouter = require('./routes/metrics');
 const session = require('express-session');
-// const passport = require('passport'); // Deprecated in favor of Clerk
 const apiAuthRouter = require('./routes/apiAuth');
 const clerkRouter = require('./routes/clerkAuth');
 const portfolioRouter = require('./routes/portfolio');
@@ -302,8 +301,8 @@ app.use('/api/notifications', notificationsRouter);
 app.use('/api/achievements', achievementsRouter);
 app.use('/api/activity', activityRouter);
 app.use('/api/leaderboards', leaderboardsRouter);
-// Legacy OAuth routes removed in favor of Clerk-only auth
-// app.use('/auth', oauthRouter);
+// Legacy credential-based routes removed in favor of Clerk-only auth
+// app.use('/auth', legacyAuthRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/preferences', preferencesRouter);
 app.use('/api/metrics', metricsRouter);
@@ -335,7 +334,7 @@ app.get('/health', (req, res) => {
   const envPresence = {
     MONGODB_URI: !!process.env.MONGODB_URI,
     JWT_SECRET: !!process.env.JWT_SECRET,
-  // Legacy OAuth variables intentionally omitted
+  // Legacy third-party auth variables intentionally omitted
     APP_URL: !!process.env.APP_URL,
     ADMIN_TOKEN: !!process.env.ADMIN_TOKEN
   };

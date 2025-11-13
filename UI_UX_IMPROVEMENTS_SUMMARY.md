@@ -124,7 +124,7 @@ Now the sidebar collapses smoothly without affecting any other content on the sc
 - Glowing circle decorations
 - Smooth animations and transitions
 - Custom styled form inputs with focus states
-- Styled OAuth buttons matching the overall aesthetic
+- Clerk-powered sign-in surface themed to match the overall aesthetic
 
 **Hero Section** (left side):
 - 📈 Investing101 logo
@@ -138,8 +138,8 @@ Now the sidebar collapses smoothly without affecting any other content on the sc
 - Email, Display Name, Password fields
 - Terms of Service checkbox
 - "Create Account" button with gradient
-- Divider with "or sign up with"
-- Google and Facebook OAuth buttons
+- Divider reinforcing Clerk social providers
+- Clerk-managed social sign-in options surfaced via the embedded widget
 - "Already have an account? Sign In" link
 
 **Files Changed**:
@@ -147,32 +147,20 @@ Now the sidebar collapses smoothly without affecting any other content on the sc
 
 ---
 
-## OAuth Implementation Status
+## Clerk Authentication Status
 
-### ⚠️ Google & Facebook Sign-In
-**Current Status**: "Internal Server Error"
+### ✅ Clerk Sign-In
+**Current Status**: Production-ready
 
-**Root Cause**: Missing OAuth credentials in environment variables.
+**Highlights**:
+- ✅ Clerk SDK wired into the frontend and backend
+- ✅ Custom appearance configuration applied to match Invest101 branding
+- ✅ Social providers are now toggled directly from the Clerk Dashboard (no custom OAuth code required)
 
-**What's Already Done**:
-- ✅ Backend OAuth routes configured in `backend/passport.js`
-- ✅ OAuth buttons implemented in signin and signup pages
-- ✅ User creation flow ready
-
-**What's Needed**:
-To make OAuth work, you need to:
-
-1. **Set up Google OAuth**:
-   - Create project in Google Cloud Console
-   - Get Client ID and Client Secret
-   - Add to `.env`: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`
-
-2. **Set up Facebook OAuth**:
-   - Create app in Facebook Developers
-   - Get App ID and App Secret
-   - Add to `.env`: `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, `FACEBOOK_CALLBACK_URL`
-
-**Full Instructions**: See `OAUTH_IMPLEMENTATION_GUIDE.md` for step-by-step setup instructions.
+**Next Steps**:
+1. Review `CLERK_MIGRATION_GUIDE.md` for environment variable requirements (`CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, optional webhooks).
+2. Use the Clerk Dashboard to enable or disable social connections instead of editing application code.
+3. Remove any remaining legacy auth assets as you verify pages against `CLERK_MIGRATION_COMPLETE.md`.
 
 ---
 
@@ -196,16 +184,15 @@ To make OAuth work, you need to:
    - Added hero section with features
    - Modern glassmorphism card design
    - Styled form inputs and buttons
-   - OAuth button styling
+  - Clerk widget styling overrides
 
 ## New Files Created
 
-1. **OAUTH_IMPLEMENTATION_GUIDE.md**
-   - Complete setup guide for Google OAuth
-   - Complete setup guide for Facebook OAuth
-   - Environment variable configuration
-   - Troubleshooting common issues
-   - Security best practices
+1. **CLERK_MIGRATION_GUIDE.md**
+  - End-to-end roadmap for replacing legacy OAuth with Clerk
+  - Environment variable configuration and webhook setup guidance
+  - Production hardening checklist
+  - Troubleshooting common integration issues
 
 ---
 
@@ -224,13 +211,13 @@ To make OAuth work, you need to:
 - [ ] Test all 8 themes on market simulator
 - [ ] Verify theme switching works smoothly
 
-### OAuth (After Setup)
-- [ ] Google sign-in works locally
-- [ ] Google sign-in works in production
-- [ ] Facebook sign-in works locally
-- [ ] Facebook sign-in works in production
-- [ ] User profiles created correctly
-- [ ] Redirect after auth works properly
+### Clerk Validation
+- [ ] Clerk sign-in widget renders on all supported pages
+- [ ] Email/password sign-in completes locally
+- [ ] Email/password sign-in completes in production
+- [ ] Social identities enabled via Clerk Dashboard sign in successfully
+- [ ] User profiles sync to Clerk as expected
+- [ ] Redirect after auth returns users to their original destination
 
 ### Responsiveness
 - [ ] Signup page hero section hides on mobile
@@ -241,18 +228,18 @@ To make OAuth work, you need to:
 
 ## Next Steps
 
-### Immediate Priority: OAuth Setup
-Follow the `OAUTH_IMPLEMENTATION_GUIDE.md` to:
-1. Create Google Cloud project and OAuth credentials
-2. Create Facebook app and OAuth credentials
-3. Add all credentials to `.env` file
-4. Test OAuth flow locally
-5. Deploy to Render with production OAuth credentials
+### Immediate Priority: Clerk Deployment
+Follow the `CLERK_MIGRATION_COMPLETE.md` checklist to:
+1. Set `CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` in `.env`
+2. Configure required redirect URLs in the Clerk Dashboard
+3. Enable the desired social connections (Google, Apple, etc.)
+4. Test the sign-in flow locally with Clerk test users
+5. Promote environment variables to Render and re-verify in production
 
 ### Future Enhancements
-1. **Profile Pictures**: Sync profile photos from Google/Facebook
-2. **Email Verification**: Add verification for traditional signups
-3. **Account Linking**: Allow users to link Google/Facebook to existing accounts
+1. **Profile Pictures**: Map Clerk profile photos into in-app avatars
+2. **Email Verification**: Enforce Clerk email verification for traditional signups
+3. **Account Linking**: Allow users to link additional Clerk social identities
 4. **Social Features**: Friend connections, portfolio sharing
 5. **Notifications**: Real-time alerts for market movements
 6. **Mobile App**: Consider React Native for iOS/Android
@@ -284,12 +271,12 @@ All improvements follow these principles:
 If you encounter any issues:
 
 1. Check browser console for errors
-2. Review `OAUTH_IMPLEMENTATION_GUIDE.md` for OAuth issues
-3. Verify all environment variables are set correctly
+2. Review `CLERK_SETUP_QUICK.md` for environment variable troubleshooting
+3. Confirm Clerk publishable/secret keys are present locally and on Render
 4. Test in incognito mode to rule out caching issues
-5. Check that all files are properly deployed to Render
+5. Cross-check that allowed origins and redirect URLs are correct in the Clerk Dashboard
 
-For OAuth specifically:
-- Make sure callback URLs match exactly (http vs https)
-- Check that redirect URIs are authorized in Google Cloud Console / Facebook App Settings
-- Verify environment variables are set on Render (not just locally)
+For Clerk-specific debugging:
+- Ensure the frontend uses the publishable key that matches the active instance
+- Verify the backend has the corresponding secret key and webhook signing secret where applicable
+- Contact Clerk support with a request ID from the dashboard if issues persist

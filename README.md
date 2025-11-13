@@ -141,9 +141,6 @@ MARKETSTACK_API_KEY=your_marketstack_key
 POLYGON_API_KEY=your_polygon_key
 STOCKDATA_API_KEY=your_stockdata_org_key
 NASDAQ_DATA_LINK_KEY=your_nasdaq_data_link_key
-GMAIL_CLIENT_ID=your_google_oauth_client_id
-GMAIL_CLIENT_SECRET=your_google_oauth_client_secret
-GMAIL_REDIRECT_URI=https://your-app.com/oauth2/callback/gmail
 GOOGLE_SERVICE_ACCOUNT_EMAIL=service-account@project.iam.gserviceaccount.com
 GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```

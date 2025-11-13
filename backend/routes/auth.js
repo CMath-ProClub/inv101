@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('../lib/bcrypt-wrapper');
-const passport = require('../passport');
-const { issueTokens } = require('../services/authTokens');
+const { issueTokens, clearAuthCookies } = require('../services/authTokens');
 
 // Sign up with Investing101 account
 router.post('/signup', async (req, res) => {
@@ -141,67 +140,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Google OAuth
-router.get('/google', (req, res, next) => {
-  console.log('📍 Google OAuth initiated');
-  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
-});
-
-router.get('/google/callback', 
-  (req, res, next) => {
-    console.log('📍 Google OAuth callback received');
-    passport.authenticate('google', { 
-      failureRedirect: '/signin.html?error=google_auth_failed',
-      session: false 
-    })(req, res, next);
-  },
-  async (req, res) => {
-    try {
-      console.log('📍 Google OAuth successful, user:', req.user?.email);
-      // Issue JWT tokens and set cookies
-      await issueTokens(res, req.user, { rememberMe: true });
-      res.redirect('/index.html');
-    } catch (error) {
-      console.error('❌ Google OAuth callback error:', error);
-      res.redirect('/signin.html?error=oauth_failed');
-    }
-  }
-);
-
-// Facebook OAuth
-router.get('/facebook', (req, res, next) => {
-  console.log('📍 Facebook OAuth initiated');
-  passport.authenticate('facebook', { scope: ['email'] })(req, res, next);
-});
-
-router.get('/facebook/callback', 
-  (req, res, next) => {
-    console.log('📍 Facebook OAuth callback received');
-    passport.authenticate('facebook', { 
-      failureRedirect: '/signin.html?error=facebook_auth_failed',
-      session: false 
-    })(req, res, next);
-  },
-  async (req, res) => {
-    try {
-      console.log('📍 Facebook OAuth successful, user:', req.user?.email);
-      // Issue JWT tokens and set cookies
-      await issueTokens(res, req.user, { rememberMe: true });
-      res.redirect('/index.html');
-    } catch (error) {
-      console.error('❌ Facebook OAuth callback error:', error);
-      res.redirect('/signin.html?error=oauth_failed');
-    }
-  }
-);
-
 // Logout route
 router.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/signin.html');
-  });
+  clearAuthCookies(res);
+  res.redirect('/signin.html');
 });
-
-// TODO: Add Microsoft OAuth routes
 
 module.exports = router;
