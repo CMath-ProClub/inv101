@@ -3,7 +3,11 @@ services:
     name: inv101-app
     env: node
     plan: free
-    buildCommand: cd backend && npm install
+    buildCommand: |
+      npm install --prefix backend
+      npm install --prefix prototype
+      mkdir -p prototype/dist
+      npm run build:css --prefix prototype
     startCommand: node backend/index.js
     envVars:
       - key: NODE_ENV

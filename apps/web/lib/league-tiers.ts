@@ -16,13 +16,13 @@ export const leagueTiers: LeagueTier[] = [
     name: "Steady Silver",
     xpRange: "2,500 – 6,999 XP",
     highlights: "Unlock simulator drills and AI nudges with double XP for streak maintenance.",
-    movement: "Finish top 20% or hold a 7-day streak to reach Momentum Gold.",
+    movement: "Finish top 20% or hold a 7-day streak to promote into Momentum Gold.",
   },
   {
     name: "Momentum Gold",
     xpRange: "7,000 – 14,999 XP",
     highlights: "Trading Battles award bonus trophies; budgeting labs sync to leaderboard multipliers.",
-    movement: "Top 15% move up, bottom 15% slide to Silver if streak breaks.",
+    movement: "Top 15% promote up, bottom 15% are demoted to Silver if streak breaks.",
   },
   {
     name: "Rocket Platinum",

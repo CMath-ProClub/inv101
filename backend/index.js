@@ -13,6 +13,7 @@ try {
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const connectDB = require('./config/database');
 const articleCache = require('./articleCache');
 const yahooFinance = require('yahoo-finance2').default;
@@ -50,6 +51,27 @@ const { initializeClerk, optionalClerkUser } = require('./clerkAuth');
 
 const app = express();
 const mongoose = require('mongoose');
+
+const helmetOptions = {
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  hsts: false
+};
+
+app.use(helmet(helmetOptions));
+app.use((req, res, next) => {
+  const viaHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  if (viaHttps) {
+    res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  }
+  next();
+});
 
 const clerkReady = initializeClerk();
 if (!clerkReady) {

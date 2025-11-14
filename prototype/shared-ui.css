@@ -1,0 +1,6 @@
+/*
+ * Shared UI entry point
+ * This file intentionally proxies to the Tailwind bundle compiled to dist/main.css
+ * so legacy scripts that expect shared-ui.css can keep working.
+ */
+@import url('/dist/main.css');

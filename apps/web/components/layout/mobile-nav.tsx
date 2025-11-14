@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Calculator,
-  Gamepad2,
-  GraduationCap,
-  Home,
-  LineChart,
-  UserCircle,
-} from "lucide-react";
 import Link from "next/link";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
@@ -16,16 +8,15 @@ import { cn } from "../../lib/utils";
 type NavItem = {
   href: Route;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  letter: "A" | "B" | "C" | "D" | "E";
 };
 
 const navItems: NavItem[] = [
-  { href: "/" as Route, label: "Home", icon: Home },
-  { href: "/market" as Route, label: "Market", icon: LineChart },
-  { href: "/playground" as Route, label: "Play", icon: Gamepad2 },
-  { href: "/lessons" as Route, label: "Education", icon: GraduationCap },
-  { href: "/calculators" as Route, label: "Calc", icon: Calculator },
-  { href: "/profile" as Route, label: "Profile", icon: UserCircle },
+  { href: "/" as Route, label: "Main", letter: "A" },
+  { href: "/playground" as Route, label: "Play", letter: "B" },
+  { href: "/lessons" as Route, label: "Educ", letter: "C" },
+  { href: "/calculators" as Route, label: "Calc", letter: "D" },
+  { href: "/profile" as Route, label: "Profile", letter: "E" },
 ];
 
 export function MobileNav() {
@@ -38,7 +29,6 @@ export function MobileNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex h-20 items-center justify-around border-t border-outline/30 bg-surface-card/90 shadow-[0_-20px_40px_rgba(5,10,25,0.55)] backdrop-blur supports-[backdrop-filter]:backdrop-blur lg:hidden">
       {navItems.map((item) => {
-        const Icon = item.icon;
         const isRoot = item.href === ("/" as Route);
         const active = isRoot
           ? pathname === item.href
@@ -62,15 +52,15 @@ export function MobileNav() {
             }
           >
             <span
-              className="flex h-9 w-9 items-center justify-center rounded-2xl"
+              className="flex h-8 w-8 items-center justify-center rounded-full border text-base font-semibold"
               style={{
-                backgroundColor: active
-                  ? "rgba(var(--accent-primary), 0.95)"
-                  : "rgba(var(--accent-primary), 0.15)",
-                color: active ? "rgb(var(--surface-card))" : "rgb(var(--accent-primary))",
+                borderColor: active
+                  ? "rgba(var(--accent-primary), 0.7)"
+                  : "rgba(var(--outline-color), 0.4)",
+                color: active ? "rgb(var(--accent-primary))" : undefined,
               }}
             >
-              <Icon className="h-4 w-4" aria-hidden="true" />
+              {item.letter}
             </span>
             <span>{item.label}</span>
           </Link>

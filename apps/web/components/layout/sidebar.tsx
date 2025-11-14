@@ -1,83 +1,24 @@
 "use client";
 
-import {
-  BookOpen,
-  Bot,
-  Briefcase,
-  Calculator,
-  ChevronLeft,
-  ChevronRight,
-  Compass,
-  Gamepad2,
-  GraduationCap,
-  Home,
-  LineChart,
-  Settings2,
-  Swords,
-  Target,
-  Trophy,
-  UserCircle,
-  Wallet,
-} from "lucide-react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { cn } from "../../lib/utils";
 
-type NavItem = {
+type SimpleNavItem = {
   href: Route;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-};
-
-type NavSection = {
+  letter: "A" | "B" | "C" | "D" | "E";
   title: string;
-  items: NavItem[];
+  description: string;
 };
 
-const navSections: NavSection[] = [
-  {
-    title: "Information & Analysis",
-    items: [
-      { href: "/" as Route, label: "Home", icon: Home },
-      { href: "/market" as Route, label: "Market", icon: LineChart },
-      { href: "/portfolio" as Route, label: "Portfolio", icon: Briefcase },
-      { href: "/research" as Route, label: "Research", icon: Compass },
-    ],
-  },
-  {
-    title: "Playground",
-    items: [
-      { href: "/playground" as Route, label: "Playground Hub", icon: Gamepad2 },
-      { href: "/playground/simulator" as Route, label: "Market Simulator", icon: Target },
-      { href: "/playground/ai-toolkit" as Route, label: "AI Toolkit", icon: Bot },
-      { href: "/playground/trading-battles" as Route, label: "Trading Battles", icon: Swords },
-      { href: "/playground/achievements" as Route, label: "Achievements", icon: Trophy },
-    ],
-  },
-  {
-    title: "Planning",
-    items: [{ href: "/budgeting" as Route, label: "Budgeting Lab", icon: Wallet }],
-  },
-  {
-    title: "Education",
-    items: [
-      { href: "/lessons" as Route, label: "Education", icon: GraduationCap },
-      { href: "/academy" as Route, label: "Academy", icon: BookOpen },
-    ],
-  },
-  {
-    title: "Calculators",
-    items: [{ href: "/calculators" as Route, label: "Calculator Hub", icon: Calculator }],
-  },
-  {
-    title: "Workspace",
-    items: [
-      { href: "/profile" as Route, label: "Profile", icon: UserCircle },
-      { href: "/settings" as Route, label: "Settings", icon: Settings2 },
-    ],
-  },
+const navItems: SimpleNavItem[] = [
+  { href: "/" as Route, letter: "A", title: "Main", description: "Analysis" },
+  { href: "/playground" as Route, letter: "B", title: "Playground", description: "Sims" },
+  { href: "/lessons" as Route, letter: "C", title: "Education", description: "Lessons" },
+  { href: "/calculators" as Route, letter: "D", title: "Calculators", description: "Tools" },
+  { href: "/profile" as Route, letter: "E", title: "Profile", description: "Workspace" },
 ];
 
 const storageKey = "invest101:sidebar-collapsed";
@@ -104,113 +45,83 @@ export function Sidebar() {
     return null;
   }
 
-  const TAB_WIDTH_REM = 1.75;
-  const EXPANDED_WIDTH_REM = 18;
-  const collapsedStyle = collapsed
-    ? { transform: `translateX(calc(-100% + ${TAB_WIDTH_REM}rem))` }
-    : undefined;
-
-  const panelBackground =
-    "linear-gradient(180deg, rgba(var(--surface-card), 0.97), rgba(var(--surface-base), 0.92))";
-  const panelStyle = collapsedStyle ? { ...collapsedStyle, background: panelBackground } : { background: panelBackground };
+  const TAB_WIDTH_REM = 2.75;
+  const EXPANDED_WIDTH_REM = 14;
+  const panelBackground = collapsed
+    ? "rgb(var(--surface-base) / 0.9)"
+    : "rgb(var(--surface-card) / 0.9)";
 
   return (
-    <div
-      className="relative hidden shrink-0 lg:flex"
+    <aside
+      className="sticky top-0 z-30 hidden h-screen shrink-0 border-r border-outline/15 bg-surface-card/80 px-3 pt-[var(--header-height)] transition-[width] duration-200 lg:flex"
       style={{ width: `${collapsed ? TAB_WIDTH_REM : EXPANDED_WIDTH_REM}rem` }}
       aria-label="Primary navigation"
     >
-      <aside
+      <div
         className={cn(
-          "sticky top-0 z-30 flex h-screen w-[18rem] flex-col border-r border-outline/30 px-4 shadow-[12px_0_34px_-24px_rgba(5,10,25,0.55)] backdrop-blur-lg transition-transform duration-300 ease-out",
+          "flex w-[11rem] flex-1 flex-col gap-6",
+          collapsed && "items-center"
         )}
-        style={panelStyle}
+        style={{ background: panelBackground }}
       >
-        <div className="pt-[calc(var(--header-height)+0.75rem)] pb-4">
-          <p
-            className={cn(
-              "text-xs font-semibold uppercase tracking-[0.6em] text-text-muted",
-              collapsed && "sr-only",
-            )}
-          >
-            Navigation
-          </p>
-        </div>
-        <nav className="flex-1 space-y-6 overflow-y-auto pb-8">
-          {navSections.map((section) => (
-            <div key={section.title} className="space-y-2">
-              <p
-                className={cn(
-                  "px-3 text-[11px] font-semibold uppercase tracking-[0.45em] text-text-muted",
-                  collapsed && "sr-only",
+        <button
+          type="button"
+          onClick={() => setCollapsed((value) => !value)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-pressed={collapsed}
+          className="mt-4 inline-flex h-8 w-12 items-center justify-center rounded-md border border-outline/30 text-sm font-semibold text-text-secondary transition hover:text-text-primary"
+        >
+          []
+        </button>
+        <nav className="flex-1 space-y-2">
+          {navItems.map((item) => {
+            const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            const content = (
+              <>
+                <span
+                  className={cn(
+                    "flex h-10 w-10 items-center justify-center rounded-xl border text-base font-bold",
+                    active
+                      ? "border-accent-primary text-accent-primary"
+                      : "border-outline/40 text-text-secondary",
+                  )}
+                >
+                  {item.letter}
+                </span>
+                {!collapsed && (
+                  <div className="flex flex-col text-left">
+                    <span className="text-sm font-semibold text-text-primary">{item.title}</span>
+                    <span className="text-xs uppercase tracking-[0.35em] text-text-muted">
+                      {item.description}
+                    </span>
+                  </div>
                 )}
-              >
-                {section.title}
-              </p>
-              <div className="space-y-1">
-                {section.items.map((item) => {
-                  const Icon = item.icon;
-                  const isRoot = item.href === ("/" as Route);
-                  const active = isRoot
-                    ? pathname === item.href
-                    : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              </>
+            );
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "group flex items-center gap-3 rounded-3xl border border-outline/30 bg-surface-card/70 px-4 py-3 text-sm font-semibold text-text-secondary shadow-[0_18px_35px_rgba(5,10,25,0.22)] outline outline-2 outline-transparent transition hover:-translate-y-0.5 hover:border-accent-primary/40 hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary",
-                        active &&
-                          "text-text-primary border-accent-primary/50 shadow-[0_28px_45px_rgba(5,10,25,0.32)]",
-                      )}
-                      aria-current={active ? "page" : undefined}
-                      title={collapsed ? item.label : undefined}
-                      data-active={active}
-                      style={
-                        active
-                          ? {
-                              background:
-                                "linear-gradient(110deg, rgba(var(--surface-card), 0.96), rgba(var(--surface-elevated), 0.9))",
-                            }
-                          : undefined
-                      }
-                    >
-                      <span
-                        className="flex h-9 w-9 items-center justify-center rounded-2xl"
-                        style={{
-                          backgroundColor: active
-                            ? "rgba(var(--accent-primary), 0.95)"
-                            : "rgba(var(--accent-primary), 0.15)",
-                          color: active ? "rgb(var(--surface-card))" : "rgb(var(--accent-primary))",
-                        }}
-                      >
-                        <Icon className="h-4 w-4" aria-hidden="true" />
-                      </span>
-                      <span className={cn("truncate", collapsed ? "sr-only" : "block")}>
-                        {item.label}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl border border-outline/20 px-3 py-3 text-sm font-semibold shadow-sm transition hover:border-accent-primary/50",
+                  active && "border-accent-primary/70 bg-accent-primary/5",
+                  collapsed && "justify-center"
+                )}
+                aria-current={active ? "page" : undefined}
+                title={collapsed ? `${item.letter} · ${item.title}` : undefined}
+              >
+                {content}
+              </Link>
+            );
+          })}
         </nav>
-      </aside>
-      <button
-        type="button"
-        onClick={() => setCollapsed((value) => !value)}
-        className="absolute top-1/2 right-[-0.625rem] z-40 flex h-16 w-7 -translate-y-1/2 items-center justify-center rounded-r-2xl border border-outline/30 bg-surface-card/90 text-text-secondary shadow-[0_10px_32px_rgba(5,10,25,0.25)] transition hover:-translate-y-[calc(50%-4px)] hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        aria-pressed={collapsed}
-      >
-        {collapsed ? (
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+        {!collapsed && (
+          <p className="pb-6 text-center text-[10px] text-text-muted">
+            A · B · C · D · E mirrors the provided prototype map for instant recall.
+          </p>
         )}
-      </button>
-    </div>
+      </div>
+    </aside>
   );
 }

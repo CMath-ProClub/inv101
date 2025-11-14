@@ -1,23 +1,11 @@
-import {
-  ArrowUpRight,
-  BarChart2,
-  BrainCircuit,
-  Globe2,
-  LineChart,
-  Newspaper,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
 import Link from "next/link";
 import type { Route } from "next";
+import { ArrowUpRight, BarChart2, BrainCircuit, Globe2, LineChart } from "lucide-react";
+
 import { fetchApi } from "../lib/api";
-import { cn } from "../lib/utils";
+import { Badge } from "../components/ui/badge";
+import { SimpleBoard } from "../components/layout/simple-board";
+import { SimpleTile } from "../components/ui/simple-tile";
 
 type TickerResponse = {
   success: boolean;
@@ -26,8 +14,7 @@ type TickerResponse = {
 };
 
 type ArticleStatsResponse = {
-  success: boolean;
-  stats: {
+  stats?: {
     total?: number;
     last3DaysPercent?: number | string;
     lastWeekPercent?: number | string;
@@ -43,8 +30,7 @@ type Article = {
 };
 
 type ArticleMarketResponse = {
-  success: boolean;
-  groups: Record<string, Article[]>;
+  groups?: Record<string, Article[]>;
 };
 
 type Recommendation = {
@@ -64,39 +50,20 @@ type Recommendation = {
 };
 
 type RecommendationResponse = {
-  success: boolean;
   count?: number;
-  recommendations: Recommendation[];
+  recommendations?: Recommendation[];
+};
+type ArticleHighlight = {
+  title: string;
+  tag: string;
+  href: string;
 };
 
-const spotlightCards = [
-  {
-    title: "Daily Market Pulse",
-    description:
-      "Macro headlines distilled with actionable next steps for investors.",
-    icon: Globe2,
-    href: "/market",
-  },
-  {
-    title: "AI-assisted Research",
-    description:
-      "Summarize filings, earnings calls, and alternative data in seconds.",
-    icon: BrainCircuit,
-    href: "/research",
-  },
-  {
-    title: "Portfolio Intelligence",
-    description:
-      "Autopilot insights that highlight risk, drift, and opportunities.",
-    icon: LineChart,
-    href: "/portfolio",
-  },
-];
-
-const ratingClassMap: Record<string, string> = {
-  bullish: "bg-emerald-500/20 text-emerald-300",
-  bearish: "bg-rose-500/20 text-rose-300",
-  neutral: "bg-surface-muted/70 text-text-secondary",
+type SpotlightWorkflow = {
+  label: string;
+  title: string;
+  description: string;
+  href: Route;
 };
 
 function toNumber(value: number | string | undefined | null) {
@@ -117,28 +84,75 @@ function pickPrice(quote?: Recommendation["quote"], fallback?: number | null) {
   return fallback ?? null;
 }
 
-const defaultStories = [
+const heroFeatures = [
   {
-    title: "The algorithms outperforming the S&P in 2025",
-    tag: "Quant trends",
-    href: "/articles/quant-trends",
+    icon: BarChart2,
+    text: "Market dashboards surface breadth, sentiment, and sparkline trends in real time.",
   },
   {
-    title: "Eight alternative data feeds to watch this quarter",
-    tag: "Data & AI",
-    href: "/articles/alt-data",
+    icon: BrainCircuit,
+    text: "AI-assisted research condenses filings and news into ready-to-act playbooks.",
   },
   {
-    title: "How to rebalance confidently with factor tilts",
-    tag: "Portfolio design",
-    href: "/articles/rebalance",
+    icon: Globe2,
+    text: "Multi-theme layouts keep accessibility dialed in from desktop command desks to mobile check-ins.",
   },
+  {
+    icon: LineChart,
+    text: "Education tracks, simulators, and calculators stay linked to your saved progress.",
+  },
+];
+
+const fallbackHighlights: ArticleHighlight[] = [
+  { title: "The algorithms outperforming the S&P in 2025", tag: "Quant trends", href: "/articles/quant-trends" },
+  { title: "Eight alternative data feeds to watch this quarter", tag: "Data & AI", href: "/articles/alt-data" },
+  { title: "How to rebalance confidently with factor tilts", tag: "Portfolio design", href: "/articles/rebalance" },
+];
+
+const spotlightWorkflows: SpotlightWorkflow[] = [
+  {
+    label: "A",
+    title: "Daily market pulse",
+    description: "Macro headlines distilled with actionable next steps.",
+    href: "/market",
+  },
+  {
+    label: "B",
+    title: "AI-assisted research",
+    description: "Summaries of filings, earnings calls, and alternative data.",
+    href: "/research",
+  },
+  {
+    label: "C",
+    title: "Portfolio intelligence",
+    description: "Autopilot insights that highlight risk, drift, and opportunities.",
+    href: "/portfolio",
+  },
+];
+
+const navShortcuts: Array<{ letter: string; label: string; href: Route }> = [
+  { letter: "A", label: "Overview", href: "/" },
+  { letter: "B", label: "Playground", href: "/playground" },
+  { letter: "C", label: "Lessons", href: "/lessons" },
+  { letter: "D", label: "Calculators", href: "/calculators" },
+  { letter: "E", label: "Profile", href: "/profile" },
+];
+
+const comparisonRows = [
+  { label: "Mega-cap momentum vs SPX", note: "Intraday leadership", diff: "+1.4%" },
+  { label: "Growth basket vs QQQ", note: "AI-heavy tilt", diff: "+0.8%" },
+  { label: "Financials vs XLF", note: "Credit stabilization", diff: "-0.3%" },
+];
+
+const politicianHoldings = [
+  { name: "Rep. Alvarez", focus: "Defense modernization", delta: "+$42k disclosed" },
+  { name: "Sen. Carver", focus: "Broadband rollout", delta: "+$18k disclosed" },
+  { name: "Rep. Nune", focus: "Energy transition", delta: "-$7k trimmed" },
 ];
 
 const signUpRoute = "/sign-up" as Route;
 const signInRoute = "/sign-in" as Route;
 const demoRoute = "/demo" as Route;
-const educationRoute = "/lessons" as Route;
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -146,39 +160,53 @@ const priceFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export default async function HomePage() {
-  const [tickerData, articleStats, recommendationsData, articlesData] =
-    await Promise.all([
-      fetchApi<TickerResponse>("/api/stocks/tickers", 600),
-      fetchApi<ArticleStatsResponse>("/api/articles/stats", 600),
-      fetchApi<RecommendationResponse>("/api/stocks/recommendations?limit=6", 300),
-      fetchApi<ArticleMarketResponse>("/api/articles/market?limit=120", 300),
-    ]);
+function collectHighlights(feed: ArticleMarketResponse | null): ArticleHighlight[] {
+  const articles = Object.values(feed?.groups ?? {})
+    .flat()
+    .filter((article) => Boolean(article?.title))
+    .sort((a, b) => {
+      const aDate = new Date(a?.publishDate ?? 0).getTime();
+      const bDate = new Date(b?.publishDate ?? 0).getTime();
+      return bDate - aDate;
+    })
+    .slice(0, 3)
+    .map((article) => ({
+      title: article.title ?? "Untitled",
+      tag: article.source ?? "Market",
+      href: article.url ?? "#",
+    }));
 
-  const trackedEquities = tickerData?.count ?? null;
-  const newsStats = articleStats?.stats;
-  const totalArticles = toNumber(newsStats?.total ?? null);
-  const recentPercent = toNumber(newsStats?.last3DaysPercent ?? null);
-  const weekPercent = toNumber(newsStats?.lastWeekPercent ?? null);
+  return articles.length ? articles : fallbackHighlights;
+}
+
+export default async function HomePage() {
+  const [tickerData, articleStats, recommendationsData, articlesData] = await Promise.all([
+    fetchApi<TickerResponse>("/api/stocks/tickers", 600),
+    fetchApi<ArticleStatsResponse>("/api/articles/stats", 600),
+    fetchApi<RecommendationResponse>("/api/stocks/recommendations?limit=6", 300),
+    fetchApi<ArticleMarketResponse>("/api/articles/market?limit=120", 300),
+  ]);
 
   const recommendations = recommendationsData?.recommendations ?? [];
-  const articleGroups = articlesData?.groups ?? {};
-  const articleList = Object.values(articleGroups)
-    .flat()
-    .sort((a, b) => {
-      const aDate = new Date(a.publishDate ?? 0).getTime();
-      const bDate = new Date(b.publishDate ?? 0).getTime();
-      return bDate - aDate;
-    });
-  const storyItems = articleList.length
-    ? articleList.slice(0, 3).map((article) => ({
-        title: article.title,
-        tag: article.source || "Market",
-        href: article.url || "#",
-      }))
-    : defaultStories;
+  const trackedEquities = tickerData?.count ?? null;
+  const analyzerUniverse = (tickerData?.tickers ?? []).slice(0, 10);
 
-  const signalTotal = recommendations.length || recommendationsData?.count || 0;
+  const stats = articleStats?.stats ?? {};
+  const totalArticles = toNumber(stats.total ?? null);
+  const recentCoverage = toNumber(stats.last3DaysPercent ?? null);
+  const weeklyLift = toNumber(stats.lastWeekPercent ?? null);
+
+  const signals = recommendations.slice(0, 3).map((entry) => ({
+    symbol: entry.symbol,
+    name: entry.name ?? entry.symbol,
+    rating: entry.recommendation?.rating ?? "neutral",
+    score: entry.recommendation?.score ?? 0,
+    price: pickPrice(entry.quote, entry.recommendation?.priceNow ?? null),
+  }));
+  const signalsCount = recommendationsData?.count ?? signals.length;
+
+  const highlights = collectHighlights(articlesData ?? null);
+
   const metrics = [
     {
       label: "Tracked equities",
@@ -188,298 +216,286 @@ export default async function HomePage() {
     {
       label: "Articles indexed",
       value: totalArticles ? totalArticles.toLocaleString() : "—",
-      change:
-        weekPercent !== null ? `${weekPercent.toFixed(1)}% past 7d` : "refill in progress",
+      change: weeklyLift !== null ? `${weeklyLift.toFixed(1)}% past 7d` : "refill in progress",
     },
     {
       label: "Fresh coverage",
-      value: recentPercent !== null ? `${recentPercent.toFixed(1)}%` : "—",
+      value: recentCoverage !== null ? `${recentCoverage.toFixed(1)}%` : "—",
       change: "≤3 days",
     },
     {
       label: "Signals in rotation",
-      value: signalTotal ? signalTotal.toString() : "—",
-      change: signalTotal ? "auto refreshed" : "warming up",
+      value: signalsCount ? signalsCount.toString() : "—",
+      change: signalsCount ? "auto refreshed" : "warming up",
     },
   ];
 
-  const signals = recommendations.slice(0, 3).map((item) => {
-    const rating = item.recommendation?.rating ?? "neutral";
-    const price = pickPrice(item.quote, item.recommendation?.priceNow ?? null);
-    return {
-      symbol: item.symbol,
-      name: item.name || item.symbol,
-      rating,
-      score: item.recommendation?.score ?? 0,
-      price,
-    };
-  });
-
   return (
-    <div className="space-y-12">
-      <section className="grid gap-10 rounded-3xl border border-outline/20 bg-[radial-gradient(circle_at_top,_rgb(var(--surface-card))_0%,_rgb(var(--surface-base))_90%)] px-8 py-12 shadow-card sm:px-10 lg:grid-cols-[1.15fr_minmax(0,0.95fr)]">
-        <div className="space-y-8">
-          <Badge variant="soft">Version 2 Launch Preview</Badge>
-          <div className="space-y-4">
-            <h1 className="text-4xl font-semibold tracking-tight text-text-primary sm:text-5xl">
-              Invest smarter with a workspace built for action.
-            </h1>
+    <div className="space-y-10">
+      <SimpleBoard
+        badge="A · Command desk"
+        title="Invest smarter with a simple, lettered layout"
+        subtitle="Authenticate once, learn faster, and keep every workflow in a consistent frame."
+      >
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.9fr)]">
+          <div className="space-y-6">
+            <Badge variant="soft">Version 2 preview</Badge>
             <p className="text-lg text-text-secondary">
-              Invest101 unifies onboarding, education, and market intelligence so you can authenticate once, learn faster, and execute with confidence.
+              The homepage mirrors the diagram for rows A–E so you can always see where you are and what comes next.
             </p>
+            <ul className="grid gap-3 text-sm text-text-secondary sm:grid-cols-2">
+              {heroFeatures.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-start gap-3 rounded-2xl border border-outline/10 bg-surface-muted/60 p-3">
+                  <Icon className="mt-0.5 h-4 w-4 text-accent-primary" aria-hidden="true" />
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                className="inline-flex items-center gap-2 rounded-full border border-accent-primary/40 bg-accent-primary/10 px-5 py-2 text-sm font-semibold text-accent-primary outline outline-2 outline-transparent transition hover:outline-black"
+                href={signUpRoute}
+              >
+                Create your account
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link
+                className="inline-flex items-center gap-2 text-sm font-semibold text-text-secondary outline outline-2 outline-transparent transition hover:text-text-primary hover:outline-black"
+                href={demoRoute}
+              >
+                Explore the demo workspace
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
-          <ul className="grid gap-3 text-sm text-text-secondary sm:grid-cols-2">
-            <li className="flex items-start gap-3 rounded-2xl border border-outline/10 bg-surface-muted/60 p-3">
-              <BarChart2 className="mt-0.5 h-4 w-4 text-accent-primary" />
-              <span>Market dashboards surface breadth, sentiment, and sparkline trends in real time.</span>
-            </li>
-            <li className="flex items-start gap-3 rounded-2xl border border-outline/10 bg-surface-muted/60 p-3">
-              <BrainCircuit className="mt-0.5 h-4 w-4 text-accent-primary" />
-              <span>AI-assisted research condenses filings and news into ready-to-act playbooks.</span>
-            </li>
-            <li className="flex items-start gap-3 rounded-2xl border border-outline/10 bg-surface-muted/60 p-3">
-              <Globe2 className="mt-0.5 h-4 w-4 text-accent-primary" />
-              <span>Multi-theme layouts keep accessibility dialed in from desktop command desks to mobile check-ins.</span>
-            </li>
-            <li className="flex items-start gap-3 rounded-2xl border border-outline/10 bg-surface-muted/60 p-3">
-              <LineChart className="mt-0.5 h-4 w-4 text-accent-primary" />
-              <span>Education tracks, simulators, and calculators stay linked to your saved progress and personalized alerts.</span>
-            </li>
-          </ul>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              className="inline-flex items-center gap-2 rounded-full border border-accent-primary/40 bg-accent-primary/10 px-5 py-2 text-sm font-semibold text-accent-primary outline outline-2 outline-transparent transition hover:outline-black"
-              href={signUpRoute}
-            >
-              Create your account
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <Link
-              className="inline-flex items-center gap-2 text-sm font-semibold text-text-secondary outline outline-2 outline-transparent transition hover:text-text-primary hover:outline-black"
-              href={demoRoute}
-            >
-              Explore interactive demo
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-6 shadow-inner">
+
+          <div className="space-y-4 rounded-2xl border border-outline/20 bg-surface-muted/60 p-6">
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-text-primary">Sign in with Clerk</h2>
+              <h3 className="text-lg font-semibold text-text-primary">Sign in with Clerk</h3>
               <p className="text-sm text-text-secondary">
-                Securely authenticate with Clerk to resume saved workspaces, simulator runs, and personalized alerts on any device.
+                Resume saved workspaces, simulators, and personalized alerts on any device.
               </p>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 text-sm font-semibold">
               <Link
                 href={signInRoute}
-                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-accent-primary/40 bg-accent-primary/10 px-4 py-3 text-sm font-semibold text-accent-primary outline outline-2 outline-transparent transition hover:border-accent-primary hover:bg-accent-primary/20 hover:outline-black"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-accent-primary/40 bg-accent-primary/10 px-4 py-3 text-accent-primary outline outline-2 outline-transparent transition hover:border-accent-primary hover:outline-black"
               >
                 Access your account
-                <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
               <Link
                 href={signUpRoute}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-outline/30 bg-surface-base/90 px-4 py-3 text-sm font-semibold text-text-primary outline outline-2 outline-transparent transition hover:border-accent-primary/60 hover:bg-accent-primary/10 hover:outline-black"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-outline/30 bg-surface-base/90 px-4 py-3 text-text-primary outline outline-2 outline-transparent transition hover:border-accent-primary/60 hover:bg-accent-primary/10 hover:outline-black"
               >
                 Create an account
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
-            <p className="mt-4 rounded-xl border border-dashed border-outline/30 bg-surface-muted/80 p-4 text-xs text-text-secondary">
-              Clerk handles passwordless links, passkeys, and MFA for you. You can always manage sessions and devices from your Clerk profile after signing in.
+            <p className="rounded-xl border border-dashed border-outline/30 bg-surface-muted/80 p-4 text-xs text-text-secondary">
+              Clerk handles passkeys, MFA, and session management. You can always manage devices from your Clerk profile after signing in.
             </p>
           </div>
+        </div>
+      </SimpleBoard>
+
+      <SimpleBoard
+        badge="B · Metrics"
+        title="Market snapshot and workflows"
+        subtitle="Stats stay pinned to the left, while spotlight workflows occupy the right column."
+      >
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <dl className="grid gap-4 sm:grid-cols-2">
             {metrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
-              >
-                <dt className="text-xs font-semibold uppercase tracking-wide text-text-muted">
-                  {metric.label}
-                </dt>
+              <div key={metric.label} className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4">
+                <dt className="text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">{metric.label}</dt>
                 <dd className="mt-2 flex items-baseline gap-2 text-2xl font-semibold text-text-primary">
                   {metric.value}
-                  <span className="text-xs font-medium text-accent-secondary">
-                    {metric.change}
-                  </span>
+                  <span className="text-xs font-medium text-accent-secondary">{metric.change}</span>
                 </dd>
               </div>
             ))}
           </dl>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {spotlightWorkflows.map((workflow) => (
+              <SimpleTile
+                key={workflow.title}
+                label={`${workflow.label} · Workflow`}
+                title={workflow.title}
+                description={workflow.description}
+                action={{ label: "View playbook", href: workflow.href }}
+              />
+            ))}
+          </div>
         </div>
-      </section>
+      </SimpleBoard>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] xl:gap-8">
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>Investor Spotlight</CardTitle>
-                <CardDescription>
-                  Curated workflows to accelerate analysis, education, and execution.
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {spotlightCards.map((spotlight) => {
-                const internal = spotlight.href.startsWith("/");
-                const content = (
-                  <>
-                    <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-accent-primary/40 bg-accent-primary/10 text-accent-primary shadow-card transition group-hover:border-black group-hover:text-accent-primary">
-                      <spotlight.icon className="h-6 w-6" />
-                    </span>
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-semibold text-text-primary group-hover:text-accent-primary">
-                        {spotlight.title}
-                      </h3>
-                      <p className="text-sm text-text-secondary">{spotlight.description}</p>
+      <SimpleBoard
+        badge="C · Analyzer"
+        title="Live analyzer and signals desk"
+        subtitle="Tiles mimic the prototype labels z, y, and x within the same grid."
+      >
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SimpleTile
+            label="z · Market analyzer"
+            title="Universe snapshot"
+            description="Live list seeded from the ticker API feed."
+            tone="contrast"
+          >
+            <ul className="grid grid-cols-2 gap-2 text-sm text-text-secondary">
+              {analyzerUniverse.map((ticker) => (
+                <li key={ticker} className="rounded-xl border border-outline/20 px-3 py-2">
+                  <span className="text-text-primary">{ticker}</span>
+                  <span className="block text-[11px] uppercase tracking-[0.35em] text-text-muted">Tracked</span>
+                </li>
+              ))}
+              {!analyzerUniverse.length && (
+                <li className="col-span-2 rounded-xl border border-dashed border-outline/30 px-3 py-4 text-center text-sm">
+                  Waiting on sync · data fallback in use
+                </li>
+              )}
+            </ul>
+          </SimpleTile>
+
+          <SimpleTile
+            label="y · Signals desk"
+            title="Recommendations in rotation"
+            description="Top ideas refresh as the backend delivers new scores."
+          >
+            <ul className="space-y-3 text-sm">
+              {signals.length ? (
+                signals.map((signal) => (
+                  <li key={signal.symbol} className="rounded-xl border border-outline/20 px-3 py-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-text-primary">{signal.symbol}</p>
+                        <p className="text-xs text-text-secondary">{signal.name}</p>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant="soft" className="capitalize">
+                          {signal.rating}
+                        </Badge>
+                        {signal.price && (
+                          <p className="text-sm font-semibold text-text-primary">
+                            {priceFormatter.format(signal.price)}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-accent-secondary">
-                      View playbook
-                      <ArrowUpRight className="h-3 w-3" />
-                    </span>
-                  </>
-                );
-
-                return !internal ? (
-                  <a
-                    key={spotlight.title}
-                    href={spotlight.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group space-y-4 outline outline-2 outline-transparent transition hover:outline-black"
-                  >
-                    {content}
-                  </a>
-                ) : (
-                  <Link
-                    key={spotlight.title}
-                    href={spotlight.href as Route}
-                    className="group space-y-4 outline outline-2 outline-transparent transition hover:outline-black"
-                  >
-                    {content}
-                  </Link>
-                );
-              })}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>Latest from the Academy</CardTitle>
-                <CardDescription>
-                  Deep-dive lessons and calculators refined for Version 2 launch.
-                </CardDescription>
-              </div>
-              <Link
-                className="inline-flex items-center gap-2 text-sm font-semibold text-text-secondary outline outline-2 outline-transparent transition hover:text-text-primary hover:outline-black"
-                href={educationRoute}
-              >
-                Explore the education hub
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {storyItems.map((story) => {
-                const href = story.href || "#";
-                const internal = href.startsWith("/");
-                const body = (
-                  <>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-accent-secondary">
-                        {story.tag}
-                      </p>
-                      <h3 className="mt-2 text-base font-semibold text-text-primary group-hover:text-accent-primary">
-                        {story.title}
-                      </h3>
-                    </div>
-                    <Newspaper className="h-6 w-6 text-accent-primary group-hover:text-accent-secondary" />
-                  </>
-                );
-
-                return !internal ? (
-                  <a
-                    key={story.title}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group flex items-start justify-between gap-4 rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 outline outline-2 outline-transparent transition hover:outline-black"
-                  >
-                    {body}
-                  </a>
-                ) : (
-                  <Link
-                    key={story.title}
-                    href={href as Route}
-                    className="group flex items-start justify-between gap-4 rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 outline outline-2 outline-transparent transition hover:outline-black"
-                  >
-                    {body}
-                  </Link>
-                );
-              })}
-            </CardContent>
-          </Card>
+                    <p className="text-xs text-text-muted">Score {signal.score.toFixed(1)}</p>
+                  </li>
+                ))
+              ) : (
+                <li className="rounded-xl border border-dashed border-outline/30 px-3 py-4 text-center text-sm text-text-secondary">
+                  Signals warming up
+                </li>
+              )}
+            </ul>
+          </SimpleTile>
         </div>
+      </SimpleBoard>
 
-        <Card>
-          <CardHeader className="flex flex-col items-start gap-4">
-            <Badge variant="outline">Live now</Badge>
-            <div className="space-y-2">
-              <CardTitle>Signal Monitor</CardTitle>
-              <CardDescription>
-                Real-time alerts generated from multi-source market intelligence.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {signals.length ? (
-              signals.map((signal) => {
-                const badgeClass = ratingClassMap[signal.rating] || ratingClassMap.neutral;
-                const priceText =
-                  typeof signal.price === "number" ? priceFormatter.format(signal.price) : "—";
-                return (
-                  <div
-                    key={signal.symbol}
-                    className="flex items-center justify-between rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-text-primary">
-                        {signal.symbol} · {signal.name}
-                      </p>
-                      <p className="text-xs text-text-muted">
-                        Score {signal.score.toFixed(1)} · Price {priceText}
-                      </p>
-                    </div>
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em]",
-                        badgeClass,
-                      )}
-                    >
-                      {signal.rating === "bullish" ? (
-                        <BarChart2 className="h-3 w-3" />
-                      ) : signal.rating === "bearish" ? (
-                        <LineChart className="h-3 w-3" />
-                      ) : (
-                        <Globe2 className="h-3 w-3" />
-                      )}
-                      {signal.rating.charAt(0).toUpperCase() + signal.rating.slice(1)}
-                    </span>
+      <SimpleBoard
+        badge="D · Research"
+        title="Stories, comparisons, and public filings"
+        subtitle="These tiles map to x, w, and v from the original diagram."
+      >
+        <div className="grid gap-4 lg:grid-cols-3">
+          <SimpleTile
+            label="x · Stock analysis"
+            title="Story-driven focus"
+            description="Latest three stories (or fallbacks) become the analysis tiles."
+            tone="contrast"
+          >
+            <ul className="space-y-2 text-sm">
+              {highlights.map((story) => (
+                <li key={story.title} className="rounded-xl border border-outline/20 px-3 py-2">
+                  <p className="font-semibold text-text-primary">{story.title}</p>
+                  <p className="text-xs uppercase tracking-[0.35em] text-text-muted">{story.tag}</p>
+                </li>
+              ))}
+            </ul>
+          </SimpleTile>
+
+          <SimpleTile
+            label="w · Stock vs index"
+            title="Comparison ladder"
+            description="Quick glance at how thematic baskets stack against benchmarks."
+          >
+            <ul className="space-y-2 text-sm">
+              {comparisonRows.map((row) => (
+                <li key={row.label} className="flex items-center justify-between rounded-xl border border-outline/20 px-3 py-2">
+                  <div>
+                    <p className="font-semibold text-text-primary">{row.label}</p>
+                    <p className="text-xs text-text-secondary">{row.note}</p>
                   </div>
-                );
-              })
-            ) : (
-              <div className="rounded-2xl border border-dashed border-outline/40 bg-surface-muted/60 p-4 text-sm text-text-secondary">
-                Signals will populate once the recommendation engine completes its initial run. Check
-                back shortly.
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
+                  <span className="text-sm font-semibold text-accent-primary">{row.diff}</span>
+                </li>
+              ))}
+            </ul>
+          </SimpleTile>
+
+          <SimpleTile
+            label="v · Politician tracker"
+            title="Public filing pulse"
+            description="Static sample that mirrors the prototype layout."
+            tone="info"
+          >
+            <ul className="space-y-2 text-sm">
+              {politicianHoldings.map((holding) => (
+                <li key={holding.name} className="rounded-xl border border-outline/20 px-3 py-2">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-text-primary">{holding.name}</p>
+                    <span className="text-xs text-accent-secondary">{holding.delta}</span>
+                  </div>
+                  <p className="text-xs text-text-secondary">Focus · {holding.focus}</p>
+                </li>
+              ))}
+            </ul>
+          </SimpleTile>
+        </div>
+      </SimpleBoard>
+
+      <SimpleBoard
+        badge="E · Aux"
+        title="Status, themes, and shortcuts"
+        subtitle="Mirrors the footer row from the ASCII diagram to close out the loop."
+      >
+        <div className="grid gap-4 lg:grid-cols-3">
+          <SimpleTile
+            label="Aux · Shortcuts"
+            title="Jump to other rows"
+            description="Letters mirror the sidebar for muscle memory."
+          >
+            <div className="flex flex-wrap gap-2">
+              {navShortcuts.map(({ letter, label, href }) => (
+                <Link
+                  key={letter}
+                  href={href}
+                  className="inline-flex items-center gap-2 rounded-full border border-outline/30 px-3 py-1 text-xs font-semibold text-text-secondary"
+                >
+                  {letter} · {label}
+                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                </Link>
+              ))}
+            </div>
+          </SimpleTile>
+
+          <SimpleTile
+            label="Status"
+            title="Data cadence"
+            description={`${trackedEquities ? "Ticker universe live" : "Mock data"} · Signals refresh every few minutes.`}
+            tone="contrast"
+          />
+
+          <SimpleTile
+            label="Themes"
+            title="Preview modes"
+            description="Use the header theme switcher to keep the simple layout feeling fresh."
+            tone="accent"
+          />
+        </div>
+      </SimpleBoard>
     </div>
   );
 }
