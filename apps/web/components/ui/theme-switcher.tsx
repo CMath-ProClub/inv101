@@ -14,12 +14,26 @@ export function ThemeSwitcher({ className }: { className?: string }) {
   };
 
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      <label className="inline-flex items-center gap-2 rounded-full border border-outline/40 bg-surface-muted/60 px-3 py-1.5 text-sm text-text-secondary shadow-card transition hover:border-black focus-within:border-black">
-        <Palette className="h-4 w-4 text-accent-primary" aria-hidden="true" />
+    <div className={cn("flex flex-col gap-3", className)}>
+      <label
+        className="inline-flex items-center gap-3 rounded-full border border-outline/30 bg-surface-card/80 px-4 py-2 text-sm font-semibold text-text-secondary shadow-[0_20px_35px_rgba(5,10,25,0.28)] transition focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-accent-primary"
+        style={{
+          background:
+            "linear-gradient(115deg, rgba(var(--surface-card), 0.96), rgba(var(--surface-elevated), 0.9))",
+        }}
+      >
+        <span
+          className="flex h-8 w-8 items-center justify-center rounded-2xl"
+          style={{
+            backgroundColor: "rgba(var(--accent-primary), 0.15)",
+            color: "rgb(var(--accent-primary))",
+          }}
+        >
+          <Palette className="h-4 w-4" aria-hidden="true" />
+        </span>
         <span className="sr-only">Select theme</span>
         <select
-          className="appearance-none bg-transparent text-sm font-medium text-text-primary outline-none"
+          className="appearance-none bg-transparent text-sm font-semibold text-text-primary outline-none"
           value={activeTheme}
           onChange={handleThemeChange}
           aria-label="Select visual theme"
@@ -33,25 +47,30 @@ export function ThemeSwitcher({ className }: { className?: string }) {
       </label>
       {revertState && (
         <div
-          className="inline-flex items-center gap-3 rounded-full border border-outline/30 bg-surface-muted/60 px-4 py-2 text-xs text-text-secondary shadow-card"
+          className="flex flex-wrap items-center gap-3 rounded-3xl border border-outline/30 bg-surface-card/90 px-5 py-3 text-xs text-text-secondary shadow-[0_28px_45px_rgba(5,10,25,0.32)]"
+          style={{
+            background:
+              "linear-gradient(120deg, rgba(var(--surface-card), 0.96), rgba(var(--surface-elevated), 0.9))",
+          }}
           role="status"
           aria-live="assertive"
         >
-          <span>
-            Previewing {themeOptions.find((option) => option.id === revertState.nextTheme)?.label ?? "theme"}. Auto revert in {revertState.secondsLeft}s.
+          <span className="text-sm font-medium text-text-primary">
+            Previewing {themeOptions.find((option) => option.id === revertState.nextTheme)?.label ?? "theme"}
+            <span className="ml-1 text-text-secondary">· Auto revert in {revertState.secondsLeft}s</span>
           </span>
-          <div className="flex items-center gap-2 text-[11px]">
+          <div className="flex items-center gap-2 text-[11px] font-semibold">
             <button
               type="button"
               onClick={keepTheme}
-              className="rounded-full border border-outline/30 bg-surface-base/80 px-3 py-1 font-semibold text-text-primary transition hover:border-accent-primary/60 hover:text-accent-primary"
+              className="rounded-full border border-outline/30 bg-surface-card/80 px-4 py-1.5 text-text-primary transition hover:-translate-y-0.5 hover:border-accent-primary/40"
             >
               Keep
             </button>
             <button
               type="button"
               onClick={revertThemeNow}
-              className="rounded-full border border-outline/30 bg-surface-base/80 px-3 py-1 font-semibold text-text-primary transition hover:border-accent-secondary/60 hover:text-accent-secondary"
+              className="rounded-full border border-outline/30 bg-surface-card/80 px-4 py-1.5 text-text-primary transition hover:-translate-y-0.5 hover:border-accent-secondary/40"
             >
               Undo
             </button>

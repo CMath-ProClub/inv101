@@ -1,6 +1,28 @@
-# 📋 Tailwind CSS Migration - Complete Documentation Index
+# 📋 Tailwind CSS Migration & Next.js Experience Index
 
-## 🎉 PROJECT COMPLETE
+## 🎉 CURRENT STATUS
+
+- **Tailwind migration**: ✅ 76/76 prototype files converted (see details below)
+- **Next.js app**: ✅ Education hub, budgeting lab, and gamified playground now live under `apps/web`
+- **Docs hub**: Use this index to jump between historical migration notes and the new Next.js feature guides.
+
+---
+
+## 🚀 Next.js Experience Layers
+
+1. **Education & Budgeting Hub**
+   - Entry points: `apps/web/app/lessons/page.tsx`, `apps/web/app/budgeting/page.tsx`
+   - Reference docs: `QUICKSTART.md` (overview), `FINAL_CLERK_IMPLEMENTATION.md` (auth wiring)
+2. **XP + League Ladder**
+   - Entry points: `apps/web/app/playground/achievements/page.tsx`, shared data in `apps/web/lib/league-tiers.ts`
+   - Reference docs: `GAMIFICATION_IMPLEMENTATION.md`, `GAMIFICATION_QUICK_REFERENCE.md`, `GAMIFICATION_PHASE2_COMPLETE.md`
+3. **Playground & Competitive Modes**
+   - Entry points: `/playground`, `/playground/trading-battles`, `/playground/simulator`
+   - Reference docs: `TRADING_BATTLES_IMPLEMENTATION.md`, `TRADING_BATTLES_COMPLETION_REPORT.md`, `SIMULATOR_ENHANCEMENTS.md`
+
+---
+
+## 🎉 PROJECT COMPLETE (Prototype Tailwind Migration)
 
 **All 76 HTML files successfully migrated to Tailwind CSS v3.4.17**  
 **Status: ✅ Production Ready (Pending Final QA)**

@@ -10,6 +10,8 @@ import {
 import { StatusBanner } from "../../../components/ui/status-banner";
 import { fetchAuthedApi } from "../../../lib/api";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Profile Overview",
   description:

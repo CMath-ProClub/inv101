@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { getMockApiResponse } from "./api-mocks";
 
 const DEFAULT_API_BASE = "http://localhost:4000";
 
@@ -52,12 +53,22 @@ export async function fetchApi<T>(path: string, options?: number | FetchApiOptio
 
     if (!response.ok) {
       console.warn(`API request failed (${response.status}): ${url}`);
+      const fallback = getMockApiResponse(path);
+      if (fallback) {
+        console.info(`Using fallback data for ${path}`);
+        return fallback as T;
+      }
       return null;
     }
 
     return (await response.json()) as T;
   } catch (error) {
     console.warn(`API request error for ${url}:`, error instanceof Error ? error.message : error);
+    const fallback = getMockApiResponse(path);
+    if (fallback) {
+      console.info(`Using fallback data for ${path}`);
+      return fallback as T;
+    }
     return null;
   }
 }

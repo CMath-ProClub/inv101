@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
@@ -35,7 +36,7 @@ export default function SignUpPage() {
             variables: {
               borderRadius: "18px",
               fontSize: "15px",
-              spacingUnit: 10,
+              spacingUnit: "10px",
             },
             layout: {
               socialButtonsPlacement: "bottom",
@@ -48,7 +49,10 @@ export default function SignUpPage() {
         />
         <p className="text-center text-sm text-text-secondary">
           Already have an account? {" "}
-          <Link href="/sign-in" className="font-semibold text-accent-primary transition hover:text-accent-secondary">
+          <Link
+            href={"/sign-in" as Route}
+            className="font-semibold text-accent-primary transition hover:text-accent-secondary"
+          >
             Sign in instead
           </Link>
           .

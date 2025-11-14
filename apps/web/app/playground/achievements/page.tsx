@@ -9,6 +9,9 @@ import {
 } from "../../../components/ui/card";
 import { StatusBanner } from "../../../components/ui/status-banner";
 import { fetchAuthedApi } from "../../../lib/api";
+import { leagueTiers } from "../../../lib/league-tiers";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Achievements & XP",
@@ -44,6 +47,29 @@ const milestones = [
   "XP tracker logic comes from calculator-xp-tracker.js with Clerk persistence.",
   "Streak notifications reuse the toast styling from gamification-widget.js.",
 ];
+
+const xpCaps = [
+  {
+    title: "Daily soft cap",
+    detail: "500 XP before boosts; overflow stores as Prestige XP and unlocks Friday recap rewards.",
+  },
+  {
+    title: "Weekly focus",
+    detail: "Education completions earn 2× XP until 1,500 XP per week to prioritize structured learning.",
+  },
+  {
+    title: "Lesson priority",
+    detail: "If you hit the daily cap, new XP only counts from Education, budgeting labs, or onboarding replays.",
+  },
+];
+
+const energyMatrix = [
+  { action: "Education checkpoint", cost: "1 energy", note: "Covers budgeting lab steps and foundation lessons." },
+  { action: "Simulator or battle", cost: "2 energy", note: "Refunds 1 energy on wins or perfect accuracy." },
+  { action: "AI toolkit deep dive", cost: "3 energy", note: "Advises to queue after streak-safe tasks." },
+  { action: "Calculator burst", cost: "½ energy", note: "Automatically batches every two calculations." },
+];
+
 
 function formatDate(value?: string) {
   if (!value) return null;
@@ -104,6 +130,77 @@ export default async function AchievementsPage() {
               </li>
             ))}
           </ul>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>XP leveling + energy rules</CardTitle>
+          <CardDescription>
+            Caps, boosts, and energy costs mirror the legacy progression loop so players know exactly how to climb.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.32em] text-accent-secondary">Caps & boosts</h3>
+            <ul className="mt-3 grid gap-3 md:grid-cols-3">
+              {xpCaps.map((item) => (
+                <li
+                  key={item.title}
+                  className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
+                >
+                  <p className="text-sm font-semibold text-text-primary">{item.title}</p>
+                  <p className="mt-1 text-sm text-text-secondary">{item.detail}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.32em] text-accent-secondary">Energy system</h3>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              {energyMatrix.map((entry) => (
+                <div
+                  key={entry.action}
+                  className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
+                >
+                  <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.32em] text-text-muted">
+                    <span>{entry.action}</span>
+                    <span>{entry.cost}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-text-secondary">{entry.note}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-sm text-text-secondary">
+            Energy regenerates 1 point every 6 hours (4 hours for Rocket Platinum+) and fully refills every Monday alongside the weekly XP focus reset.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>League ladder</CardTitle>
+          <CardDescription>
+            Promotion and demotion rules that tie XP rankings to the Bullish Bronze through Wall Street Official journey.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {leagueTiers.map((tier) => (
+              <div
+                key={tier.name}
+                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-accent-secondary">{tier.name}</p>
+                <p className="mt-1 text-sm font-semibold text-text-primary">{tier.xpRange}</p>
+                <p className="mt-2 text-sm text-text-secondary">{tier.highlights}</p>
+                <div className="mt-3 rounded-xl border border-dashed border-outline/30 bg-surface-base/60 p-3 text-xs text-text-secondary">
+                  {tier.movement}
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

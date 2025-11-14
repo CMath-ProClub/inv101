@@ -32,7 +32,17 @@ A comprehensive web application for learning investing concepts through interact
 - **Market Analysis**: Technical and fundamental analysis lessons
 - **Practical Skills**: Portfolio management, risk management, trading strategies
 
-### 🎮 Trading Simulator
+### � Education & Budgeting Hub (Next.js)
+- **Education hub**: Next.js `/lessons` page showcases the refreshed sample lesson with XP rewards, outcomes, and connected workflows.
+- **Budgeting lab**: `/budgeting` aggregates quick-launch flows plus calculator shortcuts so learners can move from education to planning without leaving the hub.
+- **Tooling bridge**: Calculator shortcuts remain fully manual but can optionally prefill values from budgeting envelopes when automation goes live.
+
+### 🏆 Gamification & League Ladder
+- **Unified XP ledger**: `/playground/achievements` exposes XP caps, energy rules, and live achievement data with Clerk-backed persistence.
+- **League tiers**: Shared league ladder (Bullish Bronze → Wall Street Official) now appears across Achievements, Profile, and Trading Battles so promotions stay consistent.
+- **Playground hub**: `/playground` centralizes the simulator, AI sparring, trading battles, and XP progress telemetry lifted from the prototype experience.
+
+### �🎮 Trading Simulator
 - **AI Opponents**: Practice against Safe, Aggressive, or Balanced strategies
 - **Customizable**: Set duration, difficulty level, and market conditions
 - **Performance Tracking**: See how you stack up against AI
@@ -53,13 +63,18 @@ A comprehensive web application for learning investing concepts through interact
 - Live market movers and recommendation screens with curated fallback data
 - Scheduler controlled by `NEWSLETTER_DAILY_CRON` and standard SMTP/console transports
 
+### 🛡️ Resilient Mock Data Layer
+- Next.js app routes automatically fall back to curated mock payloads when the backend API is offline
+- Centralized in `apps/web/lib/api-mocks.ts` and wired through `fetchApi`, so pages like `/` and `/market` keep rendering metrics without throwing build errors
+- Logged in the server console (`Using fallback data for /api/...`) so you always know when mock responses are being served
+
 ## �🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: Vanilla JavaScript (no dependencies)
-- **Styling**: Responsive CSS with CSS Grid/Flexbox
-- **Features**: Dark mode, mobile-responsive design
-- **Visualizations**: Chart.js for interactive charts
+- **Framework**: Next.js 14 App Router with React 18 (server + client components)
+- **Styling**: Tailwind CSS 3.4 with custom design tokens and Clerk-aware theming
+- **Auth & state**: Clerk authentication, Next Themes, shared context providers in `apps/web/app/providers.tsx`
+- **Legacy prototypes**: `/prototype` directory remains for reference; new production UI lives under `apps/web`
 
 ### Backend
 - **Runtime**: Node.js (v18+)
@@ -107,7 +122,15 @@ npm start
 # Server runs on http://localhost:4000
 ```
 
-5. **Open the frontend**
+5. **Run the modern Next.js frontend**
+```bash
+cd ..\apps\web
+npm install
+npm run dev
+# App runs on http://localhost:3000 with Clerk + Tailwind already wired up
+```
+
+6. **(Optional) Open legacy prototype**
 - Open `prototype/index.html` in your browser
 - Or use a live server (VS Code Live Server extension recommended)
 
@@ -189,9 +212,13 @@ inv101/
 │   ├── config/          # Database configuration
 │   ├── models/          # MongoDB schemas
 │   └── package.json     # Backend dependencies
-├── prototype/           # Frontend application
+├── apps/web/            # Next.js 14 frontend (Clerk + Tailwind)
+│   ├── app/             # App Router routes (Education hub, Budgeting lab, Playground, Profile)
+│   ├── components/      # Reusable UI (navigation, badges, status banners)
+│   ├── lib/             # API helpers, mock data, shared league tiers
+│   └── package.json     # Frontend dependencies
+├── prototype/           # Legacy static prototype (for reference)
 │   ├── index.html       # Main landing page
-│   ├── styles.css       # Global styles
 │   ├── calculators.html # Calculator hub
 │   ├── lessons.html     # Educational content
 │   ├── simulator.html   # Trading simulator

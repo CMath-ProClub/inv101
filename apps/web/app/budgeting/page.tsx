@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { Badge } from "../../components/ui/badge";
 import {
   Card,
@@ -9,6 +10,12 @@ import {
 } from "../../components/ui/card";
 import { StatusBanner } from "../../components/ui/status-banner";
 import { fetchAuthedApi } from "../../lib/api";
+import {
+  budgetingQuickFlows,
+  budgetingCalculatorShortcuts,
+} from "../../lib/education-content";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Budgeting Lab",
@@ -49,6 +56,16 @@ type GamificationResponse = {
   };
 };
 
+type BudgetingQuickFlowResponse = {
+  success: boolean;
+  flows: typeof budgetingQuickFlows;
+};
+
+type BudgetingCalculatorShortcutResponse = {
+  success: boolean;
+  shortcuts: typeof budgetingCalculatorShortcuts;
+};
+
 const roadmap = [
   "Cashflow heatmaps and envelope goals lifted from forthcoming budgeting prototypes.",
   "Recurring task cadence that ties into XP and streak logic.",
@@ -76,15 +93,97 @@ export default async function BudgetingPage() {
 
   const gamificationStats = gamificationResponse?.success ? gamificationResponse.user.stats : null;
 
+  const [quickFlowsResponse, shortcutsResponse] = await Promise.all([
+    fetchAuthedApi<BudgetingQuickFlowResponse>("/api/budgeting/quick-flows", {
+      revalidateSeconds: 120,
+      requireAuth: false,
+    }),
+    fetchAuthedApi<BudgetingCalculatorShortcutResponse>("/api/budgeting/calculator-shortcuts", {
+      revalidateSeconds: 120,
+      requireAuth: false,
+    }),
+  ]);
+
+  const quickFlows = quickFlowsResponse?.success ? quickFlowsResponse.flows : budgetingQuickFlows;
+  const calculatorShortcuts = shortcutsResponse?.success
+    ? shortcutsResponse.shortcuts
+    : budgetingCalculatorShortcuts;
+
   return (
     <div className="space-y-10">
       <header className="space-y-3">
         <Badge variant="soft">Planning</Badge>
-        <h1 className="text-4xl font-semibold text-text-primary">Budgeting lab (coming soon)</h1>
+        <h1 className="text-4xl font-semibold text-text-primary">Budgeting lab</h1>
         <p className="max-w-3xl text-lg text-text-secondary">
-          This placeholder keeps the production slot ready for the budgeting and cash planning prototypes without losing the original layout or typography.
+          Launch interactive cash planning flows, tie XP boosts to calculators, and preview the upcoming automation loops.
         </p>
       </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick launch flows</CardTitle>
+          <CardDescription>
+            One-click actions pair Education lessons with budgeting-specific tooling.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 md:grid-cols-3">
+            {quickFlows.map((flow) => (
+              <div
+                key={flow.name}
+                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
+              >
+                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">
+                  <span>{flow.name}</span>
+                  <span
+                    className={
+                      flow.status === "live"
+                        ? "text-accent-primary"
+                        : flow.status === "beta"
+                          ? "text-accent-secondary"
+                          : "text-text-muted"
+                    }
+                    aria-label={`Status: ${flow.status}`}
+                  >
+                    {flow.status}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-text-secondary">{flow.summary}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-text-secondary">
+            Live flows sync XP immediately; beta and upcoming flows keep formatting placeholders while backend automation finalizes.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Calculator shortcuts</CardTitle>
+          <CardDescription>
+            Open the production calculators pre-wired for budgeting envelopes.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          {calculatorShortcuts.map((shortcut) => (
+            <div
+              key={shortcut.title}
+              className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
+            >
+              <p className="text-sm font-semibold text-text-primary">{shortcut.title}</p>
+              <p className="mt-1 text-sm text-text-secondary">{shortcut.description}</p>
+              <Link
+                href={shortcut.href}
+                aria-label={`Launch ${shortcut.title}`}
+                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-accent-primary transition hover:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
+              >
+                Launch calculator
+              </Link>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

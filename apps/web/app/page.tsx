@@ -138,7 +138,7 @@ const defaultStories = [
 const signUpRoute = "/sign-up" as Route;
 const signInRoute = "/sign-in" as Route;
 const demoRoute = "/demo" as Route;
-const lessonsRoute = "/lessons" as Route;
+const educationRoute = "/lessons" as Route;
 
 const priceFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -243,7 +243,7 @@ export default async function HomePage() {
             </li>
             <li className="flex items-start gap-3 rounded-2xl border border-outline/10 bg-surface-muted/60 p-3">
               <LineChart className="mt-0.5 h-4 w-4 text-accent-primary" />
-              <span>Lessons, simulators, and calculators stay linked to your saved progress and personalized alerts.</span>
+              <span>Education tracks, simulators, and calculators stay linked to your saved progress and personalized alerts.</span>
             </li>
           </ul>
           <div className="flex flex-wrap items-center gap-3">
@@ -376,9 +376,9 @@ export default async function HomePage() {
               </div>
               <Link
                 className="inline-flex items-center gap-2 text-sm font-semibold text-text-secondary outline outline-2 outline-transparent transition hover:text-text-primary hover:outline-black"
-                href={lessonsRoute}
+                href={educationRoute}
               >
-                See all lessons
+                Explore the education hub
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </CardHeader>
