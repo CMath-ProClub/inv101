@@ -263,7 +263,7 @@ export default async function MarketPage() {
             <CardHeader>
               <CardTitle>Today&apos;s Leaders</CardTitle>
               <CardDescription>
-                Top advancing equities across the Invest101 coverage universe.
+                Top advancing equities across the Investing101 coverage universe.
               </CardDescription>
             </CardHeader>
             <CardContent className="overflow-x-auto">
@@ -666,14 +666,14 @@ export default async function MarketPage() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div id="analyzer" className="space-y-10">
       <header className="space-y-4">
         <Badge variant="soft">Market Command Center</Badge>
         <h2 className="text-4xl font-semibold tracking-tight text-text-primary">
           Live market telemetry and rotation insights
         </h2>
         <p className="max-w-3xl text-lg text-text-secondary">
-          Track leadership, breadth, and signal intelligence across the full Invest101 coverage universe.
+          Track leadership, breadth, and signal intelligence across the full Investing101 coverage universe.
           Tabs break down daily performance, sector flows, AI-driven ideas, and curated headlines so you can act with clarity.
         </p>
       </header>

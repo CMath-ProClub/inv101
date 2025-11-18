@@ -12,10 +12,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Invest101",
-    template: "%s · Invest101",
+    default: "Investing101",
+    template: "%s · Investing101",
   },
-  description: "Modern investor education and tools platform",
+  description: "Investing101 · modern investor education and tools platform",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -23,21 +23,27 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          "min-h-screen bg-surface-base text-text-primary antialiased",
+          "h-screen overflow-hidden bg-surface-base text-text-primary antialiased",
           inter.className,
         )}
       >
         <Providers>
-          <div className="relative min-h-screen bg-surface-base">
+          <div className="relative flex h-screen flex-col overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 -z-10">
+              <div className="absolute -top-32 right-10 h-64 w-64 rounded-full bg-gradient-to-br from-accent-secondary/30 via-accent-tertiary/40 to-transparent blur-3xl" />
+              <div className="absolute -bottom-24 left-12 h-72 w-72 rounded-full bg-gradient-to-br from-accent-primary/25 via-accent-secondary/25 to-transparent blur-3xl" />
+            </div>
             <Header />
-            <div className="flex min-h-screen pt-[var(--header-height)]">
+            <div className="flex flex-1 overflow-hidden pt-[var(--header-height)]">
               <Sidebar />
-              <div className="flex min-h-[calc(100vh-var(--header-height))] flex-1 flex-col">
-                <main className="relative flex-1 px-4 pb-32 pt-8 sm:px-6 lg:px-10 xl:px-16">
-                  {children}
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <main className="relative flex-1 overflow-y-auto px-4 pb-24 pt-8 sm:px-6 lg:px-10 xl:px-16">
+                  <div className="mx-auto flex w-full max-w-7xl flex-col gap-10">
+                    {children}
+                  </div>
                 </main>
-                <footer className="border-t border-outline/30 bg-surface-elevated/80 py-6 text-center text-sm text-text-muted">
-                  &copy; {new Date().getFullYear()} Invest101. All rights reserved.
+                <footer className="shrink-0 border-t border-outline/30 bg-surface-elevated/70 py-5 text-center text-sm text-text-muted">
+                  &copy; {new Date().getFullYear()} Investing101. All rights reserved.
                 </footer>
               </div>
             </div>

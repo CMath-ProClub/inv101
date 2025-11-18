@@ -1,25 +1,15 @@
 import { Metadata } from "next";
 import type { Route } from "next";
-import Link from "next/link";
-import type { ComponentType } from "react";
 import {
-  ArrowUpRight,
-  Banknote,
-  BarChart2,
-  Calculator,
+  Calculator as CalculatorIcon,
   Coins,
-  FileSpreadsheet,
+  Layers,
   PiggyBank,
-  ShieldCheck,
+  Receipt,
+  Shield,
+  TrendingUp,
 } from "lucide-react";
-import { Badge } from "../../components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
+import { WorkspaceGrid, type WorkspaceNavItem } from "../../components/layout/workspace-grid";
 
 export const metadata: Metadata = {
   title: "Calculator Hub",
@@ -27,112 +17,94 @@ export const metadata: Metadata = {
     "Central entry point for the calculator prototypes (core, risk, asset, retirement, tax, crypto).",
 };
 
-type CalculatorCategory = {
-  title: string;
-  description: string;
-  href: Route;
-  icon: ComponentType<{ className?: string }>;
-  tag: string;
-};
-
-const categories: CalculatorCategory[] = [
+const calculatorNav: WorkspaceNavItem[] = [
   {
-    title: "Core",
-    description: "Compound interest, ROI, and volatility calculators from calc-core*.html.",
+    title: "Core deck",
+    helper: "Free",
+    meta: "Open access",
+    description: "Compound interest, ROI, and volatility basics.",
     href: "/calculators/core" as Route,
-    icon: Calculator,
-    tag: "Essentials",
+    icon: CalculatorIcon,
+    accent: "bg-gradient-to-br from-sky-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-2",
   },
   {
-    title: "Risk",
-    description: "Kelly sizing, VAR, and position sizing tools lifted from calc-risk*.html.",
+    title: "Risk deck",
+    helper: "Free",
+    meta: "Open access",
+    description: "Position sizing, VaR, and Kelly calculators.",
     href: "/calculators/risk" as Route,
-    icon: ShieldCheck,
-    tag: "Risk",
+    icon: Shield,
+    accent: "bg-gradient-to-br from-amber-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-2",
   },
   {
-    title: "Stock",
-    description: "DCF, dividend yield, and intrinsic value panes from calc-stock*.html.",
+    title: "Stock deck",
+    helper: "Free",
+    meta: "Open access",
+    description: "Intrinsic value, dividend yield, and P/E tools.",
     href: "/calculators/stock" as Route,
-    icon: BarChart2,
-    tag: "Equity",
+    icon: TrendingUp,
+    accent: "bg-gradient-to-br from-emerald-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-2",
   },
   {
-    title: "Asset",
-    description: "Allocation optimizers referencing calc-asset*.html and calc-asset-allocation.html.",
+    title: "Asset deck",
+    helper: "Pro",
+    meta: "Premium",
+    description: "Rebalancer, MPT optimizer, and asset mix helper.",
     href: "/calculators/asset" as Route,
-    icon: FileSpreadsheet,
-    tag: "Allocation",
+    icon: Layers,
+    accent: "bg-gradient-to-br from-indigo-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
-    title: "Retire",
-    description: "401k and savings planners from calc-retire*.html with timeline formatting intact.",
+    title: "Retire deck",
+    helper: "Pro",
+    meta: "Premium",
+    description: "401(k) growth forecasts and readiness plans.",
     href: "/calculators/retire" as Route,
     icon: PiggyBank,
-    tag: "Retirement",
+    accent: "bg-gradient-to-br from-rose-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
-    title: "Tax",
-    description: "Capital gains and net profit estimators pulled from calc-tax*.html.",
+    title: "Tax deck",
+    helper: "Pro",
+    meta: "Premium",
+    description: "Capital gains and net income tax planners.",
     href: "/calculators/tax" as Route,
-    icon: Coins,
-    tag: "Tax",
+    icon: Receipt,
+    accent: "bg-gradient-to-br from-purple-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
-    title: "Crypto",
-    description: "Mining and staking calculators derived from calc-crypto*.html.",
+    title: "Crypto deck",
+    helper: "Pro",
+    meta: "Premium",
+    description: "Staking yield and mining profitability forms.",
     href: "/calculators/crypto" as Route,
-    icon: Banknote,
-    tag: "Crypto",
+    icon: Coins,
+    accent: "bg-gradient-to-br from-cyan-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
 ];
 
 export default function CalculatorsPage() {
   return (
-    <div className="space-y-10">
-      <header className="space-y-3">
-        <Badge variant="soft">Calculators</Badge>
-        <h1 className="text-4xl font-semibold text-text-primary">
-          Calculator hub powered by the prototype suite
-        </h1>
-        <p className="max-w-3xl text-lg text-text-secondary">
-          Every category here maps directly to the calculators in the prototype folder so formatting, copy, and workflows remain consistent.
-        </p>
-      </header>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        {categories.map((category) => {
-          const Icon = category.icon;
-          return (
-            <Card
-              key={category.title}
-              className="group border-outline/20 bg-surface-muted/60 transition hover:border-accent-primary/60 hover:bg-surface-card/80"
-            >
-              <CardHeader className="flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent-secondary">
-                      {category.tag}
-                    </p>
-                    <CardTitle>{category.title}</CardTitle>
-                    <CardDescription>{category.description}</CardDescription>
-                  </div>
-                  <Icon className="h-10 w-10 text-accent-primary" aria-hidden="true" />
-                </div>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between pt-0">
-                <Link
-                  href={category.href}
-                  aria-label={`Open ${category.title} calculators`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-accent-primary transition hover:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
-                >
-                  Open calculators
-                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </CardContent>
-            </Card>
-          );
-        })}
+    <div className="space-y-8">
+      <section className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">Calculators</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-semibold text-text-primary">Seven calculator decks</h1>
+            <p className="text-sm text-text-secondary">
+              Top row stays free forever. Bottom row shows the premium decks—still clickable so you can preview flows.
+            </p>
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">Free vs. Premium</span>
+        </div>
+        <WorkspaceGrid items={calculatorNav} className="md:auto-rows-[minmax(180px,1fr)]" />
       </section>
     </div>
   );

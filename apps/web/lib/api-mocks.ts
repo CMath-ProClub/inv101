@@ -87,15 +87,15 @@ const fallbackEntries: MockEntry[] = [
         spotlight: [
           {
             title: "AI copilots accelerate research workflows",
-            source: "Invest101 Desk",
-            url: "https://newsroom.invest101.ai/ai-copilots",
+            source: "Investing101 Desk",
+            url: "https://newsroom.investing101.ai/ai-copilots",
             publishDate: isoDate(2),
             summary: "Analysts lean on copilots to summarize filings, monitor catalysts, and surface alerts in under five minutes.",
           },
           {
             title: "Retail flows rotate into quality megacaps",
-            source: "Invest101 Desk",
-            url: "https://newsroom.invest101.ai/quality-megacaps",
+            source: "Investing101 Desk",
+            url: "https://newsroom.investing101.ai/quality-megacaps",
             publishDate: isoDate(6),
             summary: "ETF and options flow data points to renewed demand for balance-sheet strength amid volatility.",
           },

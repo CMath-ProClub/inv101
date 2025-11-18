@@ -13,10 +13,11 @@ export function SimpleBoard({ title, subtitle, badge, children, className }: Sim
   return (
     <section
       className={cn(
-        "space-y-4 rounded-3xl border border-outline/15 bg-surface-base/60 p-6 shadow-[0_18px_35px_rgba(5,10,25,0.2)]",
+        "relative isolate space-y-4 overflow-hidden rounded-3xl border border-outline/30 bg-surface-card/95 p-6 shadow-[0_25px_55px_rgba(5,10,25,0.22)] backdrop-blur supports-[backdrop-filter]:backdrop-blur",
         className,
       )}
     >
+      <div className="pointer-events-none absolute inset-x-6 top-0 -z-10 h-28 -translate-y-1/2 rounded-3xl bg-gradient-to-r from-accent-secondary/20 via-accent-tertiary/25 to-accent-primary/20 blur-3xl" />
       <header className="space-y-1">
         {badge && (
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">{badge}</p>

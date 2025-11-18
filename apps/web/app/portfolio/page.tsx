@@ -10,7 +10,7 @@ import { StatusBanner } from "../../components/ui/status-banner";
 
 export default function PortfolioPage() {
   return (
-    <div className="space-y-10">
+    <div id="index-comparison" className="space-y-10">
       <header className="space-y-3">
         <Badge variant="soft">Portfolio Intelligence</Badge>
         <h2 className="text-4xl font-semibold text-text-primary">

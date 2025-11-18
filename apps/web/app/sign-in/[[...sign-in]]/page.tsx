@@ -83,7 +83,7 @@ export default function SignInPage() {
             <div className="flex flex-col gap-8">
               <div className="space-y-3 text-left">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-accent-secondary">Account Access</p>
-                <h1 className="text-3xl font-semibold text-text-primary sm:text-[2.1rem]">Welcome back to Invest101</h1>
+                <h1 className="text-3xl font-semibold text-text-primary sm:text-[2.1rem]">Welcome back to Investing101</h1>
                 <p className="text-base text-text-secondary">
                   Sign in with your Clerk account to continue crafting smarter investing habits, sync personalized lessons,
                   and stay aligned with your portfolio roadmap across every device.
@@ -137,7 +137,7 @@ export default function SignInPage() {
 
               <p className="text-xs text-text-muted">
                 Need partner or enterprise access? Contact your account manager or email
-                <span className="mx-1 text-text-secondary">support@invest101.com</span>
+                <span className="mx-1 text-text-secondary">support@investing101.com</span>
                 for concierge onboarding.
               </p>
             </div>
@@ -146,7 +146,7 @@ export default function SignInPage() {
               <SignIn appearance={signInAppearance} signUpUrl="/sign-up" afterSignInUrl="/" redirectUrl="/" />
 
               <p className="text-center text-sm text-text-secondary">
-                New to Invest101?
+                New to Investing101?
                 <Link
                   href={{ pathname: "/sign-up" }}
                   className="ml-2 font-semibold text-accent-primary transition-colors hover:text-accent-secondary"

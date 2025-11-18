@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BackLink } from "../../../components/layout/back-link";
 import { Badge } from "../../../components/ui/badge";
 import {
   Card,
@@ -8,6 +9,8 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { StatusBanner } from "../../../components/ui/status-banner";
+import { K401GrowthCalculatorForm } from "../../../components/calculators/k401-growth-calculator-form";
+import { RetirementReadinessForm } from "../../../components/calculators/retirement-readiness-form";
 
 export const metadata: Metadata = {
   title: "Retirement Calculators",
@@ -15,15 +18,10 @@ export const metadata: Metadata = {
     "Retirement planning calculators migrated from the retire prototype pages.",
 };
 
-const calculators = [
-  "401(k) trajectory planner based on calc-retire-401k.html.",
-  "Savings runway estimator from calc-retire-savings.html.",
-  "General retirement readiness flow referencing calc-retire.html.",
-];
-
 export default function RetirementCalculatorsPage() {
   return (
     <div className="space-y-10">
+      <BackLink href="/calculators" label="Back to calculators" />
       <header className="space-y-3">
         <Badge variant="soft">Calculators • Retire</Badge>
         <h1 className="text-4xl font-semibold text-text-primary">Retirement planning workspace</h1>
@@ -34,22 +32,25 @@ export default function RetirementCalculatorsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Included calculators</CardTitle>
+          <CardTitle>401(k) growth simulator</CardTitle>
           <CardDescription>
-            Reusing layouts from <code>calc-retire*.html</code> prototypes.
+            Replicates <code>calc-retire-401k.html</code> with employer matching math and the “free money” framing.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {calculators.map((entry) => (
-              <li
-                key={entry}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 text-sm text-text-secondary"
-              >
-                {entry}
-              </li>
-            ))}
-          </ul>
+          <K401GrowthCalculatorForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Retirement readiness</CardTitle>
+          <CardDescription>
+            Ported from <code>calc-retire-savings.html</code> to keep the sustainable-income vs. goal guidance.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RetirementReadinessForm />
         </CardContent>
       </Card>
 

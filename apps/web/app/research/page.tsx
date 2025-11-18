@@ -10,14 +10,14 @@ import { StatusBanner } from "../../components/ui/status-banner";
 
 export default function ResearchPage() {
   return (
-    <div className="space-y-10">
+    <div id="recommendations" className="space-y-10">
       <header className="space-y-3">
         <Badge variant="soft">Research Lab</Badge>
         <h2 className="text-4xl font-semibold text-text-primary">
           AI-accelerated filings, transcripts, and scenario testing
         </h2>
         <p className="max-w-3xl text-lg text-text-secondary">
-          The research cockpit links premium transcripts, structured filings, and Invest101 explainers so you can move from questions to conviction in minutes.
+          The research cockpit links premium transcripts, structured filings, and Investing101 explainers so you can move from questions to conviction in minutes.
         </p>
       </header>
 

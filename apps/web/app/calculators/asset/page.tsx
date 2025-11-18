@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BackLink } from "../../../components/layout/back-link";
 import { Badge } from "../../../components/ui/badge";
 import {
   Card,
@@ -8,6 +9,9 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { StatusBanner } from "../../../components/ui/status-banner";
+import { AssetRebalancerForm } from "../../../components/calculators/asset-rebalancer-form";
+import { MptOptimizerForm } from "../../../components/calculators/mpt-optimizer-form";
+import { AssetMixHelper } from "../../../components/calculators/asset-mix-helper";
 
 export const metadata: Metadata = {
   title: "Asset Allocation Calculators",
@@ -15,15 +19,10 @@ export const metadata: Metadata = {
     "Asset allocation and optimization workflows sourced from the asset prototype pages.",
 };
 
-const calculators = [
-  "Modern portfolio theory grid from calc-asset-mpt.html.",
-  "Allocation balancing flows from calc-asset-allocation.html.",
-  "General asset mix helper based on calc-asset.html.",
-];
-
 export default function AssetCalculatorsPage() {
   return (
     <div className="space-y-10">
+      <BackLink href="/calculators" label="Back to calculators" />
       <header className="space-y-3">
         <Badge variant="soft">Calculators • Asset</Badge>
         <h1 className="text-4xl font-semibold text-text-primary">Asset allocation lab</h1>
@@ -34,22 +33,37 @@ export default function AssetCalculatorsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Included calculators</CardTitle>
+          <CardTitle>Asset allocation rebalancer</CardTitle>
           <CardDescription>
-            Built from the <code>calc-asset*.html</code> family.
+            Mirrors <code>calc-asset-allocation.html</code> so you can plug in current values and get exact trade tickets.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {calculators.map((entry) => (
-              <li
-                key={entry}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 text-sm text-text-secondary"
-              >
-                {entry}
-              </li>
-            ))}
-          </ul>
+          <AssetRebalancerForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>MPT optimizer</CardTitle>
+          <CardDescription>
+            Lifted from <code>calc-asset-mpt.html</code> with the same risk toggles and Sharpe readout.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MptOptimizerForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Goal-based asset mix</CardTitle>
+          <CardDescription>
+            Inspired by the general helper in <code>calc-asset.html</code> for quick preset allocations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AssetMixHelper />
         </CardContent>
       </Card>
 

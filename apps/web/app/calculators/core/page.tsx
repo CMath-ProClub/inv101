@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BackLink } from "../../../components/layout/back-link";
 import { Badge } from "../../../components/ui/badge";
 import {
   Card,
@@ -7,7 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
-import { StatusBanner } from "../../../components/ui/status-banner";
+import { CompoundInterestForm } from "../../../components/calculators/compound-interest-form";
+import { RoiCalculatorForm } from "../../../components/calculators/roi-calculator-form";
+import { VolatilityCalculatorForm } from "../../../components/calculators/volatility-calculator-form";
 
 export const metadata: Metadata = {
   title: "Core Calculators",
@@ -15,15 +18,10 @@ export const metadata: Metadata = {
     "Compound interest, ROI, and volatility tools migrated from the calc-core prototype screens.",
 };
 
-const calculators = [
-  "Compound growth panes from calc-core-compound.html.",
-  "Risk/return snapshots ported from calc-core-riskreward.html.",
-  "Volatility explorer referencing calc-core-volatility.html.",
-];
-
 export default function CoreCalculatorsPage() {
   return (
     <div className="space-y-10">
+      <BackLink href="/calculators" label="Back to calculators" />
       <header className="space-y-3">
         <Badge variant="soft">Calculators • Core</Badge>
         <h1 className="text-4xl font-semibold text-text-primary">Core calculator suite</h1>
@@ -34,38 +32,37 @@ export default function CoreCalculatorsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Included tools</CardTitle>
+          <CardTitle>Compound interest</CardTitle>
           <CardDescription>
-            Based on the <code>calc-core*.html</code> prototypes and shared styles.
+            Replicates <code>calc-core-compound.html</code> with support for recurring contributions and multiple compounding cadences.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {calculators.map((entry) => (
-              <li
-                key={entry}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 text-sm text-text-secondary"
-              >
-                {entry}
-              </li>
-            ))}
-          </ul>
+          <CompoundInterestForm />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Migration status</CardTitle>
+          <CardTitle>Return on investment</CardTitle>
           <CardDescription>
-            Inputs and chart scaffolds are staged while we wire API-backed defaults.
+            Lifted from <code>calc-core-roi.html</code> with annualized calculations for longer holding periods.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <StatusBanner
-            status="loading"
-            title="Calculator widgets syncing"
-            description="Prototype layouts load next as soon as the data layer is hydrated."
-          />
+          <RoiCalculatorForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Volatility explorer</CardTitle>
+          <CardDescription>
+            Based on <code>calc-core-volatility.html</code> for quick standard deviation and annualized volatility reads.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <VolatilityCalculatorForm />
         </CardContent>
       </Card>
     </div>

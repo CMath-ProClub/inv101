@@ -2,6 +2,7 @@ export type ThemeOption = {
   id: string;
   label: string;
   hint: string;
+  mode: "light" | "dark";
   swatches: Array<{
     label: string;
     color: string;
@@ -13,6 +14,7 @@ export const themeOptions: ThemeOption[] = [
     id: "light",
     label: "Light",
     hint: "Bright day mode",
+    mode: "light",
     swatches: [
       { label: "Base", color: "#F4F7FB" },
       { label: "Text", color: "#1A1F2D" },
@@ -24,6 +26,7 @@ export const themeOptions: ThemeOption[] = [
     id: "dark",
     label: "Dark",
     hint: "Balanced night view",
+  mode: "dark",
     swatches: [
       { label: "Base", color: "#0A0E18" },
       { label: "Text", color: "#E5ECFF" },
@@ -35,6 +38,7 @@ export const themeOptions: ThemeOption[] = [
     id: "ultradark",
     label: "Ultradark",
     hint: "Neon cyan + lime",
+  mode: "dark",
     swatches: [
       { label: "Base", color: "#000000" },
       { label: "Text", color: "#E0E0E0" },
@@ -46,6 +50,7 @@ export const themeOptions: ThemeOption[] = [
     id: "emerald-trust",
     label: "Emerald Trust",
     hint: "#046307 · #D8C7A1",
+  mode: "light",
     swatches: [
       { label: "Base", color: "#F9FBF7" },
       { label: "Text", color: "#2B2B2B" },
@@ -57,6 +62,7 @@ export const themeOptions: ThemeOption[] = [
     id: "quantum-violet",
     label: "Quantum Violet",
     hint: "#7C3AED · #00BFA6",
+  mode: "dark",
     swatches: [
       { label: "Base", color: "#0E0E10" },
       { label: "Text", color: "#E5E5E5" },
@@ -68,6 +74,7 @@ export const themeOptions: ThemeOption[] = [
     id: "copper-balance",
     label: "Copper Balance",
     hint: "#B87333 · #4E3B2C",
+  mode: "light",
     swatches: [
       { label: "Base", color: "#FAF4EC" },
       { label: "Text", color: "#2D2D2D" },
@@ -79,6 +86,7 @@ export const themeOptions: ThemeOption[] = [
     id: "regal-portfolio",
     label: "Regal Portfolio",
     hint: "#2B0082 · #D4AF37",
+  mode: "light",
     swatches: [
       { label: "Base", color: "#FDF9F3" },
       { label: "Text", color: "#1A1A1A" },
@@ -90,6 +98,7 @@ export const themeOptions: ThemeOption[] = [
     id: "carbon-edge",
     label: "Carbon Edge",
     hint: "#00FF7F · #3A3A3A",
+  mode: "dark",
     swatches: [
       { label: "Base", color: "#0A0A0A" },
       { label: "Text", color: "#FFFFFF" },

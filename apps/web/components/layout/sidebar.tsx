@@ -4,24 +4,56 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { useEffect, useState } from "react";
+import {
+  Calculator,
+  GraduationCap,
+  LayoutDashboard,
+  LucideIcon,
+  Trophy,
+  UserCircle2,
+} from "lucide-react";
 import { cn } from "../../lib/utils";
+import { readSidebarPreference, SIDEBAR_EVENT, type SidebarEventDetail } from "./sidebar-state";
 
 type SimpleNavItem = {
   href: Route;
-  letter: "A" | "B" | "C" | "D" | "E";
   title: string;
   description: string;
+  icon: LucideIcon;
 };
 
 const navItems: SimpleNavItem[] = [
-  { href: "/" as Route, letter: "A", title: "Main", description: "Analysis" },
-  { href: "/playground" as Route, letter: "B", title: "Playground", description: "Sims" },
-  { href: "/lessons" as Route, letter: "C", title: "Education", description: "Lessons" },
-  { href: "/calculators" as Route, letter: "D", title: "Calculators", description: "Tools" },
-  { href: "/profile" as Route, letter: "E", title: "Profile", description: "Workspace" },
+  {
+    href: "/" as Route,
+    title: "Analysis",
+    description: "Command desk",
+    icon: LayoutDashboard,
+  },
+  {
+    href: "/playground" as Route,
+    title: "Playground",
+    description: "Simulators",
+    icon: Trophy,
+  },
+  {
+    href: "/lessons" as Route,
+    title: "Education",
+    description: "Lessons",
+    icon: GraduationCap,
+  },
+  {
+    href: "/calculators" as Route,
+    title: "Calculators",
+    description: "Tools",
+    icon: Calculator,
+  },
+  {
+    href: "/profile" as Route,
+    title: "Profile",
+    description: "Workspace",
+    icon: UserCircle2,
+  },
 ];
-
-const storageKey = "invest101:sidebar-collapsed";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -29,99 +61,72 @@ export function Sidebar() {
   const isAuthRoute = pathname?.startsWith("/sign-in") || pathname?.startsWith("/sign-up");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem(storageKey);
-    if (stored) {
-      setCollapsed(stored === "true");
-    }
+    setCollapsed(readSidebarPreference(false));
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(storageKey, String(collapsed));
-  }, [collapsed]);
+    const handleState = (event: Event) => {
+      const detail = (event as CustomEvent<SidebarEventDetail>).detail;
+      if (typeof detail?.collapsed === "boolean") {
+        setCollapsed(detail.collapsed);
+      }
+    };
+
+    window.addEventListener(SIDEBAR_EVENT, handleState as EventListener);
+    return () => window.removeEventListener(SIDEBAR_EVENT, handleState as EventListener);
+  }, []);
 
   if (isAuthRoute) {
     return null;
   }
 
-  const TAB_WIDTH_REM = 2.75;
-  const EXPANDED_WIDTH_REM = 14;
-  const panelBackground = collapsed
-    ? "rgb(var(--surface-base) / 0.9)"
-    : "rgb(var(--surface-card) / 0.9)";
+  const EXPANDED_WIDTH_REM = 15;
+  const computedWidth = collapsed ? "0rem" : `${EXPANDED_WIDTH_REM}rem`;
 
   return (
-    <aside
-      className="sticky top-0 z-30 hidden h-screen shrink-0 border-r border-outline/15 bg-surface-card/80 px-3 pt-[var(--header-height)] transition-[width] duration-200 lg:flex"
-      style={{ width: `${collapsed ? TAB_WIDTH_REM : EXPANDED_WIDTH_REM}rem` }}
-      aria-label="Primary navigation"
-    >
-      <div
+    <>
+      <aside
         className={cn(
-          "flex w-[11rem] flex-1 flex-col gap-6",
-          collapsed && "items-center"
+          "sticky top-0 z-30 hidden h-screen shrink-0 border-r border-outline/20 bg-surface-elevated/95 pt-[var(--header-height)] shadow-[8px_0_35px_rgba(5,10,25,0.25)] transition-all duration-300 lg:flex",
+          collapsed && "pointer-events-none opacity-0",
         )}
-        style={{ background: panelBackground }}
+        style={{ width: computedWidth }}
+        aria-label="Primary navigation"
+        aria-hidden={collapsed}
       >
-        <button
-          type="button"
-          onClick={() => setCollapsed((value) => !value)}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-pressed={collapsed}
-          className="mt-4 inline-flex h-8 w-12 items-center justify-center rounded-md border border-outline/30 text-sm font-semibold text-text-secondary transition hover:text-text-primary"
-        >
-          []
-        </button>
-        <nav className="flex-1 space-y-2">
-          {navItems.map((item) => {
-            const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
-            const content = (
-              <>
-                <span
+        <div className="flex w-full flex-1 flex-col gap-5 overflow-hidden px-4">
+          <nav className="flex-1 space-y-3 pt-6">
+            {navItems.map((item) => {
+              const active = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-xl border text-base font-bold",
-                    active
-                      ? "border-accent-primary text-accent-primary"
-                      : "border-outline/40 text-text-secondary",
+                    "group flex items-center gap-3 rounded-3xl border border-outline/30 bg-surface-card/85 px-3 py-3 text-sm font-semibold text-text-secondary shadow-sm transition hover:-translate-y-0.5 hover:border-accent-primary/30 hover:text-text-primary",
+                    active && "border-accent-primary/60 bg-[radial-gradient(circle_at_top_left,rgba(var(--accent-primary),0.18),rgba(var(--surface-card),0.92))] text-text-primary",
                   )}
+                  aria-current={active ? "page" : undefined}
                 >
-                  {item.letter}
-                </span>
-                {!collapsed && (
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[radial-gradient(circle_at_top,rgba(var(--accent-secondary),0.22),rgba(var(--surface-card),0.85))] text-accent-primary shadow-inner">
+                    <item.icon className="h-6 w-6" aria-hidden="true" />
+                  </span>
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-semibold text-text-primary">{item.title}</span>
-                    <span className="text-xs uppercase tracking-[0.35em] text-text-muted">
+                    <span className="text-xs uppercase tracking-[0.4em] text-text-muted">
                       {item.description}
                     </span>
                   </div>
-                )}
-              </>
-            );
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl border border-outline/20 px-3 py-3 text-sm font-semibold shadow-sm transition hover:border-accent-primary/50",
-                  active && "border-accent-primary/70 bg-accent-primary/5",
-                  collapsed && "justify-center"
-                )}
-                aria-current={active ? "page" : undefined}
-                title={collapsed ? `${item.letter} · ${item.title}` : undefined}
-              >
-                {content}
-              </Link>
-            );
-          })}
-        </nav>
-        {!collapsed && (
-          <p className="pb-6 text-center text-[10px] text-text-muted">
-            A · B · C · D · E mirrors the provided prototype map for instant recall.
-          </p>
-        )}
-      </div>
-    </aside>
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="mb-6 rounded-3xl border border-dashed border-outline/30 bg-surface-card/80 p-4 text-center text-[10px] font-semibold uppercase tracking-[0.35em] text-text-muted">
+            Investing101 · Unified Workspace
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

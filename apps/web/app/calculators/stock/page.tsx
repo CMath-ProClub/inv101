@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BackLink } from "../../../components/layout/back-link";
 import { Badge } from "../../../components/ui/badge";
 import {
   Card,
@@ -8,6 +9,9 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { StatusBanner } from "../../../components/ui/status-banner";
+import { IntrinsicValueCalculatorForm } from "../../../components/calculators/intrinsic-value-calculator-form";
+import { DividendYieldCalculatorForm } from "../../../components/calculators/dividend-yield-calculator-form";
+import { PeRatioCalculatorForm } from "../../../components/calculators/pe-ratio-calculator-form";
 
 export const metadata: Metadata = {
   title: "Stock Calculators",
@@ -15,15 +19,10 @@ export const metadata: Metadata = {
     "Equity valuation, dividend, and intrinsic value calculators based on the stock prototype screens.",
 };
 
-const calculators = [
-  "Dividend yield tracker from calc-stock-divyield.html.",
-  "Intrinsic value calculator based on calc-stock-intrinsic.html.",
-  "P/E scenario builder referencing calc-stock-pe.html.",
-];
-
 export default function StockCalculatorsPage() {
   return (
     <div className="space-y-10">
+      <BackLink href="/calculators" label="Back to calculators" />
       <header className="space-y-3">
         <Badge variant="soft">Calculators • Stock</Badge>
         <h1 className="text-4xl font-semibold text-text-primary">Equity valuation helpers</h1>
@@ -34,22 +33,37 @@ export default function StockCalculatorsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Included calculators</CardTitle>
+          <CardTitle>Dividend yield tracker</CardTitle>
           <CardDescription>
-            Pulled directly from <code>calc-stock*.html</code> resources.
+            Ported from <code>calc-stock-divyield.html</code> with the same helper copy and yield bands.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {calculators.map((entry) => (
-              <li
-                key={entry}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 text-sm text-text-secondary"
-              >
-                {entry}
-              </li>
-            ))}
-          </ul>
+          <DividendYieldCalculatorForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Intrinsic value (DCF)</CardTitle>
+          <CardDescription>
+            Mirrors <code>calc-stock-intrinsic.html</code> including the advanced cash/debt controls.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <IntrinsicValueCalculatorForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>P/E and PEG scenarios</CardTitle>
+          <CardDescription>
+            Based on <code>calc-stock-pe.html</code> to keep heuristics identical to the prototype.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PeRatioCalculatorForm />
         </CardContent>
       </Card>
 

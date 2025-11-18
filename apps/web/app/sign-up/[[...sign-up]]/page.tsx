@@ -10,7 +10,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-lg space-y-5 rounded-3xl border border-outline/15 bg-surface-muted/60 p-6 shadow-card backdrop-blur-sm sm:p-8">
         <div className="space-y-2 text-center">
           <p className="text-[11px] uppercase tracking-[0.32em] text-accent-secondary">Create Account</p>
-          <h1 className="text-3xl font-semibold text-text-primary sm:text-[2.1rem]">Join the Invest101 workspace</h1>
+          <h1 className="text-3xl font-semibold text-text-primary sm:text-[2.1rem]">Join the Investing101 workspace</h1>
           <p className="text-sm text-text-secondary">
             Start fresh with guided onboarding, personalized dashboards, and synced simulator progress.
           </p>

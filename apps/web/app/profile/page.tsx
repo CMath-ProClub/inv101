@@ -1,9 +1,6 @@
 import { Metadata } from "next";
 import type { Route } from "next";
-import Link from "next/link";
-import type { ComponentType } from "react";
 import {
-  ArrowUpRight,
   CreditCard,
   Handshake,
   LayoutDashboard,
@@ -12,15 +9,7 @@ import {
   Trophy,
   UserCheck,
 } from "lucide-react";
-import { Badge } from "../../components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import { leagueTiers } from "../../lib/league-tiers";
+import { WorkspaceGrid, type WorkspaceNavItem } from "../../components/layout/workspace-grid";
 
 export const metadata: Metadata = {
   title: "Profile",
@@ -28,137 +17,88 @@ export const metadata: Metadata = {
     "Profile, friends, activity, newsletter, and subscription hubs migrated from the prototype workspace.",
 };
 
-type ProfileLink = {
-  title: string;
-  description: string;
-  href: Route;
-  tag: string;
-  icon: ComponentType<{ className?: string }>;
-};
-
-const links: ProfileLink[] = [
+const profileShortcuts: WorkspaceNavItem[] = [
   {
-    title: "Profile overview",
-    description: "Profile-main-enhanced.html features (avatar upload, ID card, stats).",
+    title: "Overview",
+    helper: "Identity",
+    description: "Snapshot of your level, XP, and account metadata.",
     href: "/profile/overview" as Route,
-    tag: "Identity",
     icon: UserCheck,
+    accent: "bg-gradient-to-br from-emerald-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
-    title: "Friends & social",
-    description: "Search, requests, and status indicators from friends-enhanced.html.",
+    title: "Friends",
+    helper: "Community",
+    description: "Connections, invites, and accountability partners.",
     href: "/profile/friends" as Route,
-    tag: "Community",
     icon: Handshake,
+    accent: "bg-gradient-to-br from-sky-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
-    title: "Activity feed",
-    description: "Activity-feed prototype stream for XP, badges, and community updates.",
+    title: "Activity",
+    helper: "Feed",
+    description: "Recent streaks, simulator logs, and calculator runs.",
     href: "/profile/activity" as Route,
-    tag: "Feed",
     icon: LayoutDashboard,
-  },
-  {
-    title: "Achievements",
-    description: "Badges and XP ledger unified with the playground achievements hub.",
-    href: "/playground/achievements" as Route,
-    tag: "Progress",
-    icon: Trophy,
+    accent: "bg-gradient-to-br from-amber-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
     title: "Newsletter",
-    description: "Newsletter.html flow for preferences and content previews.",
+    helper: "Preferences",
+    description: "Market pulse emails and digests settings.",
     href: "/profile/newsletter" as Route,
-    tag: "Communications",
     icon: Newspaper,
+    accent: "bg-gradient-to-br from-fuchsia-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
     title: "Subscription",
-    description: "Subscription prototype copy ported to production for billing and plan upgrades.",
+    helper: "Billing",
+    description: "Plan details, invoices, and upgrade paths.",
     href: "/profile/subscription" as Route,
-    tag: "Billing",
     icon: CreditCard,
+    accent: "bg-gradient-to-br from-purple-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
   },
   {
     title: "Settings",
-    description: "Theme and workspace preferences already live in Settings.",
-    href: "/settings" as Route,
-    tag: "Workspace",
+    helper: "Workspace",
+    description: "Theme, guardrails, and notification controls.",
+    href: "/profile/settings" as Route,
     icon: Settings,
+    accent: "bg-gradient-to-br from-slate-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-3",
+  },
+  {
+    title: "Achievements",
+    helper: "XP",
+    description: "Badges and league ladder inside the playground.",
+    href: "/playground/achievements" as Route,
+    icon: Trophy,
+    accent: "bg-gradient-to-br from-rose-500/20 via-transparent to-surface-card/95",
+    span: "md:col-span-6",
   },
 ];
 
 export default function ProfilePage() {
   return (
-    <div className="space-y-10">
-      <header className="space-y-3">
-        <Badge variant="soft">Workspace</Badge>
-        <h1 className="text-4xl font-semibold text-text-primary">Profile & community hub</h1>
-        <p className="max-w-3xl text-lg text-text-secondary">
-          Every card routes to the production implementation that mirrors formatting, copy, and flows from the prototype profile system.
-        </p>
-      </header>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        {links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <Card
-              key={link.title}
-              className="group border-outline/20 bg-surface-muted/60 transition hover:border-accent-primary/60 hover:bg-surface-card/80"
-            >
-              <CardHeader className="flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent-secondary">
-                      {link.tag}
-                    </p>
-                    <CardTitle>{link.title}</CardTitle>
-                    <CardDescription>{link.description}</CardDescription>
-                  </div>
-                  <Icon className="h-10 w-10 text-accent-primary" aria-hidden="true" />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Link
-                  href={link.href}
-                  aria-label={`Open ${link.title}`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-accent-primary transition hover:gap-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-primary"
-                >
-                  Open section
-                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </section>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>League ladder overview</CardTitle>
-          <CardDescription>
-            The same Bullish Bronze → Wall Street Official tiers shown in Achievements so community + profile views stay in sync.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 lg:grid-cols-2">
-            {leagueTiers.map((tier) => (
-              <div
-                key={tier.name}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-accent-secondary">{tier.name}</p>
-                <p className="mt-1 text-sm font-semibold text-text-primary">{tier.xpRange}</p>
-                <p className="mt-2 text-sm text-text-secondary">{tier.highlights}</p>
-                <div className="mt-3 rounded-xl border border-dashed border-outline/30 bg-surface-base/60 p-3 text-xs text-text-secondary">
-                  {tier.movement}
-                </div>
-              </div>
-            ))}
+    <div id="politician-tracker" className="space-y-8">
+      <section className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">Profile</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-semibold text-text-primary">Workspace & identity</h1>
+            <p className="text-sm text-text-secondary">
+              Prioritize the essentials—overview, community, billing, and achievements each get their own tile.
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <span className="text-xs font-semibold uppercase tracking-[0.35em] text-text-muted">5–7 shortcuts</span>
+        </div>
+        <WorkspaceGrid items={profileShortcuts} className="md:auto-rows-[minmax(160px,1fr)]" />
+      </section>
     </div>
   );
 }

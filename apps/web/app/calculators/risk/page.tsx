@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { BackLink } from "../../../components/layout/back-link";
 import { Badge } from "../../../components/ui/badge";
 import {
   Card,
@@ -7,7 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
-import { StatusBanner } from "../../../components/ui/status-banner";
+import { KellyCalculatorForm } from "../../../components/calculators/kelly-calculator-form";
+import { PositionSizingForm } from "../../../components/calculators/position-sizing-form";
+import { VarCalculatorForm } from "../../../components/calculators/var-calculator-form";
 
 export const metadata: Metadata = {
   title: "Risk Calculators",
@@ -15,15 +18,10 @@ export const metadata: Metadata = {
     "Kelly, VAR, and position sizing calculators carried over from the risk prototype set.",
 };
 
-const calculators = [
-  "Kelly criterion flow from calc-risk-kelly.html.",
-  "Position sizing helpers drawn from calc-risk-position.html.",
-  "Value at risk explorer mirroring calc-risk-var.html formatting.",
-];
-
 export default function RiskCalculatorsPage() {
   return (
     <div className="space-y-10">
+      <BackLink href="/calculators" label="Back to calculators" />
       <header className="space-y-3">
         <Badge variant="soft">Calculators • Risk</Badge>
         <h1 className="text-4xl font-semibold text-text-primary">Risk management toolkit</h1>
@@ -34,38 +32,37 @@ export default function RiskCalculatorsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Included calculators</CardTitle>
+          <CardTitle>Kelly criterion</CardTitle>
           <CardDescription>
-            Migrated from <code>calc-risk*.html</code> and related scripts.
+            Live port of <code>calc-risk-kelly.html</code> with fractional sizing controls and bankroll-aware outputs.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {calculators.map((entry) => (
-              <li
-                key={entry}
-                className="rounded-2xl border border-outline/20 bg-surface-muted/60 p-4 text-sm text-text-secondary"
-              >
-                {entry}
-              </li>
-            ))}
-          </ul>
+          <KellyCalculatorForm />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Implementation status</CardTitle>
+          <CardTitle>Position sizing</CardTitle>
           <CardDescription>
-            Hooking into shared volatility data and Clerk preferences.
+            Mirrors <code>calc-risk-position.html</code> so percent-risk workflows feel identical to the prototype.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <StatusBanner
-            status="loading"
-            title="Risk calculators queueing"
-            description="We&apos;ll flip the switch once live market feeds and simulations are wired."
-          />
+          <PositionSizingForm />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Portfolio VaR</CardTitle>
+          <CardDescription>
+            Based on <code>calc-risk-var.html</code> for day, week, month, or year risk reads at common confidence levels.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <VarCalculatorForm />
         </CardContent>
       </Card>
     </div>
